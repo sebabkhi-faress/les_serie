@@ -115,7 +115,7 @@ async function protectExistingPdf(pdfBuffer, options = {}) {
         });
 
         // Line 1: Title badge
-        newPage.drawText("EXEMPLAIRE SECURISE & TRACABLE", {
+        newPage.drawText("", {
             x: marginX + 8,
             y: bannerY + bannerHeight - 9,
             size: 6.8,
