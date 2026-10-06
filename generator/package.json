@@ -1,0 +1,21 @@
+{
+  "name": "antigravity-qcm-studio",
+  "version": "1.0.0",
+  "description": "Studio Web IA pour la création et mise en page automatique de séries de QCMs médicaux (Résidanat & Internat)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "qcm",
+    "gemini",
+    "medical",
+    "residanat",
+    "pdf"
+  ],
+  "author": "Antigravity",
+  "license": "ISC",
+  "dependencies": {
+    "pdf-lib": "^1.17.1"
+  }
+}

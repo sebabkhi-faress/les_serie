@@ -1,0 +1,23 @@
+{
+  "name": "les-serie-qcm-studio",
+  "version": "1.0.0",
+  "description": "Studio Web IA pour la création et mise en page automatique de séries de QCMs médicaux avec protection anti-copie",
+  "main": "generator/server.js",
+  "scripts": {
+    "start": "node generator/server.js",
+    "dev": "node generator/server.js"
+  },
+  "keywords": [
+    "qcm",
+    "gemini",
+    "medical",
+    "residanat",
+    "pdf",
+    "protection"
+  ],
+  "author": "sebabkhi-faress",
+  "license": "ISC",
+  "dependencies": {
+    "pdf-lib": "^1.17.1"
+  }
+}

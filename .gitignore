@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Secrets & Environment variables (DO NOT COMMIT)
+env.txt
+.env
+.env.local
+.env.production
+.env.development
+
+# Temporary files & logs
+*.log
+temp_*
+temp_print_*
+chrome_pdf_*
+test_*.js
+check_*.js
+scratch/
+
+# OS files
+Thumbs.db
+.DS_Store
