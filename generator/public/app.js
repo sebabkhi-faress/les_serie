@@ -104,20 +104,32 @@ function setTheme(theme) {
 // ---------------------------------------------------------
 function restoreSavedState() {
     try {
+        let activeFile = null;
+        try {
+            activeFile = localStorage.getItem('active_qcm_file');
+        } catch (e) {}
+        if (activeFile) {
+            state.filename = activeFile;
+        }
+
         const cached = localStorage.getItem('qcm_series_data');
         if (cached) {
             const parsed = JSON.parse(cached);
-            if (parsed.questions && parsed.questions.length > 0) {
+            if (parsed) {
                 state.title = parsed.title || state.title;
                 state.subtitle = parsed.subtitle || state.subtitle;
                 state.startPage = parsed.startPage || state.startPage;
-                state.filename = parsed.filename || state.filename;
-                state.questions = parsed.questions || [];
+                if (!activeFile && parsed.filename) {
+                    state.filename = parsed.filename;
+                }
+                if (parsed.questions && parsed.questions.length > 0) {
+                    state.questions = parsed.questions;
+                }
 
-                document.getElementById('metaTitle').value = state.title;
-                document.getElementById('metaSubtitle').value = state.subtitle;
-                document.getElementById('metaStartPage').value = state.startPage;
-                document.getElementById('metaFilename').value = state.filename;
+                if (document.getElementById('metaTitle')) document.getElementById('metaTitle').value = state.title;
+                if (document.getElementById('metaSubtitle')) document.getElementById('metaSubtitle').value = state.subtitle;
+                if (document.getElementById('metaStartPage')) document.getElementById('metaStartPage').value = state.startPage;
+                if (document.getElementById('metaFilename')) document.getElementById('metaFilename').value = state.filename;
             }
         }
     } catch (e) {
@@ -128,6 +140,7 @@ function restoreSavedState() {
 function triggerAutoSave() {
     // 1. Save to localStorage immediately
     try {
+        if (state.filename) localStorage.setItem('active_qcm_file', state.filename);
         localStorage.setItem('qcm_series_data', JSON.stringify({
             title: state.title,
             subtitle: state.subtitle,
@@ -143,14 +156,26 @@ function triggerAutoSave() {
 
     autoSaveTimer = setTimeout(async () => {
         try {
-            const res = await fetch('/api/save-series', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    filename: state.filename,
-                    seriesData: state
-                })
-            });
+            let res;
+            if (state.filename && state.activeFileContent) {
+                res = await fetch('/api/files/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        filename: state.filename,
+                        content: state.activeFileContent
+                    })
+                });
+            } else {
+                res = await fetch('/api/save-series', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        filename: state.filename,
+                        seriesData: state
+                    })
+                });
+            }
             const data = await res.json();
             if (data.ok) {
                 autoSaveText.textContent = `Auto-sauvegardé (${data.savedAt || new Date().toLocaleTimeString('fr-FR')})`;
@@ -785,6 +810,21 @@ window.reprintProtectedRecord = async function (id) {
 // TAB NAVIGATION
 // ---------------------------------------------------------
 function initTabs() {
+    // Restore remembered sidebar tab across page refresh
+    try {
+        const savedSidebarTab = localStorage.getItem('active_sidebar_tab');
+        if (savedSidebarTab) {
+            const targetBtn = document.querySelector(`.tab-btn[data-tab="${savedSidebarTab}"]`);
+            const targetPane = document.getElementById(savedSidebarTab);
+            if (targetBtn && targetPane) {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+                targetBtn.classList.add('active');
+                targetPane.classList.add('active');
+            }
+        }
+    } catch (e) {}
+
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const targetId = btn.getAttribute('data-tab');
@@ -794,6 +834,10 @@ function initTabs() {
             btn.classList.add('active');
             const targetPane = document.getElementById(targetId);
             if (targetPane) targetPane.classList.add('active');
+
+            try {
+                localStorage.setItem('active_sidebar_tab', targetId);
+            } catch (e) {}
 
             if (targetId === 'tab-credits') {
                 refreshUsageCredits();
@@ -1301,15 +1345,194 @@ function renderQuestionsList() {
     });
 }
 
-function deleteQuestion(idx) {
-    if (confirm(`Supprimer la question ${state.questions[idx]?.number || (idx + 1)} ?`)) {
+async function deleteQuestion(idx) {
+    if (!state.questions || !state.questions[idx]) return;
+    const q = state.questions[idx];
+    const qLabel = q.number ? `Question ${q.number}` : `Question ${idx + 1}`;
+
+    if (!confirm(`Supprimer la question ${q.number || (idx + 1)} ?`)) return;
+
+    setLoading(true);
+    showToast(`Suppression de ${qLabel}...`, "info");
+
+    try {
+        // If activeFileContent isn't loaded in memory yet, fetch it from server
+        if (!state.activeFileContent && state.filename) {
+            try {
+                const readRes = await fetch(`/api/files/read?file=${encodeURIComponent(state.filename)}`);
+                const readData = await readRes.json();
+                if (readData.ok && readData.content) {
+                    state.activeFileContent = readData.content;
+                }
+            } catch (e) {}
+        }
+
+        // 1. If we have active HTML content (Hemato.html, CARDIO2.html, etc.)
+        if (state.activeFileContent) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(state.activeFileContent, 'text/html');
+            const boxes = Array.from(doc.querySelectorAll('.question-box'));
+
+            let targetBox = null;
+
+            // 1a. Match by exact question number + stem text (highest accuracy)
+            if (q.number && q.stem) {
+                const cleanStem = q.stem.replace(/[^a-zA-Z0-9\u00C0-\u017F]/g, '').toLowerCase().slice(0, 30);
+                targetBox = boxes.find(b => {
+                    const numEl = b.querySelector('.q-num');
+                    let numMatch = false;
+                    if (numEl) {
+                        const m = numEl.textContent.match(/(\d+)/);
+                        if (m && parseInt(m[1], 10) === parseInt(q.number, 10)) numMatch = true;
+                    }
+                    if (!numMatch) {
+                        const stemEl = b.querySelector('.q-stem');
+                        if (stemEl) {
+                            const m = stemEl.textContent.match(/Question\s*(\d+)/i) || stemEl.textContent.match(/(\d+)\s*\)/);
+                            if (m && parseInt(m[1], 10) === parseInt(q.number, 10)) numMatch = true;
+                        }
+                    }
+                    if (numMatch && cleanStem.length > 5) {
+                        const bText = b.textContent.replace(/[^a-zA-Z0-9\u00C0-\u017F]/g, '').toLowerCase();
+                        if (bText.includes(cleanStem)) return true;
+                    }
+                    return false;
+                });
+            }
+
+            // 1b. Match by Question Number alone
+            if (!targetBox && q.number) {
+                targetBox = boxes.find(b => {
+                    const numEl = b.querySelector('.q-num');
+                    if (numEl) {
+                        const m = numEl.textContent.match(/(\d+)/);
+                        if (m && parseInt(m[1], 10) === parseInt(q.number, 10)) return true;
+                    }
+                    const stemEl = b.querySelector('.q-stem');
+                    if (stemEl) {
+                        const m = stemEl.textContent.match(/Question\s*(\d+)/i) || stemEl.textContent.match(/(\d+)\s*\)/);
+                        if (m && parseInt(m[1], 10) === parseInt(q.number, 10)) return true;
+                    }
+                    return false;
+                });
+            }
+
+            // 1c. Match by Question Stem text
+            if (!targetBox && q.stem) {
+                const cleanStem = q.stem.replace(/[^a-zA-Z0-9\u00C0-\u017F]/g, '').toLowerCase().slice(0, 30);
+                if (cleanStem.length > 5) {
+                    targetBox = boxes.find(b => {
+                        const bText = b.textContent.replace(/[^a-zA-Z0-9\u00C0-\u017F]/g, '').toLowerCase();
+                        return bText.includes(cleanStem);
+                    });
+                }
+            }
+
+            // 1d. Fallback: match by index
+            if (!targetBox && boxes[idx]) {
+                targetBox = boxes[idx];
+            }
+
+            if (targetBox) {
+                // Remove preceding comments (e.g. <!-- QUESTION X -->) and trailing whitespace
+                let prev = targetBox.previousSibling;
+                while (prev && (
+                    (prev.nodeType === Node.TEXT_NODE && !prev.textContent.trim()) ||
+                    prev.nodeType === Node.COMMENT_NODE
+                )) {
+                    const toRemove = prev;
+                    prev = prev.previousSibling;
+                    toRemove.remove();
+                }
+
+                // Remove trailing whitespace text node
+                let next = targetBox.nextSibling;
+                if (next && next.nodeType === Node.TEXT_NODE && !next.textContent.trim()) {
+                    next.remove();
+                }
+
+                // Remove the entire question-box from the DOM tree
+                targetBox.remove();
+
+                // Update count badges inside document header if present (e.g. .pill-green)
+                const remainingBoxes = doc.querySelectorAll('.question-box');
+                doc.querySelectorAll('.pill-green').forEach(pill => {
+                    pill.textContent = `${remainingBoxes.length} Questions`;
+                });
+
+                // Re-serialize HTML cleanly with doctype
+                state.activeFileContent = '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
+            }
+        }
+
+        // 2. Remove from state.questions array
         state.questions.splice(idx, 1);
-        updatePreview();
+
+        // 3. Immediately refresh iframe preview and code view
+        if (state.activeFileContent) {
+            setIframeContent(state.activeFileContent);
+            if (codeContainer) codeContainer.textContent = state.activeFileContent;
+        } else {
+            await updatePreview();
+        }
+
+        // 4. Update sidebar list and UI counters
         renderQuestionsList();
-        triggerAutoSave();
-        showToast("Question supprimée et série auto-sauvegardée.", "info");
+        const totalQ = state.questions.length;
+        if (previewQCount) previewQCount.textContent = `${totalQ} Questions`;
+        if (tabQCount) tabQCount.textContent = totalQ;
+
+        // 5. Update local storage cache
+        try {
+            if (state.filename) localStorage.setItem('active_qcm_file', state.filename);
+            localStorage.setItem('qcm_series_data', JSON.stringify({
+                title: state.title,
+                subtitle: state.subtitle,
+                startPage: state.startPage,
+                filename: state.filename,
+                questions: state.questions
+            }));
+        } catch (e) { }
+
+        // 6. Save directly and permanently to disk (.html)
+        if (state.filename && state.activeFileContent) {
+            const saveRes = await fetch('/api/files/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    filename: state.filename,
+                    content: state.activeFileContent
+                })
+            });
+            const saveData = await saveRes.json();
+            setLoading(false);
+            if (saveData.ok) {
+                if (autoSaveText) autoSaveText.textContent = `Sauvegardé (${saveData.savedAt || new Date().toLocaleTimeString('fr-FR')})`;
+                showToast(`🗑️ ${qLabel} supprimée définitivement !`, "success");
+            } else {
+                showToast(`Supprimée localement (Erreur sauvegarde : ${saveData.error})`, "error");
+            }
+        } else {
+            const saveRes = await fetch('/api/save-series', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    filename: state.filename,
+                    seriesData: state
+                })
+            });
+            const saveData = await saveRes.json();
+            setLoading(false);
+            if (saveData.ok) {
+                showToast(`🗑️ ${qLabel} supprimée et sauvegardée !`, "success");
+            }
+        }
+    } catch (err) {
+        setLoading(false);
+        showToast(`Erreur lors de la suppression : ${err.message}`, "error");
     }
 }
+window.deleteQuestion = deleteQuestion;
 
 // ---------------------------------------------------------
 // PREVIEW & HTML COMPILE (WITH AUTO-EXPANDING SCROLL)
@@ -1865,8 +2088,15 @@ async function loadFileTabs() {
         if (data.ok && Array.isArray(data.files)) {
             state.openFiles = data.files;
 
-            // Default to serie1.html if present
-            if (!state.openFiles.some(f => f.name === state.filename)) {
+            // Restore remembered active tab from localStorage across page refresh
+            let remembered = null;
+            try {
+                remembered = localStorage.getItem('active_qcm_file');
+            } catch (e) {}
+
+            if (remembered && state.openFiles.some(f => f.name === remembered)) {
+                state.filename = remembered;
+            } else if (!state.openFiles.some(f => f.name === state.filename)) {
                 const preferred = state.openFiles.find(f => f.name === 'serie1.html') || state.openFiles[0];
                 if (preferred) {
                     state.filename = preferred.name;
@@ -1902,6 +2132,9 @@ function renderFileTabs() {
 
 window.switchToFileTab = async function (filename, shouldNotify = true) {
     state.filename = filename;
+    try {
+        localStorage.setItem('active_qcm_file', filename);
+    } catch (e) {}
     renderFileTabs();
 
     const activeFileNameText = document.getElementById('activeFileNameText');

@@ -613,7 +613,10 @@ ${rawText}
                     
                     const safeName = path.basename(filename);
                     const destPath = path.join(WORKSPACE_DIR, safeName);
-                    const htmlContent = buildCompleteHtml(seriesData || data);
+                    let htmlContent = (data.content || data.html || (seriesData && seriesData.activeFileContent));
+                    if (!htmlContent) {
+                        htmlContent = buildCompleteHtml(seriesData || data);
+                    }
 
                     fs.writeFileSync(destPath, htmlContent, 'utf-8');
                     try { fs.writeFileSync(path.join(FILES_DIR, safeName), htmlContent, 'utf-8'); } catch(e) {}

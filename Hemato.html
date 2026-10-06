@@ -1,0 +1,2376 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MODULE 01: ONCO_HEMATOLOGIE — QCM Corrigés &amp; Justifiés</title>
+    <style>
+        /* ================= PAGE & IMPRESSION A4 OPTIMISÉE ================= */
+        @page {
+            size: A4 portrait;
+            margin: 7mm 8mm 11mm 8mm;
+            counter-increment: page;
+
+            @bottom-center {
+                content: "Page " counter(page);
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                font-size: 8.5pt;
+                font-weight: 600;
+                color: #475569;
+            }
+        }
+
+        @page: first {
+            counter-set: page 4;
+
+            @bottom-left {
+                content: "MODULE 01: ONCO_HEMATOLOGIE • QCM D&#39;ANNALES";
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                font-size: 7.5pt;
+                font-weight: 600;
+                color: #94a3b8;
+                letter-spacing: 0.3px;
+            }
+
+            @bottom-right {
+                content: "RÉSIDANAT &amp; INTERNAT EN MÉDECINE";
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                font-size: 7.5pt;
+                font-weight: 600;
+                color: #94a3b8;
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: #1e293b;
+            background-color: #f1f5f9;
+            margin: 0;
+            padding: 0;
+            font-size: 9.6pt;
+            line-height: 1.27;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ================= BARRE D'OUTILS INTERACTIVE (ÉCRAN) ================= */
+        .screen-toolbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #cbd5e1;
+            padding: 8px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+        }
+
+        .toolbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-icon {
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        .brand-text {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .toolbar-tags {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .pill {
+            padding: 3px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+            border: 1px solid transparent;
+        }
+
+        .pill-blue {
+            background: #e0f2fe;
+            color: #0369a1;
+            border-color: #bae6fd;
+        }
+
+        .pill-green {
+            background: #ecfdf5;
+            color: #047857;
+            border-color: #a7f3d0;
+        }
+
+        .pill-protected {
+            background: #fef3c7;
+            color: #b45309;
+            border-color: #fde68a;
+            font-weight: 700;
+        }
+
+        .toolbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border: 1px solid transparent;
+        }
+
+        .btn-toggle-mode {
+            background: #f8fafc;
+            color: #334155;
+            border-color: #cbd5e1;
+        }
+
+        .btn-toggle-mode:hover {
+            background: #e2e8f0;
+        }
+
+        .btn-print {
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            color: #ffffff;
+            box-shadow: 0 2px 4px rgba(2, 132, 199, 0.25);
+        }
+
+        .btn-print:hover {
+            background: linear-gradient(135deg, #0369a1, #075985);
+            box-shadow: 0 3px 8px rgba(2, 132, 199, 0.35);
+        }
+
+        /* ================= CONTENEUR DOCUMENT ================= */
+        .doc-table-wrapper {
+            width: 100%;
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+
+        .doc-table-wrapper>tbody>tr>td {
+            padding: 0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            margin: 16px auto 32px auto;
+            background: #ffffff;
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        /* ================= BANNIÈRE DE PROTECTION (ÉCRAN) ================= */
+        .protection-screen-banner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+            border: 1.5px solid #cbd5e1;
+            border-left: 4px solid #0284c7;
+            border-radius: 6px;
+            padding: 8px 12px;
+            margin-bottom: 12px;
+        }
+
+        .prot-banner-left {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .prot-badge {
+            font-size: 8pt;
+            font-weight: 800;
+            color: #0369a1;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .prot-user {
+            font-size: 9.5pt;
+            color: #0f172a;
+        }
+
+        .prot-date {
+            font-size: 8pt;
+            color: #64748b;
+        }
+
+        .prot-banner-right svg {
+            display: block;
+        }
+
+        /* ================= EN-TÊTE RÉPÉTÉ SUR TOUTES LES PAGES (IMPRESSION) ================= */
+        .running-print-header {
+            display: none;
+        }
+
+        /* ================= EN-TÊTE DU DOCUMENT ================= */
+        header.doc-header {
+            text-align: center;
+            margin-bottom: 10px;
+            border-bottom: 2.5px solid #0284c7;
+            padding-bottom: 6px;
+        }
+
+        header.doc-header h1 {
+            color: #0f172a;
+            font-size: 13.5pt;
+            margin: 0 0 2px 0;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        header.doc-header h2 {
+            color: #0284c7;
+            font-size: 10.5pt;
+            margin: 0;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+        }
+
+        /* ================= TITRES DE SECTION ================= */
+        .section-title {
+            color: #0f172a;
+            background: #f1f5f9;
+            font-size: 10.2pt;
+            font-weight: 700;
+            border-left: 4px solid #0284c7;
+            padding: 4px 9px;
+            margin: 10px 0 6px 0;
+            border-radius: 0 4px 4px 0;
+            break-after: avoid !important;
+            page-break-after: avoid !important;
+        }
+
+        .part-title {
+            font-size: 11.5pt;
+            font-weight: 800;
+            color: #000000;
+            margin: 14px 0 10px 0;
+            break-after: avoid !important;
+            page-break-after: avoid !important;
+        }
+
+        .course-title {
+            font-size: 10.5pt;
+            font-weight: 700;
+            font-style: italic;
+            text-align: center;
+            color: #000000;
+            margin: 12px 0 10px 0;
+            break-after: avoid !important;
+            page-break-after: avoid !important;
+        }
+
+        /* ================= TABLEAU D'INFORMATION & REMARQUES ================= */
+        .notice-table-container {
+            display: flex;
+            justify-content: center;
+            margin: 8px 0 18px 0;
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+        }
+
+        .notice-table {
+            width: 100%;
+            max-width: 540px;
+            border-collapse: collapse;
+            border: 1.5px solid #000000;
+            font-size: 9.5pt;
+            background: #ffffff;
+            margin: 0 auto;
+        }
+
+        .notice-table th {
+            border: 1px solid #000000;
+            padding: 5px 12px;
+            font-weight: 700;
+            text-align: center;
+            color: #000000;
+            background: #ffffff;
+        }
+
+        .notice-table td {
+            border: 1px solid #000000;
+            padding: 8px 14px;
+            text-align: center;
+            color: #000000;
+            font-size: 9.3pt;
+            line-height: 1.35;
+        }
+
+        /* ================= GESTION DES IMAGES DANS LE DOCUMENT ================= */
+        .q-image-container {
+            text-align: center;
+            margin: 8px 0;
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+        }
+
+        .q-image {
+            max-width: 100%;
+            max-height: 280px;
+            object-fit: contain;
+            border-radius: 4px;
+            border: 1px solid #cbd5e1;
+            display: inline-block;
+        }
+
+        .q-image-caption {
+            font-size: 8pt;
+            color: #64748b;
+            margin-top: 3px;
+            font-style: italic;
+        }
+
+        /* ================= CARTE DE QUESTION (ANTI-COUPURE ABSOLUE) ================= */
+        .question-box {
+            border: 1px solid #cbd5e1;
+            border-left: 3.5px solid #0284c7;
+            border-radius: 5px;
+            padding: 6px 9px;
+            margin-bottom: 5.5px;
+            background-color: #ffffff;
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+            -webkit-column-break-inside: avoid !important;
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            font-weight: 700;
+            font-size: 9.7pt;
+            margin-bottom: 3.5px;
+            gap: 8px;
+            color: #0f172a;
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+        }
+
+        .q-stem {
+            flex: 1;
+            line-height: 1.25;
+        }
+
+        .q-num {
+            color: #0284c7;
+            font-weight: 800;
+            margin-right: 2px;
+        }
+
+        .year-badge {
+            background-color: #f1f5f9;
+            color: #0369a1;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 8pt;
+            font-weight: 700;
+            border: 1px solid #cbd5e1;
+            white-space: nowrap;
+            letter-spacing: 0.2px;
+        }
+
+        /* ================= LISTES D'OPTIONS ================= */
+        ol.options {
+            margin: 2px 0 4px 16px;
+            padding: 0;
+        }
+
+        ol.options.alpha {
+            list-style-type: upper-alpha;
+        }
+
+        ol.options li {
+            margin-bottom: 1.5px;
+            font-size: 9.2pt;
+            color: #334155;
+            line-height: 1.23;
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+        }
+
+        /* ================= ENCADRÉS DONNÉES ================= */
+        .data-box {
+            background-color: #f8fafc;
+            border: 1px dashed #94a3b8;
+            border-radius: 4px;
+            padding: 4px 8px;
+            margin: 3px 0 4px 0;
+            font-size: 8.9pt;
+            color: #0369a1;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+        }
+
+        /* ================= SECTION RÉPONSE & JUSTIFICATIONS ================= */
+        .answer-divider {
+            border: none;
+            border-top: 1px dashed #cbd5e1;
+            margin: 4px 0 3px 0;
+        }
+
+        .answer-section {
+            transition: all 0.2s ease;
+        }
+
+        .answer-line {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 9.1pt;
+            font-weight: 700;
+            margin-bottom: 2.5px;
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+        }
+
+        .answer-label {
+            color: #475569;
+            font-size: 8.4pt;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .answer-badge {
+            background-color: #059669;
+            color: #ffffff;
+            font-size: 9pt;
+            font-weight: 800;
+            padding: 1px 7px;
+            border-radius: 4px;
+            display: inline-block;
+            letter-spacing: 0.5px;
+        }
+
+        .justification-title {
+            font-size: 8.4pt;
+            font-weight: 700;
+            color: #0369a1;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin: 2px 0 1px 0;
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+        }
+
+        ul.justifications {
+            margin: 0;
+            padding-left: 14px;
+            font-size: 8.9pt;
+            color: #475569;
+            line-height: 1.25;
+        }
+
+        ul.justifications li {
+            margin-bottom: 2px;
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+        }
+
+        .text-correct {
+            color: #059669;
+            font-weight: 700;
+        }
+
+        .text-incorrect {
+            color: #dc2626;
+            font-weight: 700;
+        }
+
+        /* ================= MODE ÉTUDE (MASQUER RÉPONSES) ================= */
+        body.mode-study .answer-section {
+            display: none;
+        }
+
+        /* ================= RÈGLES IMPRESSION STRICTES & CODE-BARRES SUR CHAQUE PAGE ================= */
+        @media print {
+            .screen-toolbar {
+                display: none !important;
+            }
+
+            body {
+                background-color: #ffffff !important;
+                font-size: 9.2pt !important;
+                line-height: 1.22 !important;
+            }
+
+            .container {
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+            }
+
+            .protection-screen-banner {
+                display: none !important;
+            }
+
+            /* Repeating Header on every printed page via table thead */
+            .running-print-header {
+                display: table-header-group !important;
+            }
+
+            .protection-header-content {
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                border-bottom: 1.5px solid #0284c7 !important;
+                padding-bottom: 1.5mm !important;
+                margin-bottom: 2mm !important;
+                font-size: 8pt !important;
+            }
+
+            .prot-badge-mini {
+                background: #0284c7 !important;
+                color: #ffffff !important;
+                padding: 1px 4px !important;
+                border-radius: 3px !important;
+                font-size: 7pt !important;
+                font-weight: 800 !important;
+                letter-spacing: 0.3px !important;
+                margin-right: 4px !important;
+            }
+
+            .running-left {
+                color: #0f172a !important;
+                font-size: 8pt !important;
+            }
+
+            .running-right svg {
+                height: 24px !important;
+            }
+
+            .question-box {
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+                -webkit-column-break-inside: avoid !important;
+                display: block !important;
+                margin-bottom: 4.5px !important;
+                padding: 4.5px 7px !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- BARRE D'OUTILS INTERACTIVE (ÉCRAN) -->
+    <aside class="screen-toolbar" aria-label="Contrôles du document">
+        <div class="toolbar-brand">
+            <div class="brand-icon">✓</div>
+            <div class="brand-text">MODULE 01: ONCO_HEMATOLOGIE</div>
+        </div>
+        <div class="toolbar-tags">
+            <span class="pill pill-blue">QCM Corrigés &amp; Justifiés</span>
+            <span class="pill pill-green">63 Questions</span>
+
+        </div>
+        <div class="toolbar-actions">
+            <button class="btn-action btn-toggle-mode" onclick="document.body.classList.toggle('mode-study')">
+                👁️ Mode Étude / Réponses
+            </button>
+            <button class="btn-action btn-print" onclick="window.print()">
+                🖨️ Imprimer / PDF
+            </button>
+        </div>
+    </aside>
+
+    <!-- DOCUMENT PRINCIPAL -->
+
+    <main class="container">
+        <header class="doc-header">
+            <h1>MODULE 01: ONCO_HEMATOLOGIE</h1>
+            <h2>QCM Corrigés &amp; Justifiés</h2>
+        </header>
+
+    <div class="part-title"><u><strong>Partie 01: HEMATOLOGIE</strong></u></div>
+
+    <div class="course-title"><u><strong>1- Hématimètrie hémogramme normal et pathologique</strong></u></div>
+
+    <!-- QUESTION 1 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 1 :</span> Chez un adulte la lymphopénie est :</span>
+            <span class="year-badge">(2016)</span>
+        </div>
+        <ol class="options numeric">
+            <li>La diminution des lymphocytes au-dessous de 800/mm3</li>
+            <li>Un nombre de lymphocytes compris entre 1600 et 7000/mm3</li>
+            <li>Un taux de lymphocytes inférieur à 20%</li>
+            <li>La diminution des leucocytes au-dessous de 4000/mm3</li>
+            <li>La diminution des monocytes au-dessous de 1000/mm3</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">1</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-correct">1 : Vrai</strong> — <span class="text-correct">La lymphopénie chez l’adulte est définie par un taux de lymphocytes &lt; 1000/mm³ (certains seuils retiennent &lt; 800/mm³).</span></li>
+                <li><strong class="text-incorrect">2 : Faux</strong> — <span class="text-incorrect">1 600 – 7 000/mm³ correspond aux valeurs normales des leucocytes totaux, pas des lymphocytes.</span></li>
+                <li><strong class="text-incorrect">3 : Faux</strong> — <span class="text-incorrect">Un pourcentage &lt; 20 % n’est pas un critère absolu ; c’est la valeur absolue qui compte.</span></li>
+                <li><strong class="text-incorrect">4 : Faux</strong> — <span class="text-incorrect">Il s’agit d’une leucopénie, non d’une lymphopénie.</span></li>
+                <li><strong class="text-incorrect">5 : Faux</strong> — <span class="text-incorrect">Il s’agit d’une monocytopénie.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 2 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 2 :</span> Le chiffre normal des plaquettes est de :</span>
+            <span class="year-badge">(2016)</span>
+        </div>
+        <ol class="options numeric">
+            <li>15 à 40G/l</li>
+            <li>400.000 à 600.000/mm3</li>
+            <li>150.000 à 400.000 G/l</li>
+            <li>150.000 à 400.000/mm3</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">4</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">1 : Faux</strong> — <span class="text-incorrect">15–40 G/L correspond à une thrombopénie sévère.</span></li>
+                <li><strong class="text-incorrect">2 : Faux</strong> — <span class="text-incorrect">400 000–600 000/mm³ est une thrombocytose.</span></li>
+                <li><strong class="text-incorrect">3 : Faux</strong> — <span class="text-incorrect">L’unité est fausse (G/L au lieu de /mm³) ; la valeur normale est 150 000–400 000/mm³.</span></li>
+                <li><strong class="text-correct">4 : Vrai</strong> — <span class="text-correct">La norme est bien 150 000–400 000/mm³.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 3 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 3 :</span> Chez l'adulte, une hyperlymphocytose sanguine est définie par une lymphocytose supérieure à:</span>
+            <span class="year-badge">(2016)</span>
+        </div>
+        <ol class="options numeric">
+            <li>30% des leucocytes</li>
+            <li>60% des leucocytes</li>
+            <li>1000/ml</li>
+            <li>4000/ml</li>
+            <li>10000/ml</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">4</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">1 : Faux</strong> — <span class="text-incorrect">30 % n’est pas un seuil absolu ; on utilise la valeur absolue.</span></li>
+                <li><strong class="text-incorrect">2 : Faux</strong> — <span class="text-incorrect">60 % est un pourcentage, non la valeur absolue.</span></li>
+                <li><strong class="text-incorrect">3 : Faux</strong> — <span class="text-incorrect">1 000/ml est la limite inférieure de la normale.</span></li>
+                <li><strong class="text-correct">4 : Vrai</strong> — <span class="text-correct">Une hyperlymphocytose est définie par des lymphocytes &gt; 4 000/mm³ (ou 4 G/L).</span></li>
+                <li><strong class="text-incorrect">5 : Faux</strong> — <span class="text-incorrect">10 000/mm³ est un seuil bien trop élevé, correspondant à une hyperleucocytose majeure.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 4 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 4 :</span> Interprète le FNS suivant : GR: 2M, Hb: 8.5 g/dl, Hte: 25%, VGM: 125 fl, CCMH: 34%, Réticulocytes: 140 000</span>
+            <span class="year-badge">(2025, sec A)</span>
+        </div>
+        <ol class="options alpha">
+            <li>Anémie normochrome normocytaire arégénérative</li>
+            <li>Anémie normochrome normocytaire régénérative</li>
+            <li>Anémie normochrome macrocytaire régénérative</li>
+            <li>Anémie hypochrome microcytaire arégénérative</li>
+            <li>Anémie hypochrome microcytaire arégénérative</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">C</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">A : Faux</strong> — <span class="text-incorrect">Normocytaire ? Non, VGM = 125 fl → macrocytaire.</span></li>
+                <li><strong class="text-incorrect">B : Faux</strong> — <span class="text-incorrect">Normocytaire ? Non, VGM est élevé.</span></li>
+                <li><strong class="text-correct">C : Vrai</strong> — <span class="text-correct">Anémie (Hb &lt; 12 g/dl), macrocytaire (VGM &gt; 100 fl), normochrome (CCMH ≥ 32 %), régénérative (réticulocytes &gt; 120 000/mm³ en présence d’anémie).</span></li>
+                <li><strong class="text-incorrect">D : Faux</strong> — <span class="text-incorrect">Hypochrome ? Non (CCMH = 34 %). Microcytaire ? Non (VGM = 125 fl).</span></li>
+                <li><strong class="text-incorrect">E : Faux</strong> — <span class="text-incorrect">Mêmes erreurs que D.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 5 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 5 :</span> Au-dessous de quelle valeur on peut diagnostiquer une anémie pour une femme jeune (non enceinte) et un homme jeune :</span>
+            <span class="year-badge">(2025, sec A)</span>
+        </div>
+        <ol class="options alpha">
+            <li>12g/dl , 14g/dl</li>
+            <li>11g/dl , 13g/dl</li>
+            <li>12g/dl , 13g/dl</li>
+            <li>12g/dl , 15g/dl</li>
+            <li>11g/dl , 12g/dl</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">C</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">A : Faux</strong> — <span class="text-incorrect">Valeurs incorrectes pour l'homme jeune.</span></li>
+                <li><strong class="text-incorrect">B : Faux</strong> — <span class="text-incorrect">11 g/dl est trop bas pour la femme non enceinte (limite à 12 g/dl).</span></li>
+                <li><strong class="text-correct">C : Vrai</strong> — <span class="text-correct">La limite inférieure de l'hémoglobine est de 12 g/dl chez la femme non enceinte et de 13 g/dl chez l'homme jeune.</span></li>
+                <li><strong class="text-incorrect">D : Faux</strong> — <span class="text-incorrect">15 g/dl est au-dessus du seuil de l'anémie chez l'homme.</span></li>
+                <li><strong class="text-incorrect">E : Faux</strong> — <span class="text-incorrect">Seuils inadaptés.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 6 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 6 :</span> Les paramètres érythrocytaires les plus utiles en clinique sont :
+            A/ Le diamètre globulaire moyen.
+            B/ L'épaisseur globulaire moyenne.
+            C/ Volume globulaire moyen.
+            D/ La concentration de l'hémoglobine.
+            E/ La concentration corpusculaire moyenne de l'hémoglobine.</span>
+            <span class="year-badge">(2026, sec B)</span>
+        </div>
+        <ol class="options alpha">
+            <li>C.D.E</li>
+            <li>A.B.C</li>
+            <li>A.D.E</li>
+            <li>B.D.E</li>
+            <li>A.C.E</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">A</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-correct">A : Vrai</strong> — <span class="text-correct">(C, D, E) – Le VGM, la CCMH et le taux d’Hb sont les paramètres clés pour caractériser une anémie.</span></li>
+                <li><strong class="text-incorrect">B : Faux</strong> — <span class="text-incorrect">Le diamètre globulaire moyen et l’épaisseur ne sont pas utilisés en routine.</span></li>
+                <li><strong class="text-incorrect">C : Faux</strong> — <span class="text-incorrect">Combinaison incorrecte.</span></li>
+                <li><strong class="text-incorrect">D : Faux</strong> — <span class="text-incorrect">Combinaison incorrecte.</span></li>
+                <li><strong class="text-incorrect">E : Faux</strong> — <span class="text-incorrect">Combinaison incorrecte.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 7 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 7 :</span> Parmi les paramètres biologiques suivants, quels sont ceux qui permettent la caractérisation d'une anémie :
+            A/ L'hématocrite.
+            B/ Le volume globulaire moyen.
+            C/ Concentration corpusculaire moyenne en hémoglobine.
+            D/ Le nombre de réticulocytes.
+            E/ RDW.</span>
+            <span class="year-badge">(2026, sec B)</span>
+        </div>
+        <ol class="options alpha">
+            <li>A.B.C</li>
+            <li>A.C.E</li>
+            <li>A.D.E</li>
+            <li>B.C.D</li>
+            <li>A.B.D</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">D</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">A : Faux</strong> — <span class="text-incorrect">L’hématocrite est utile mais ne caractérise pas à lui seul le type d’anémie.</span></li>
+                <li><strong class="text-correct">B : Vrai</strong> — <span class="text-correct">Le VGM caractérise la taille (microcytaire/normocytaire/macrocytaire).</span></li>
+                <li><strong class="text-correct">C : Vrai</strong> — <span class="text-correct">La CCMH caractérise la coloration (hypochrome/normochrome).</span></li>
+                <li><strong class="text-correct">D : Vrai</strong> — <span class="text-correct">Le taux de réticulocytes caractérise l’origine (régénérative/arégénérative).</span></li>
+                <li><strong class="text-incorrect">E : Faux</strong> — <span class="text-incorrect">Le RDW est un paramètre secondaire, non indispensable pour la caractérisation de base. La combinaison correcte est donc B, C, D → réponse D.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 8 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 8 :</span> Un mégaloblaste est :</span>
+            <span class="year-badge">(2026, sec B)</span>
+        </div>
+        <ol class="options alpha">
+            <li>Une hématie très macrocytaire.</li>
+            <li>Un érythroblaste présent dans le sang.</li>
+            <li>Un érythroblaste avec asynchronisme de maturation nucléo-cytoplasmique.</li>
+            <li>Un myéloblaste anormal.</li>
+            <li>Un leucoblaste.</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">C</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">A : Faux</strong> — <span class="text-incorrect">Une hématie très macrocytaire est un macrocyte, pas un mégaloblaste.</span></li>
+                <li><strong class="text-incorrect">B : Faux</strong> — <span class="text-incorrect">Un érythroblaste dans le sang est un érythroblaste circulant, pas spécifiquement un mégaloblaste.</span></li>
+                <li><strong class="text-correct">C : Vrai</strong> — <span class="text-correct">Le mégaloblaste est un érythroblaste anormal caractérisé par un asynchronisme de maturation nucléo-cytoplasmique (noyau immature, cytoplasme mature).</span></li>
+                <li><strong class="text-incorrect">D : Faux</strong> — <span class="text-incorrect">Un myéloblaste est un précurseur granulocytaire, non érythroïde.</span></li>
+                <li><strong class="text-incorrect">E : Faux</strong> — <span class="text-incorrect">Le terme « leucoblaste » n’existe pas en hématologie standard.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="course-title"><u><strong>2- Groupes sanguins et transfusions sanguines</strong></u></div>
+
+    <!-- QUESTION 9 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 9 :</span> Tous les produits sanguins suivants sont labiles sauf un, lequel ?</span>
+            <span class="year-badge">(2016)</span>
+        </div>
+        <ol class="options numeric">
+            <li>Immunoglobulines anti D</li>
+            <li>Plasma frais congelé</li>
+            <li>Concentré de globules rouges phénotypé</li>
+            <li>Concentrés plaquettaires</li>
+            <li>Concentré de globules rouges standard</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">1</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-correct">1 : Vrai</strong> — <span class="text-correct">Les immunoglobulines anti-D sont des dérivés sanguins stables, obtenus par fractionnement plasmatique, et ne sont pas considérées comme des produits sanguins labiles (PSL).</span></li>
+                <li><strong class="text-incorrect">2 : Faux</strong> — <span class="text-incorrect">Le plasma frais congelé (PFC) est un PSL, il doit être conservé à –30 °C ou –80 °C.</span></li>
+                <li><strong class="text-incorrect">3 : Faux</strong> — <span class="text-incorrect">Le concentré de globules rouges phénotypé est un PSL (conservé à +4 °C).</span></li>
+                <li><strong class="text-incorrect">4 : Faux</strong> — <span class="text-incorrect">Les concentrés plaquettaires sont des PSL (conservés à température ambiante sous agitation, 5 jours).</span></li>
+                <li><strong class="text-incorrect">5 : Faux</strong> — <span class="text-incorrect">Le concentré de globules rouges standard est un PSL (conservé à +4 °C).</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 10 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 10 :</span> Le mécanisme physiopathologique d'immunisation fœto-maternelle dans le système rhésus est lié :</span>
+            <span class="year-badge">(2016)</span>
+        </div>
+        <ol class="options numeric">
+            <li>Au passage de bilirubine dans la circulation maternelle</li>
+            <li>Au passage de leucocytes fœtaux dans la circulation maternelle</li>
+            <li>Au passage d'hématies fœtales dans la circulation maternelle</li>
+            <li>Au passage d'hématies maternelles dans la circulation fœtale</li>
+            <li>Au passage d'anticorps maternels dans la circulation fœtale</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">3</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">1 : Faux</strong> — <span class="text-incorrect">La bilirubine est un pigment issu de la dégradation de l’hémoglobine, elle n’est pas responsable de l’immunisation.</span></li>
+                <li><strong class="text-incorrect">2 : Faux</strong> — <span class="text-incorrect">Les leucocytes fœtaux ne sont pas impliqués dans l’allo-immunisation anti-Rhésus.</span></li>
+                <li><strong class="text-correct">3 : Vrai</strong> — <span class="text-correct">L’immunisation fœto-maternelle survient lors du passage d’hématies fœtales Rh positif dans la circulation d’une mère Rh négatif, ce qui déclenche la production d’anticorps anti-D chez la mère.</span></li>
+                <li><strong class="text-incorrect">4 : Faux</strong> — <span class="text-incorrect">Ce sont les hématies fœtales qui passent chez la mère, et non l’inverse.</span></li>
+                <li><strong class="text-incorrect">5 : Faux</strong> — <span class="text-incorrect">Le passage d’anticorps maternels chez le fœtus est la conséquence de l’immunisation, pas le mécanisme déclenchant.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 11 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 11 :</span> Transfusions érythrocytaires :</span>
+            <span class="year-badge">(2025, sec A)</span>
+        </div>
+        <ol class="options alpha">
+            <li>Groupe AB à receveur A</li>
+            <li>Groupe AB à receveur O</li>
+            <li>Groupe A à receveur B</li>
+            <li>Groupe O à receveur AB</li>
+            <li>Groupe B à receveur A</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">D</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">A : Faux</strong> — <span class="text-incorrect">Un donneur AB ne peut pas donner à un receveur A (anticorps anti-B).</span></li>
+                <li><strong class="text-incorrect">B : Faux</strong> — <span class="text-incorrect">Un donneur AB ne peut pas donner à un receveur O (anticorps anti-A et anti-B).</span></li>
+                <li><strong class="text-incorrect">C : Faux</strong> — <span class="text-incorrect">Un donneur A ne peut pas donner à un receveur B (anticorps anti-A).</span></li>
+                <li><strong class="text-correct">D : Vrai</strong> — <span class="text-correct">Un donneur O peut donner à un receveur AB (donneur universel pour les globules rouges).</span></li>
+                <li><strong class="text-incorrect">E : Faux</strong> — <span class="text-incorrect">Un donneur B ne peut pas donner à un receveur A (anticorps anti-B).</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 12 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 12 :</span> Les transfusions érythrocytaires non iso-groupe suivantes, laquelle est permise :</span>
+            <span class="year-badge">(2025, sec A)</span>
+        </div>
+        <ol class="options alpha">
+            <li>Transfusion de groupe AB à un receveur A</li>
+            <li>Transfusion de groupe AB à un receveur O</li>
+            <li>Transfusion de groupe A à un receveur B</li>
+            <li>Transfusion de groupe O à un receveur AB</li>
+            <li>Transfusion de groupe B à un receveur A</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">D</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">A : Faux</strong> — <span class="text-incorrect">Donneur AB → receveur A : incompatible (anticorps anti-B du receveur).</span></li>
+                <li><strong class="text-incorrect">B : Faux</strong> — <span class="text-incorrect">Donneur AB → receveur O : incompatible (anticorps anti-A et anti-B du receveur).</span></li>
+                <li><strong class="text-incorrect">C : Faux</strong> — <span class="text-incorrect">Donneur A → receveur B : incompatible (anticorps anti-A du receveur).</span></li>
+                <li><strong class="text-correct">D : Vrai</strong> — <span class="text-correct">Donneur O → receveur AB : compatible, car les globules O n’ont pas d’antigènes A ni B, et le receveur AB n’a pas d’anticorps anti-A ni anti-B.</span></li>
+                <li><strong class="text-incorrect">E : Faux</strong> — <span class="text-incorrect">Donneur B → receveur A : incompatible (anticorps anti-B du receveur).</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 13 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 13 :</span> A qui un donneur AB peut donner son plasma ?</span>
+            <span class="year-badge">(2025, sec A)</span>
+        </div>
+        <ol class="options alpha">
+            <li>A un receveur de groupage A</li>
+            <li>A un receveur de groupage AB</li>
+            <li>A un receveur de groupage O</li>
+            <li>A un receveur de groupage B</li>
+            <li>Toutes les réponses sont justes</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">E</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-correct">A : Vrai</strong> — <span class="text-correct">Le plasma d’un sujet AB ne contient ni anticorps anti-A ni anti-B, il peut donc être transfusé à un receveur A.</span></li>
+                <li><strong class="text-correct">B : Vrai</strong> — <span class="text-correct">À un receveur AB (iso-groupe), c’est compatible.</span></li>
+                <li><strong class="text-correct">C : Vrai</strong> — <span class="text-correct">À un receveur O, le plasma AB est compatible car il ne contient pas d’anticorps dirigés contre les globules du receveur O.</span></li>
+                <li><strong class="text-correct">D : Vrai</strong> — <span class="text-correct">À un receveur B, c’est également compatible.</span></li>
+                <li><strong class="text-correct">E : Vrai</strong> — <span class="text-correct">Toutes les réponses sont justes : le plasma AB est universel pour le plasma, car il ne contient pas d’anticorps anti-A ni anti-B.</span></li>
+            </ul>
+        </div>
+    </div>
+    <!-- QUESTION 14 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 14 :</span> Les anticorps anti-D sont :</span>
+            <span class="year-badge">(2026, sec A)</span>
+        </div>
+        <ol class="options alpha">
+            <li>naturels</li>
+            <li>acquis</li>
+            <li>ne traversent pas la barrière placentaire</li>
+            <li>Toujours présents chez les sujets Rhésus(+)</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">B</span></div>
+            <div class="image-container" style="margin-top: 15px; text-align: center;">
+                <img src="images/14.png" alt="Illustration Q14" style="max-width: 100%; height: auto; border-radius: 6px; border: 1px solid #ccc;">
+            </div>
+            <div class="justification-title" style="margin-top: 15px;">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">A : Faux</strong> — <span class="text-incorrect">Les anticorps anti-D ne sont pas des anticorps naturels réguliers, ils n'apparaissent qu'après une sensibilisation.</span></li>
+                <li><strong class="text-correct">B : Vrai</strong> — <span class="text-correct">Les anticorps anti-D sont des anticorps immuns acquis (suite à une transfusion incompatible ou une immunisation fœto-maternelle chez une mère Rh- négatif).</span></li>
+                <li><strong class="text-incorrect">C : Faux</strong> — <span class="text-incorrect">Étant des IgG, les anticorps anti-D traversent la barrière placentaire, ce qui peut provoquer une maladie hémolytique du nouveau-né (MHNN).</span></li>
+                <li><strong class="text-incorrect">D : Faux</strong> — <span class="text-incorrect">Ils ne sont pas présents chez les sujets Rhésus(+), mais sont produits chez les sujets Rhésus(-) après allo-immunisation.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 16 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 16 :</span> L'épreuve sérique dans la détermination des groupes sanguins consiste à :</span>
+            <span class="year-badge">(2026, sec B)</span>
+        </div>
+        <ol class="options alpha">
+            <li>Rechercher l'antigène à la surface du globule rouge.</li>
+            <li>Rechercher l'antigène libre circulant dans le plasma.</li>
+            <li>Rechercher les anticorps circulants dans le plasma.</li>
+            <li>Rechercher les anticorps fixés sur le complément.</li>
+            <li>Recherche anticorps fixés sur la surface du globule rouge.</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">C</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">A : Faux</strong> — <span class="text-incorrect">Il s’agit de l’épreuve globulaire (Beth-Vincent), pas de l’épreuve sérique (Simonin).</span></li>
+                <li><strong class="text-incorrect">B : Faux</strong> — <span class="text-incorrect">Les antigènes du système ABO sont fixés sur les globules rouges, ils ne sont pas libres dans le plasma.</span></li>
+                <li><strong class="text-correct">C : Vrai</strong> — <span class="text-correct">L’épreuve sérique (Simonin) consiste à rechercher les anticorps circulants dans le plasma du sujet, en mettant son sérum en contact avec des hématies tests connues (A, B, O).</span></li>
+                <li><strong class="text-incorrect">D : Faux</strong> — <span class="text-incorrect">La recherche d’anticorps fixés sur le complément n’est pas une technique de groupage ABO de routine.</span></li>
+                <li><strong class="text-incorrect">E : Faux</strong> — <span class="text-incorrect">Les anticorps fixés sur les globules rouges ne sont pas recherchés par l’épreuve sérique.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 17 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 17 :</span> Parmi ces complications de la transfusion sanguine, quelles sont celles qui sont précoces :
+            A/ Le choc endotoxinique.
+            B/ L'hémochromatose.
+            C/ La réaction de type frisson-hyperthermie.
+            D/ L'œdème pulmonaire aigu.
+            E/ Le risque d'attraper une hépatite virale.</span>
+            <span class="year-badge">(2026, sec B)</span>
+        </div>
+        <ol class="options alpha">
+            <li>A.B.C</li>
+            <li>B.C.D</li>
+            <li>C.D.E</li>
+            <li>A.C.D</li>
+            <li>A.D.E</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">D</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-correct">A : Vrai</strong> — <span class="text-correct">Le choc endotoxinique est un accident précoce (lié à une contamination bactérienne du produit).</span></li>
+                <li><strong class="text-incorrect">B : Faux</strong> — <span class="text-incorrect">L’hémochromatose est une complication tardive (surcharge en fer après des transfusions répétées).</span></li>
+                <li><strong class="text-correct">C : Vrai</strong> — <span class="text-correct">La réaction de type frisson-hyperthermie est un accident précoce (réaction immunologique ou pyrogène).</span></li>
+                <li><strong class="text-correct">D : Vrai</strong> — <span class="text-correct">L’œdème aigu du poumon (OAP) est un accident précoce (surcharge circulatoire).</span></li>
+                <li><strong class="text-incorrect">E : Faux</strong> — <span class="text-incorrect">L’hépatite virale est une complication tardive (transmission infectieuse). La combinaison correcte est A, C, D → réponse D.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 18 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 18 :</span> Parmi ces antigènes, quels sont ceux qui appartiennent au système Rhésus ?
+            A/ Antigène A
+            B/ Antigène C
+            C/ Antigène B
+            D/ Antigène D
+            E/ Antigène E</span>
+            <span class="year-badge">(2026, sec B)</span>
+        </div>
+        <ol class="options alpha">
+            <li>A, B, C</li>
+            <li>B, C, D</li>
+            <li>B, D, E</li>
+            <li>A, D, E</li>
+            <li>C, D, E</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">C</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">A : Faux</strong> — <span class="text-incorrect">L’antigène A appartient au système ABO, pas au système Rhésus.</span></li>
+                <li><strong class="text-correct">B : Vrai</strong> — <span class="text-correct">L’antigène C appartient au système Rhésus (avec D, E, c, e).</span></li>
+                <li><strong class="text-incorrect">C : Faux</strong> — <span class="text-incorrect">L’antigène B appartient au système ABO.</span></li>
+                <li><strong class="text-correct">D : Vrai</strong> — <span class="text-correct">L’antigène D est l’antigène majeur du système Rhésus.</span></li>
+                <li><strong class="text-correct">E : Vrai</strong> — <span class="text-correct">L’antigène E appartient au système Rhésus.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="course-title"><u><strong>3- Hémostases primaire</strong></u></div>
+
+    <!-- QUESTION 19 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 19 :</span> Concernant le facteur Willebrand : cocher la réponse fausse.</span>
+            <span class="year-badge">(2026, sec A, B)</span>
+        </div>
+        <ol class="options alpha">
+            <li>Il participe à l'adhésion des plaquettes à la paroi vasculaire.</li>
+            <li>Permet le transport du facteur VIII dans la circulation.</li>
+            <li>Il se fixe au niveau de la membrane plaquettaire sur la glycoprotéine Ib.</li>
+            <li>Il est synthétisé par les cellules endothéliales et les mégacaryocytes.</li>
+            <li>Est une protéine hautement monomérisée.</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">E</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-correct">A : Vrai</strong> — <span class="text-correct">Le facteur Willebrand (vWF) participe à l'adhésion plaquettaire au sous-endothélium vasculaire après lésion.</span></li>
+                <li><strong class="text-correct">B : Vrai</strong> — <span class="text-correct">Le vWF est le transporteur plasmatique du facteur VIII, le protégeant de la dégradation.</span></li>
+                <li><strong class="text-correct">C : Vrai</strong> — <span class="text-correct">Le vWF se fixe sur la glycoprotéine Ib (GPIb) de la membrane plaquettaire, permettant l'adhésion.</span></li>
+                <li><strong class="text-correct">D : Vrai</strong> — <span class="text-correct">Le vWF est synthétisé par les cellules endothéliales et les mégacaryocytes.</span></li>
+                <li><strong class="text-incorrect">E : Faux</strong> — <span class="text-incorrect">Le facteur Willebrand est une protéine multimérisée (de gros multimères), et non hautement monomérisée. C'est précisément sa structure multimérique qui lui confère son activité hémostatique.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="course-title"><u><strong>4- Coagulation et Fibrinolyse</strong></u></div>
+
+    <!-- QUESTION 20 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 20 :</span> Parmi les cinq facteurs suivants de la coagulation, un n'est pas vitamino K-dépendant, lequel ?</span>
+            <span class="year-badge">(2016)</span>
+        </div>
+        <ol class="options numeric">
+            <li>Facteur antihémophilique B (IX)</li>
+            <li>Facteur Stuart (X)</li>
+            <li>Proconvertine (VII)</li>
+            <li>Proaccélérine (V)</li>
+            <li>Prothrombine (II)</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">4</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">1 : Faux</strong> — <span class="text-incorrect">Le facteur IX (antihémophilique B) est vitamine K-dépendant.</span></li>
+                <li><strong class="text-incorrect">2 : Faux</strong> — <span class="text-incorrect">Le facteur X (Stuart) est vitamine K-dépendant.</span></li>
+                <li><strong class="text-incorrect">3 : Faux</strong> — <span class="text-incorrect">Le facteur VII (proconvertine) est vitamine K-dépendant.</span></li>
+                <li><strong class="text-correct">4 : Vrai</strong> — <span class="text-correct">Le facteur V (proaccélérine) n'est pas vitamine K-dépendant.</span></li>
+                <li><strong class="text-incorrect">5 : Faux</strong> — <span class="text-incorrect">Le facteur II (prothrombine) est vitamine K-dépendant. Les facteurs vitamine K-dépendants sont : II, VII, IX, X. Le facteur V est synthétisé par le foie mais n'a pas besoin de vitamine K.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 21 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 21 :</span> Parmi les tests de coagulation suivants, quel est celui que l'on doit utiliser en pratique pour surveiller un traitement par l'héparine ?</span>
+            <span class="year-badge">(2016)</span>
+        </div>
+        <ol class="options numeric">
+            <li>Thrombotest d'Owren</li>
+            <li>Temps de céphaline Activée</li>
+            <li>Temps de Quick (taux de Prothrombine)</li>
+            <li>Temps de saignement</li>
+            <li>Thromboélastogramme</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">2</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">1 : Faux</strong> — <span class="text-incorrect">Le Thrombotest d'Owren est utilisé pour surveiller les anticoagulants oraux (AVK).</span></li>
+                <li><strong class="text-correct">2 : Vrai</strong> — <span class="text-correct">Le Temps de Céphaline Activée (TCA) est le test de référence pour surveiller l'héparine non fractionnée.</span></li>
+                <li><strong class="text-incorrect">3 : Faux</strong> — <span class="text-incorrect">Le Temps de Quick (TP) est utilisé pour surveiller les AVK, pas l'héparine.</span></li>
+                <li><strong class="text-incorrect">4 : Faux</strong> — <span class="text-incorrect">Le Temps de saignement explore l'hémostase primaire, pas l'héparine.</span></li>
+                <li><strong class="text-incorrect">5 : Faux</strong> — <span class="text-incorrect">Le Thromboélastogramme est un test global, non spécifique pour la surveillance de routine.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 22 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 22 :</span> Parmi les facteurs plasmatiques, indiquez le facteur commun à l'hémostase et la coagulation :</span>
+            <span class="year-badge">(2025, sec A)</span>
+        </div>
+        <ol class="options alpha">
+            <li>Facteur II</li>
+            <li>Facteur vWF</li>
+            <li>Plasminogène</li>
+            <li>Facteur XIII</li>
+            <li>Facteur V</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">B</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">A : Faux</strong> — <span class="text-incorrect">Le facteur II (prothrombine) est un facteur de la coagulation, pas de l'hémostase primaire.</span></li>
+                <li><strong class="text-correct">B : Vrai</strong> — <span class="text-correct">Le facteur Willebrand (vWF) est commun aux deux : il intervient dans l'hémostase primaire (adhésion et agrégation plaquettaire) et dans la coagulation (transport du facteur VIII).</span></li>
+                <li><strong class="text-incorrect">C : Faux</strong> — <span class="text-incorrect">Le plasminogène est un facteur de la fibrinolyse.</span></li>
+                <li><strong class="text-incorrect">D : Faux</strong> — <span class="text-incorrect">Le facteur XIII est un facteur de la coagulation (stabilisation du caillot).</span></li>
+                <li><strong class="text-incorrect">E : Faux</strong> — <span class="text-incorrect">Le facteur V est un facteur de la coagulation (voie commune).</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 23 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 23 :</span> Facteurs de la voie commune :</span>
+            <span class="year-badge">(2026, sec A)</span>
+        </div>
+        <ol class="options alpha">
+            <li>Facteur I, II, V, X</li>
+            <li>Facteur I, II, VII, X</li>
+            <li>Facteur I, II, V, X, XIII</li>
+            <li>Facteur I, II, VII, X, XIII</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">A</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-correct">A : Vrai</strong> — <span class="text-correct">La voie commune de la coagulation fait intervenir les facteurs I (fibrinogène), II (prothrombine), V (proaccélérine) et X (Stuart).</span></li>
+                <li><strong class="text-incorrect">B : Faux</strong> — <span class="text-incorrect">Le facteur VII appartient à la voie extrinsèque.</span></li>
+                <li><strong class="text-incorrect">C : Faux</strong> — <span class="text-incorrect">Le facteur XIII intervient après la formation du caillot (stabilisation).</span></li>
+                <li><strong class="text-incorrect">D : Faux</strong> — <span class="text-incorrect">Présence erronée du facteur VII et XIII.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 24 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 24 :</span> Quels sont les facteurs de coagulation explorés par le TP ? (réponse fausse)</span>
+            <span class="year-badge">(2026, sec B)</span>
+        </div>
+        <ol class="options alpha">
+            <li>Facteur II</li>
+            <li>Facteur V</li>
+            <li>Facteur VIII</li>
+            <li>Facteur X</li>
+            <li>Facteur VII</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">C</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">A : Vrai (pour le TP)</strong> — <span class="text-incorrect">Le facteur II est exploré par le TP.</span></li>
+                <li><strong class="text-incorrect">B : Vrai (pour le TP)</strong> — <span class="text-incorrect">Le facteur V est exploré par le TP.</span></li>
+                <li><strong class="text-correct">C : Faux (réponse attendue)</strong> — <span class="text-correct">Le facteur VIII est exploré par le TCA (voie intrinsèque), pas par le TP.</span></li>
+                <li><strong class="text-incorrect">D : Vrai (pour le TP)</strong> — <span class="text-incorrect">Le facteur X est exploré par le TP.</span></li>
+                <li><strong class="text-incorrect">E : Vrai (pour le TP)</strong> — <span class="text-incorrect">Le facteur VII est exploré par le TP.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="course-title"><u><strong>5- Anémies ferriprives</strong></u></div>
+
+    <!-- QUESTION 25 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 25 :</span> Tous ces tests sont nécessaires pour le diagnostic biologique d’une anémie ferriprive sauf un :</span>
+            <span class="year-badge">(2016)</span>
+        </div>
+        <ol class="options numeric">
+            <li>Taux de réticulocytes</li>
+            <li>Vitesse de sédimentation</li>
+            <li>Hémogramme</li>
+            <li>Frottis sanguin</li>
+            <li>Dosage du fer sérique et calcul du coefficient de saturation de la sidérophiline</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">2</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">1 : Faux</strong> — <span class="text-incorrect">Utile pour montrer le caractère arégénératif.</span></li>
+                <li><strong class="text-correct">2 : Vrai</strong> — <span class="text-correct">La Vitesse de Sédimentation (VS) n'est pas un test nécessaire au diagnostic d'une anémie ferriprive ; elle explore un syndrome inflammatoire.</span></li>
+                <li><strong class="text-incorrect">3 : Faux</strong> — <span class="text-incorrect">Indispensable pour objectiver l'anémie microcytaire hypochrome.</span></li>
+                <li><strong class="text-incorrect">4 : Faux</strong> — <span class="text-incorrect">Montre des globules rouges pâles et microcytaires.</span></li>
+                <li><strong class="text-incorrect">5 : Faux</strong> — <span class="text-incorrect">Essentiel pour confirmer le diagnostic.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 26 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 26 :</span> Une carence en fer engendre habituellement :</span>
+            <span class="year-badge">(2016)</span>
+        </div>
+        <ol class="options numeric">
+            <li>Une diminution du chiffre des plaquettes</li>
+            <li>Une anémie microcytaire hypochrome avec un chiffre de réticulocytes élevé</li>
+            <li>Une anémie microcytaire hypochrome avec un chiffre de réticulocytes faible</li>
+            <li>Un excès de sidéroblastes médullaires</li>
+            <li>Un syndrome cordonal postérieur</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">3</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">1 : Faux</strong> — <span class="text-incorrect">N'engendre pas de thrombopénie (parfois thrombocytose réactionnelle).</span></li>
+                <li><strong class="text-incorrect">2 : Faux</strong> — <span class="text-incorrect">Réticulocytes bas, pas élevés.</span></li>
+                <li><strong class="text-correct">3 : Vrai</strong> — <span class="text-correct">La carence martiale donne typiquement une anémie microcytaire hypochrome arégénérative (réticulocytes bas).</span></li>
+                <li><strong class="text-incorrect">4 : Faux</strong> — <span class="text-incorrect">Observé dans les anémies sidéroblastiques.</span></li>
+                <li><strong class="text-incorrect">5 : Faux</strong> — <span class="text-incorrect">Manifestation de la carence en vitamine B12.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 27 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 27 :</span> Dans une carence martiale, pendant combien de temps le traitement par le fer doit être poursuivi ?</span>
+            <span class="year-badge">(2025, sec A; 2026, sec A, B)</span>
+        </div>
+        <ol class="options alpha">
+            <li>15 jours</li>
+            <li>1 mois</li>
+            <li>jusqu'à la normalisation de taux d'hb</li>
+            <li>jusqu'à la normalisation de taux de fer sérique</li>
+            <li>jusqu'à la normalisation de ferritine</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">E</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">A : Faux</strong> — <span class="text-incorrect">15 jours est insuffisant.</span></li>
+                <li><strong class="text-incorrect">B : Faux</strong> — <span class="text-incorrect">1 mois est trop court.</span></li>
+                <li><strong class="text-incorrect">C : Faux</strong> — <span class="text-incorrect">Objectif intermédiaire, mais les réserves restent basses.</span></li>
+                <li><strong class="text-incorrect">D : Faux</strong> — <span class="text-incorrect">Le fer sérique ne reflète pas les réserves.</span></li>
+                <li><strong class="text-correct">E : Vrai</strong> — <span class="text-correct">Le traitement doit être poursuivi jusqu'à la normalisation de la ferritine (réserves reconstituées, soit 3 à 6 mois).</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 28 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 28 :</span> Concernant la carence martiale :</span>
+            <span class="year-badge">(2025, sec A)</span>
+        </div>
+        <ol class="options numeric">
+            <li>Anémie régénérative</li>
+            <li>Anémie arégénérative</li>
+            <li>Macrocytaire</li>
+            <li>Normochrome</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">2</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">1 : Faux</strong> — <span class="text-incorrect">L'anémie est arégénérative.</span></li>
+                <li><strong class="text-correct">2 : Vrai</strong> — <span class="text-correct">L'anémie ferriprive est arégénérative.</span></li>
+                <li><strong class="text-incorrect">3 : Faux</strong> — <span class="text-incorrect">Elle est microcytaire.</span></li>
+                <li><strong class="text-incorrect">4 : Faux</strong> — <span class="text-incorrect">Elle est hypochrome.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 29 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 29 :</span> Toutes les propositions suivantes concernant le métabolisme du fer sont vraies sauf une. Laquelle ?</span>
+            <span class="year-badge">(2025, sec A)</span>
+        </div>
+        <ol class="options alpha">
+            <li>Il se fait en vase-clos</li>
+            <li>Les laitages et la farine sont des aliments très riches en fer</li>
+            <li>Le fer est réparti en deux compartiments héminique et non héminique</li>
+            <li>Les pertes sont faibles, largement compensées chez le sujet normal</li>
+            <li>Le transport du fer dans le plasma est assuré par la transferrine</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">B</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">A : Vrai</strong> — <span class="text-incorrect">Le métabolisme du fer est en circuit fermé (vase-clos).</span></li>
+                <li><strong class="text-correct">B : Faux (réponse attendue)</strong> — <span class="text-correct">Les laitages et la farine ne sont pas riches en fer.</span></li>
+                <li><strong class="text-incorrect">C : Vrai</strong> — <span class="text-incorrect">Répartition en fer héminique et non héminique.</span></li>
+                <li><strong class="text-incorrect">D : Vrai</strong> — <span class="text-incorrect">Pertes faibles et compensées.</span></li>
+                <li><strong class="text-incorrect">E : Vrai</strong> — <span class="text-incorrect">Transport assuré par la transferrine.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 30 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 30 :</span> Chez une patiente de 35 ans qui présente une anémie ferriprive, je recherche en premier une des étiologies suivantes :</span>
+            <span class="year-badge">(2026, sec B)</span>
+        </div>
+        <ol class="options alpha">
+            <li>Un saignement digestif</li>
+            <li>Une malabsorption intestinale</li>
+            <li>Un manque d'apport</li>
+            <li>Un saignement gynécologique</li>
+            <li>Diarrhée chronique.</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">D</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">A : Faux</strong> — <span class="text-incorrect">Moins fréquent en premier chez la femme jeune sans signes digestifs.</span></li>
+                <li><strong class="text-incorrect">B : Faux</strong> — <span class="text-incorrect">Moins fréquent que les pertes gynécologiques.</span></li>
+                <li><strong class="text-incorrect">C : Faux</strong> — <span class="text-incorrect">Rare chez l'adulte en pays industrialisé.</span></li>
+                <li><strong class="text-correct">D : Vrai</strong> — <span class="text-correct">Chez une femme en âge de procréer (35 ans), la cause la plus fréquente d'anémie ferriprive est le saignement gynécologique (ménorragies, métrorragies).</span></li>
+                <li><strong class="text-incorrect">E : Faux</strong> — <span class="text-incorrect">Rare et non prioritaire.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="course-title"><u><strong>6- Anémie par carence en facteurs antipernicieux</strong></u></div>
+
+    <!-- QUESTION 31 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 31 :</span> Une anémie microcytaire hypochrome peut se rencontrer en cas de :
+            1. Une microsphérocytose héréditaire
+            2. Une béta thalassémie homozygote
+            3. Un rachitisme carentiel
+            4. Une anémie ferriprive
+            5. Un déficit en acide folique</span>
+            <span class="year-badge">(2016)</span>
+        </div>
+        <ol class="options alpha">
+            <li>2+4</li>
+            <li>1+2+3</li>
+            <li>2+3+5</li>
+            <li>1+2+3</li>
+            <li>2+4+5</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">A</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">1 : Faux</strong> — <span class="text-incorrect">Normocytaire ou macrocytaire.</span></li>
+                <li><strong class="text-correct">2 : Vrai</strong> — <span class="text-correct">La bêta-thalassémie homozygote donne une anémie microcytaire hypochrome.</span></li>
+                <li><strong class="text-incorrect">3 : Faux</strong> — <span class="text-incorrect">N'entraîne pas d'anémie microcytaire hypochrome.</span></li>
+                <li><strong class="text-correct">4 : Vrai</strong> — <span class="text-correct">L'anémie ferriprive est microcytaire hypochrome.</span></li>
+                <li><strong class="text-incorrect">5 : Faux</strong> — <span class="text-incorrect">Donne une anémie macrocytaire.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 32 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 32 :</span> Devant une carence en vitamine B12, indiquez la seule anomalie qui ne soit jamais en cause :</span>
+            <span class="year-badge">(2016)</span>
+        </div>
+        <ol class="options numeric">
+            <li>Insuffisance hépatique</li>
+            <li>Gastrectomie totale</li>
+            <li>Maladie de l'iléon</li>
+            <li>Absence de sécrétion de facteur intrinsèque par gastrite atrophique</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">1</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-correct">1 : Vrai (réponse attendue)</strong> — <span class="text-correct">L'insuffisance hépatique n'est pas une cause de carence en vitamine B12 (le foie est un lieu de stockage, mais son insuffisance ne provoque pas de carence).</span></li>
+                <li><strong class="text-incorrect">2 : Faux</strong> — <span class="text-incorrect">Cause classique (absence de facteur intrinsèque).</span></li>
+                <li><strong class="text-incorrect">3 : Faux</strong> — <span class="text-incorrect">Site d'absorption de la B12.</span></li>
+                <li><strong class="text-incorrect">4 : Faux</strong> — <span class="text-incorrect">Maladie de Biermer.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 33 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 33 :</span> Le lieu principal d'absorption active de l'acide folique est :</span>
+            <span class="year-badge">(2016)</span>
+        </div>
+        <ol class="options numeric">
+            <li>L'iléon terminal</li>
+            <li>L'iléon intermédiaire</li>
+            <li>Le duodénum</li>
+            <li>L'estomac</li>
+            <li>Le jéjunum haut</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">5</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">1 : Faux</strong> — <span class="text-incorrect">Site d'absorption de la B12.</span></li>
+                <li><strong class="text-incorrect">2 : Faux</strong> — <span class="text-incorrect">Pas le site principal.</span></li>
+                <li><strong class="text-incorrect">3 : Faux</strong> — <span class="text-incorrect">Site secondaire.</span></li>
+                <li><strong class="text-incorrect">4 : Faux</strong> — <span class="text-incorrect">Pas d'absorption.</span></li>
+                <li><strong class="text-correct">5 : Vrai</strong> — <span class="text-correct">L'acide folique est absorbé au niveau du duodénum et du jéjunum proximal.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 34 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 34 :</span> La vitamine B12 est absorbée au niveau de :</span>
+            <span class="year-badge">(2025, sec A)</span>
+        </div>
+        <ol class="options alpha">
+            <li>Duodénum</li>
+            <li>Jéjunum</li>
+            <li>Iléon terminal</li>
+            <li>Côlon droit</li>
+            <li>Estomac</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">C</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">A : Faux</strong> — <span class="text-incorrect">Site des folates/fer.</span></li>
+                <li><strong class="text-incorrect">B : Faux</strong> — <span class="text-incorrect">Site des folates.</span></li>
+                <li><strong class="text-correct">C : Vrai</strong> — <span class="text-correct">La vitamine B12 est absorbée au niveau de l'iléon terminal.</span></li>
+                <li><strong class="text-incorrect">D : Faux</strong> — <span class="text-incorrect">Pas d'absorption de B12.</span></li>
+                <li><strong class="text-incorrect">E : Faux</strong> — <span class="text-incorrect">Sécrétion du facteur intrinsèque.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 35 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 35 :</span> Épuisement en facteur B12 après :</span>
+            <span class="year-badge">(2025, sec A)</span>
+        </div>
+        <ol class="options alpha">
+            <li>Semaine</li>
+            <li>quatre mois</li>
+            <li>1 an</li>
+            <li>plus de 3 ans</li>
+            <li>plus d'an</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">D</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">A : Faux</strong> — <span class="text-incorrect">Trop court.</span></li>
+                <li><strong class="text-incorrect">B : Faux</strong> — <span class="text-incorrect">Correspond aux folates.</span></li>
+                <li><strong class="text-incorrect">C : Faux</strong> — <span class="text-incorrect">Insuffisant pour la B12.</span></li>
+                <li><strong class="text-correct">D : Vrai</strong> — <span class="text-correct">Les réserves hépatiques en vitamine B12 couvrent 3 à 5 ans, l'épuisement survient donc après plus de 3 ans.</span></li>
+                <li><strong class="text-incorrect">E : Faux</strong> — <span class="text-incorrect">Trop vague.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="course-title"><u><strong>7- Anémies hémolytiques acquises</strong></u></div>
+
+    <!-- QUESTION 36 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 36 :</span> Quel est le principal site d'élimination des hématies chez un malade présentant une anémie hémolytique auto-immune causée par des anticorps IgG ?</span>
+            <span class="year-badge">(2016)</span>
+        </div>
+        <ol class="options numeric">
+            <li>Les ganglions lymphatiques</li>
+            <li>Les vaisseaux sanguins (lyse intravasculaire)</li>
+            <li>Le foie</li>
+            <li>La moelle osseuse</li>
+            <li>La rate</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">5</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">1 : Faux</strong> — <span class="text-incorrect">Pas le site principal.</span></li>
+                <li><strong class="text-incorrect">2 : Faux</strong> — <span class="text-incorrect">Observé plutôt avec les IgM.</span></li>
+                <li><strong class="text-incorrect">3 : Faux</strong> — <span class="text-incorrect">Participation secondaire.</span></li>
+                <li><strong class="text-incorrect">4 : Faux</strong> — <span class="text-incorrect">Pas de destruction circulatoire.</span></li>
+                <li><strong class="text-correct">5 : Vrai</strong> — <span class="text-correct">Les anticorps IgG entraînent une hémolyse intratissulaire, principalement au niveau de la rate (phagocytose par les macrophages spléniques).</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 37 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 37 :</span> Parmi les moyens thérapeutiques de l'anémie hémolytique auto-immune :</span>
+            <span class="year-badge">(2025, sec A)</span>
+        </div>
+        <ol class="options alpha">
+            <li>Corticothérapie</li>
+            <li>Splénectomie</li>
+            <li>Immunothérapie</li>
+            <li>Transfusion de culot globulaire</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">A</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-correct">A : Vrai</strong> — <span class="text-correct">La corticothérapie est le traitement de fond de 1re intention des AHAI à anticorps chauds.</span></li>
+                <li><strong class="text-incorrect">B : Faux</strong> — <span class="text-incorrect">Traitement de 2e intention (échec des corticoïdes).</span></li>
+                <li><strong class="text-incorrect">C : Faux</strong> — <span class="text-incorrect">Ligne ultérieure.</span></li>
+                <li><strong class="text-incorrect">D : Faux</strong> — <span class="text-incorrect">Traitement symptomatique, pas spécifique.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="course-title"><u><strong>8- Anémies hémolytiques constitutionnelles</strong></u></div>
+
+    <!-- QUESTION 38 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 38 :</span> Parmi les anémies hémolytiques congénitales, quelles sont celles qui se manifestent cliniquement à la naissance :
+            1. Hémoglobinose C homozygote
+            2. Béta thalassémie homozygote
+            3. Déficit en G6PD
+            4. Microsphérocytose héréditaire
+            5. Drépanocytose homozygote</span>
+            <span class="year-badge">(2016)</span>
+        </div>
+        <ol class="options alpha">
+            <li>1+2</li>
+            <li>1+3</li>
+            <li>2+4</li>
+            <li>3+5</li>
+            <li>2+5</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">E</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">1 : Faux</strong> — <span class="text-incorrect">Ne se manifeste pas à la naissance (HbC).</span></li>
+                <li><strong class="text-correct">2 : Vrai</strong> — <span class="text-correct">La bêta-thalassémie homozygote se manifeste dès la petite enfance.</span></li>
+                <li><strong class="text-incorrect">3 : Faux</strong> — <span class="text-incorrect">Déclenché par des facteurs oxydatifs plus tard.</span></li>
+                <li><strong class="text-incorrect">4 : Faux</strong> — <span class="text-incorrect">Révélation souvent ultérieure.</span></li>
+                <li><strong class="text-correct">5 : Vrai</strong> — <span class="text-correct">La drépanocytose homozygote se manifeste après la disparition de l'HbF (quelques mois de vie).</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 39 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 39 :</span> Concernant la crise vaso-occlusive (facteurs déclenchants) :</span>
+            <span class="year-badge">(2025, sec A)</span>
+        </div>
+        <ol class="options alpha">
+            <li>Déshydratation</li>
+            <li>Infection</li>
+            <li>Froid</li>
+            <li>Hypoxie</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">A, B, C, D</span></div>
+            <div class="image-container" style="margin-top: 15px; text-align: center;">
+                <img src="images/39.png" alt="Illustration Q39" style="max-width: 100%; height: auto; border-radius: 6px; border: 1px solid #ccc;">
+            </div>
+            <div class="justification-title" style="margin-top: 15px;">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-correct">A : Vrai</strong> — <span class="text-correct">La déshydratation augmente la viscosité sanguine et favorise la falciformation.</span></li>
+                <li><strong class="text-correct">B : Vrai</strong> — <span class="text-correct">Les infections constituent un facteur déclenchant majeur.</span></li>
+                <li><strong class="text-correct">C : Vrai</strong> — <span class="text-correct">Le froid entraîne une vasoconstriction favorisant la stase.</span></li>
+                <li><strong class="text-correct">D : Vrai</strong> — <span class="text-correct">L'hypoxie est le stimulus direct de la polymérisation de l'HbS.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 40 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 40 :</span> Parmi les propositions suivantes, laquelle correspond à la bêta-thalassémie mineure :</span>
+            <span class="year-badge">(2025, sec A)</span>
+        </div>
+        <ol class="options alpha">
+            <li>symptomatique</li>
+            <li>caractérisé par une pseudopolyglobulie microcytaire</li>
+            <li>à l'électrophorèse de l'Hb, l'HbA2 est inférieure à 3,3%</li>
+            <li>parfois nécessite des transfusions sanguines</li>
+            <li>nécessite une prévention par : ATB, VIT B9, vaccination</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">B</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">A : Faux</strong> — <span class="text-incorrect">Asymptomatique (simple trait thalassémique).</span></li>
+                <li><strong class="text-correct">B : Vrai</strong> — <span class="text-correct">Caractérisée par une microcytose marquée avec un nombre de GR élevé (pseudopolyglobulie microcytaire).</span></li>
+                <li><strong class="text-incorrect">C : Faux</strong> — <span class="text-incorrect">L'HbA2 est augmentée (> 3,5%).</span></li>
+                <li><strong class="text-incorrect">D : Faux</strong> — <span class="text-incorrect">Ne nécessite pas de transfusion.</span></li>
+                <li><strong class="text-incorrect">E : Faux</strong> — <span class="text-incorrect">Pas de prise en charge lourde nécessaire.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 41 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 41 :</span> Dans la drépanocytose homozygote, le profil électrophorétique est le suivant :
+            A/ HBS : 80-95%. HBA : absente. HBF : 1-10%. HBA2 : 2-4%.
+            B/ HBS : 40%. HBA : 50%. HBF : 1-10%. HBA2 : 2-4%.
+            C/ HBS : 1-2%. HBA : 96%. HBF : 1-2%. HBA2 : 2-4%.
+            D/ HBS : 10%. HBA : absente. HBF : 95%. HBA2 : 2-4%.
+            E/ HBS : 10%. HBA : 30%. HBF : 1-10%. HBA2 : 55%.</span>
+            <span class="year-badge">(2026, sec B)</span>
+        </div>
+        <ol class="options alpha">
+            <li>A</li>
+            <li>B</li>
+            <li>C</li>
+            <li>D</li>
+            <li>E</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">A</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-correct">A : Vrai</strong> — <span class="text-correct">Dans la drépanocytose homozygote S/S : HbS = 80-95 %, HbA = absente, HbF = 1-10 %, HbA2 = 2-4 %.</span></li>
+                <li><strong class="text-incorrect">B : Faux</strong> — <span class="text-incorrect">Trait drépanocytaire (hétérozygote S/A).</span></li>
+                <li><strong class="text-incorrect">C : Faux</strong> — <span class="text-incorrect">Sujet normal.</span></li>
+                <li><strong class="text-incorrect">D : Faux</strong> — <span class="text-incorrect">Profil néonatal/thalassémique.</span></li>
+                <li><strong class="text-incorrect">E : Faux</strong> — <span class="text-incorrect">Impossible.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 42 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 42 :</span> Le syndrome dysmorphique dans les anémies hémolytiques congénitales est plus marqué chez :</span>
+            <span class="year-badge">(2026, sec B)</span>
+        </div>
+        <ol class="options alpha">
+            <li>Les porteurs d'une bêta-thalassémie majeure.</li>
+            <li>Les drépanocytaires homozygotes.</li>
+            <li>Le déficit en G6PD notamment chez les garçons.</li>
+            <li>La microsphérocytose héréditaire.</li>
+            <li>Toutes les anémies hémolytiques congénitales ont un syndrome dysmorphique prédominant.</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">A</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-correct">A : Vrai</strong> — <span class="text-correct">Le syndrome dysmorphique (faciès mongoloïde, modifications osseuses) est très marqué dans la bêta-thalassémie majeure (maladie de Cooley) par hyperplasie érythroblastique.</span></li>
+                <li><strong class="text-incorrect">B : Faux</strong> — <span class="text-incorrect">Dysmorphie moins fréquente.</span></li>
+                <li><strong class="text-incorrect">C : Faux</strong> — <span class="text-incorrect">Pas de dysmorphie.</span></li>
+                <li><strong class="text-incorrect">D : Faux</strong> — <span class="text-incorrect">Pas de dysmorphie.</span></li>
+                <li><strong class="text-incorrect">E : Faux</strong> — <span class="text-incorrect">Spécifique de la thalassémie majeure.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 43 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 43 :</span> L'hypersplénisme dans la bêta-thalassémie majeure :</span>
+            <span class="year-badge">(2026, sec B)</span>
+        </div>
+        <ol class="options alpha">
+            <li>Est à l'origine des cytopénies de mécanisme central.</li>
+            <li>Est à l'origine des cytopénies de mécanisme périphérique.</li>
+            <li>La ponction de moelle permet de définir le mécanisme.</li>
+            <li>Définit par une augmentation pathologique du volume hépatique.</li>
+            <li>Est une crise vaso-occlusive abdominale</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">B</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">A : Faux</strong> — <span class="text-incorrect">Mécanisme périphérique.</span></li>
+                <li><strong class="text-correct">B : Vrai</strong> — <span class="text-correct">L'hypersplénisme est à l'origine de cytopénies périphériques par séquestration et destruction accélérée dans la rate.</span></li>
+                <li><strong class="text-incorrect">C : Faux</strong> — <span class="text-incorrect">La ponction de moelle montre une moelle riche.</span></li>
+                <li><strong class="text-incorrect">D : Faux</strong> — <span class="text-incorrect">Volume splénique (rate), pas hépatique (foie).</span></li>
+                <li><strong class="text-incorrect">E : Faux</strong> — <span class="text-incorrect">Pas une crise vaso-occlusive.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="course-title"><u><strong>9- Purpura thrombopénique immunologique</strong></u></div>
+
+    <!-- QUESTION 44 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 44 :</span> Chez un adulte atteint de PTI (Purpura Thrombopénique Idiopathique) aigu, quel est le traitement de 1re intention ?</span>
+            <span class="year-badge">(2025, sec A)</span>
+        </div>
+        <ol class="options alpha">
+            <li>Transfusion</li>
+            <li>Corticoïdes</li>
+            <li>NIPLOE</li>
+            <li>Splénectomie</li>
+            <li>Androgènes</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">B</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">A : Faux</strong> — <span class="text-incorrect">Réservé aux urgences vitales.</span></li>
+                <li><strong class="text-correct">B : Vrai</strong> — <span class="text-correct">La corticothérapie est le traitement de première ligne du PTI.</span></li>
+                <li><strong class="text-incorrect">C : Faux</strong> — <span class="text-incorrect">Agoniste de la TPO de 2e ligne.</span></li>
+                <li><strong class="text-incorrect">D : Faux</strong> — <span class="text-incorrect">Traitement de 2e ligne après échec prolongé.</span></li>
+                <li><strong class="text-incorrect">E : Faux</strong> — <span class="text-incorrect">Ligne ultérieure.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 45 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 45 :</span> Au cours d'un purpura immunologique idiopathique, le syndrome hémorragique est :</span>
+            <span class="year-badge">(2026, sec B)</span>
+        </div>
+        <ol class="options alpha">
+            <li>profond</li>
+            <li>Provoqué</li>
+            <li>Spontané</li>
+            <li>Toujours grave</li>
+            <li>Muqueux</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">C</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">A : Faux</strong> — <span class="text-incorrect">Superficiel (cutanéo-muqueux), pas profond.</span></li>
+                <li><strong class="text-incorrect">B : Faux</strong> — <span class="text-incorrect">Il est spontané.</span></li>
+                <li><strong class="text-correct">C : Vrai</strong> — <span class="text-correct">Le purpura se caractérise par des lésions hémorragiques cutanéo-muqueuses qui surviennent de manière essentiellement spontanée.</span></li>
+                <li><strong class="text-incorrect">D : Faux</strong> — <span class="text-incorrect">Souvent bénin, surtout chez l'enfant.</span></li>
+                <li><strong class="text-incorrect">E : Faux</strong> — <span class="text-incorrect">Cutanéo-muqueux et non exclusivement muqueux.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="course-title"><u><strong>10- Cytopénie et aplasie médullaire</strong></u></div>
+
+    <!-- QUESTION 46 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 46 :</span> Dans une insuffisance médullaire, il y’a :
+            1. Une fièvre
+            2. Un purpura
+            3. Une hypertrophie gingivale
+            4. Une splénomégalie
+            5. Une anémie</span>
+            <span class="year-badge">(2016)</span>
+        </div>
+        <ol class="options alpha">
+            <li>1+2</li>
+            <li>2+3</li>
+            <li>1+4+5</li>
+            <li>2+5</li>
+            <li>1+2+5</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">E</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-correct">1 : Vrai</strong> — <span class="text-correct">Fièvre par neutropénie.</span></li>
+                <li><strong class="text-correct">2 : Vrai</strong> — <span class="text-correct">Purpura par thrombopénie.</span></li>
+                <li><strong class="text-incorrect">3 : Faux</strong> — <span class="text-incorrect">Se voit dans les leucémies aiguës.</span></li>
+                <li><strong class="text-incorrect">4 : Faux</strong> — <span class="text-incorrect">Absente dans l'aplasie médullaire.</span></li>
+                <li><strong class="text-correct">5 : Vrai</strong> — <span class="text-correct">Anémie constante.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 47 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 47 :</span> Lequel de ces critères ne fait pas partie des critères de Camitta pour l’aplasie médullaire :
+            1- Taux de réticulocytes.
+            2- Taux de lymphocytes.
+            3- Taux de plaquettes.
+            4- Taux de polynucléaires neutrophiles.</span>
+            <span class="year-badge">(2016)</span>
+        </div>
+        <ol class="options numeric">
+            <li>1</li>
+            <li>2</li>
+            <li>3</li>
+            <li>4</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">2</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">1 : Faux</strong> — <span class="text-incorrect">Fait partie des critères (réticulocytes bas).</span></li>
+                <li><strong class="text-correct">2 : Vrai (ne fait pas partie)</strong> — <span class="text-correct">Le taux de lymphocytes ne figure pas dans les critères de Camitta.</span></li>
+                <li><strong class="text-incorrect">3 : Faux</strong> — <span class="text-incorrect">Fait partie des critères (Plaquettes < 20 000).</span></li>
+                <li><strong class="text-incorrect">4 : Faux</strong> — <span class="text-incorrect">Fait partie des critères (PNN < 500).</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 48 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 48 :</span> Lequel de ces signes n’est pas retrouvé au cours de l’aplasie médullaire idiopathique :</span>
+            <span class="year-badge">(2016)</span>
+        </div>
+        <ol class="options numeric">
+            <li>Syndrome infectieux.</li>
+            <li>Syndrome anémique.</li>
+            <li>Des adénopathies périphériques.</li>
+            <li>Epistaxis et gingivorragies.</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">3</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">1 : Faux</strong> — <span class="text-incorrect">Retrouvé (neutropénie).</span></li>
+                <li><strong class="text-incorrect">2 : Faux</strong> — <span class="text-incorrect">Retrouvé (anémie).</span></li>
+                <li><strong class="text-correct">3 : Vrai (absent)</strong> — <span class="text-correct">Les adénopathies périphériques ne sont pas retrouvées (absence de syndrome tumoral).</span></li>
+                <li><strong class="text-incorrect">4 : Faux</strong> — <span class="text-incorrect">Retrouvé (syndrome hémorragique).</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 49 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 49 :</span> Devant une pancytopénie isolée sur le plan clinique, quel examen permet d'affirmer l'existence d'une aplasie médullaire ?</span>
+            <span class="year-badge">(2016)</span>
+        </div>
+        <ol class="options numeric">
+            <li>Myélogramme</li>
+            <li>Biopsie médullaire</li>
+            <li>Etude cinétique isotopique au fer 59</li>
+            <li>Scintigraphie médullaire à l'iridium</li>
+            <li>Dosage de l'érythropoïétine</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">2</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">1 : Faux</strong> — <span class="text-incorrect">Examen d'orientation, moelle pauvre.</span></li>
+                <li><strong class="text-correct">2 : Vrai</strong> — <span class="text-correct">La biopsie ostéo-médullaire (BOM/PBO) est l'examen clé qui confirme la raréfaction du tissu hématopoïétique (nappe graisseuse).</span></li>
+                <li><strong class="text-incorrect">3, 4, 5 : Faux</strong> — <span class="text-incorrect">Non utilisés pour le diagnostic de certitude.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 50 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 50 :</span> L'examen biologique qui permet de confirmer le diagnostic de l'aplasie médullaire :</span>
+            <span class="year-badge">(2025, sec A)</span>
+        </div>
+        <ol class="options alpha">
+            <li>myélogramme</li>
+            <li>frottis sanguin</li>
+            <li>B.P.O</li>
+            <li>cytométrie en flux</li>
+            <li>l'immunohistochimie</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">C</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">A : Faux</strong> — <span class="text-incorrect">Examen d'orientation.</span></li>
+                <li><strong class="text-incorrect">B : Faux</strong> — <span class="text-incorrect">Montre la pancytopénie.</span></li>
+                <li><strong class="text-correct">C : Vrai</strong> — <span class="text-correct">La B.P.O (Biopsie de la Poche Ostéo-médullaire / BOM) est l'examen de certitude.</span></li>
+                <li><strong class="text-incorrect">D, E : Faux</strong> — <span class="text-incorrect">Ne confirment pas l'aplasie.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 51 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 51 :</span> Tous les signes cliniques et biologiques suivants peuvent se voir en cas d'Aplasie Médullaire sauf un :</span>
+            <span class="year-badge">(2025, sec A; 2026, sec A, B)</span>
+        </div>
+        <ol class="options alpha">
+            <li>Bulles endobuccales</li>
+            <li>Douleurs osseuses</li>
+            <li>Une leuco-neutropénie</li>
+            <li>Lymphocytose relative</li>
+            <li>Une pancytopénie</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">B</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">A : Vrai (possible)</strong> — <span class="text-incorrect">Bulles hémorragiques possibles.</span></li>
+                <li><strong class="text-correct">B : Faux (réponse attendue)</strong> — <span class="text-correct">Les douleurs osseuses ne se voient pas dans l'aplasie médullaire ; elles évoquent une leucémie aiguë.</span></li>
+                <li><strong class="text-incorrect">C : Vrai (constant)</strong> — <span class="text-incorrect">Leuconeutropénie constante.</span></li>
+                <li><strong class="text-incorrect">D : Vrai (constant)</strong> — <span class="text-incorrect">Lymphocytose relative.</span></li>
+                <li><strong class="text-incorrect">E : Vrai (constant)</strong> — <span class="text-incorrect">Pancytopénie constante.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 52 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 52 :</span> Tous ces signes se trouvent dans l'aplasie médullaire sauf :</span>
+            <span class="year-badge">(2025, sec A; 2026, sec A)</span>
+        </div>
+        <ol class="options alpha">
+            <li>splénomégalie</li>
+            <li>syndrome inflammatoire</li>
+            <li>syndrome anémique</li>
+            <li>syndrome hémorragique</li>
+            <li>malformations osseuses</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">E</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">A : Faux</strong> — <span class="text-incorrect">Pas de splénomégalie.</span></li>
+                <li><strong class="text-incorrect">B : Faux</strong> — <span class="text-incorrect">Pas de syndrome inflammatoire spécifique.</span></li>
+                <li><strong class="text-incorrect">C : Faux</strong> — <span class="text-incorrect">Présent.</span></li>
+                <li><strong class="text-incorrect">D : Faux</strong> — <span class="text-incorrect">Présent.</span></li>
+                <li><strong class="text-correct">E : Vrai (sauf)</strong> — <span class="text-correct">Les malformations osseuses se voient dans l'anémie de Fanconi (aplasie constitutionnelle), mais ne font pas partie de l'aplasie médullaire idiopathique classique (ou l'énoncé cible l'absence de malformations dans l'acquise).</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 53 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 53 :</span> Le diagnostic de certitude d'une aplasie médullaire repose sur :</span>
+            <span class="year-badge">(2026, sec B)</span>
+        </div>
+        <ol class="options alpha">
+            <li>Le myélogramme</li>
+            <li>Le frottis de sang</li>
+            <li>La cytométrie en flux</li>
+            <li>La biopsie médullaire</li>
+            <li>L'immunohistochimie</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">D</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">A : Faux</strong> — <span class="text-incorrect">Examen d'orientation.</span></li>
+                <li><strong class="text-incorrect">B : Faux</strong> — <span class="text-incorrect">Ne confirme pas.</span></li>
+                <li><strong class="text-incorrect">C : Faux</strong> — <span class="text-incorrect">Pas l'examen de certitude.</span></li>
+                <li><strong class="text-correct">D : Vrai</strong> — <span class="text-correct">La biopsie médullaire est l'examen de certitude.</span></li>
+                <li><strong class="text-incorrect">E : Faux</strong> — <span class="text-incorrect">Non.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="course-title"><u><strong>11- Leucoses aigués</strong></u></div>
+
+    <!-- QUESTION 54 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 54 :</span> Une leucémie aigüe est définie par un pourcentage de blastes dans la moelle :</span>
+            <span class="year-badge">(2016)</span>
+        </div>
+        <ol class="options numeric">
+            <li>Entre 20 et 30%.</li>
+            <li>Supérieur à 30%.</li>
+            <li>Supérieur ou égal à 20%.</li>
+            <li>Quel que soit le taux de blastes dans la moelle.</li>
+            <li>Un taux de plasmocytes supérieur à 10%.</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">3</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">1 : Faux</strong> — <span class="text-incorrect">Trop restreint.</span></li>
+                <li><strong class="text-incorrect">2 : Faux</strong> — <span class="text-incorrect">Seuil obsolète.</span></li>
+                <li><strong class="text-correct">3 : Vrai</strong> — <span class="text-correct">Le seuil OMS est ≥ 20 % de blastes dans la moelle.</span></li>
+                <li><strong class="text-incorrect">4 : Faux</strong> — <span class="text-incorrect">Le taux est requis.</span></li>
+                <li><strong class="text-incorrect">5 : Faux</strong> — <span class="text-incorrect">Myélome.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 55 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 55 :</span> Laquelle est présente de manière constante au cours de leucémie aiguë :</span>
+            <span class="year-badge">(2025, sec A)</span>
+        </div>
+        <ol class="options alpha">
+            <li>la blastose sanguine</li>
+            <li>pancytopénie</li>
+            <li>hyperuricémie</li>
+            <li>blastose médullaire</li>
+            <li>hyperleucocytose</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">D</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">A : Faux</strong> — <span class="text-incorrect">Peut être absente (forme aleucémique).</span></li>
+                <li><strong class="text-incorrect">B : Faux</strong> — <span class="text-incorrect">Fréquente mais pas constante.</span></li>
+                <li><strong class="text-incorrect">C : Faux</strong> — <span class="text-incorrect">Inconstante.</span></li>
+                <li><strong class="text-correct">D : Vrai</strong> — <span class="text-correct">La blastose médullaire (≥ 20 %) est constante et définit la maladie.</span></li>
+                <li><strong class="text-incorrect">E : Faux</strong> — <span class="text-incorrect">Leucocytose variable.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 56 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 56 :</span> Leucémie aiguë est définie par un taux de blastose médullaire sup à :</span>
+            <span class="year-badge">(2025, sec A)</span>
+        </div>
+        <ol class="options alpha">
+            <li>15%</li>
+            <li>20%</li>
+            <li>10%</li>
+            <li>30%</li>
+            <li>05%</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">B</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">A : Faux</strong> — <span class="text-incorrect">15 % est insuffisant.</span></li>
+                <li><strong class="text-correct">B : Vrai</strong> — <span class="text-correct">Le seuil diagnostique est 20 %.</span></li>
+                <li><strong class="text-incorrect">C : Faux</strong> — <span class="text-incorrect">10 % insuffisant.</span></li>
+                <li><strong class="text-incorrect">D : Faux</strong> — <span class="text-incorrect">Ancien seuil.</span></li>
+                <li><strong class="text-incorrect">E : Faux</strong> — <span class="text-incorrect">Rémission complète.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="course-title"><u><strong>12- Syndrome myeloprolifertifs chronique</strong></u></div>
+
+    <!-- QUESTION 57 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 57 :</span> Les critères communs dans le syndrome myéloprolifératif sauf un :</span>
+            <span class="year-badge">(2025, sec A; 2026, sec A)</span>
+        </div>
+        <ol class="options alpha">
+            <li>splénomégalie</li>
+            <li>évolution vers leucémie aiguë</li>
+            <li>thromboses veineuses</li>
+            <li>hyperuricémie</li>
+            <li>chromosome de Philadelphie</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">E</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">A : Vrai (commun)</strong> — <span class="text-incorrect">Splénomégalie fréquente.</span></li>
+                <li><strong class="text-incorrect">B : Vrai (commun)</strong> — <span class="text-incorrect">Risque d'évolution aiguë.</span></li>
+                <li><strong class="text-incorrect">C : Vrai (commun)</strong> — <span class="text-incorrect">Risque thrombotique.</span></li>
+                <li><strong class="text-incorrect">D : Vrai (commun)</strong> — <span class="text-incorrect">Hyperuricémie par turn-over.</span></li>
+                <li><strong class="text-correct">E : Faux (sauf)</strong> — <span class="text-correct">Le chromosome Philadelphie est spécifique de la LMC, pas commun à tous les SMP.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 58 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 58 :</span> Splénomégalie avec hyperleucocytose, PNN et myélémie fait évoquer le diagnostic :</span>
+            <span class="year-badge">(2025, sec A; 2026, sec A)</span>
+        </div>
+        <ol class="options alpha">
+            <li>leucémie aiguë myéloïde</li>
+            <li>leucémie myéloïde chronique</li>
+            <li>leucémie lymphoïde chronique</li>
+            <li>lymphome splénique</li>
+            <li>leucémie aiguë lymphoïde</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">B</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">A : Faux</strong> — <span class="text-incorrect">Pas de myélémie harmonieuse.</span></li>
+                <li><strong class="text-correct">B : Vrai</strong> — <span class="text-correct">La LMC associe splénomégalie, hyperleucocytose avec myélémie harmonieuse et polynucléose neutrophile.</span></li>
+                <li><strong class="text-incorrect">C : Faux</strong> — <span class="text-incorrect">Hyperlymphocytose.</span></li>
+                <li><strong class="text-incorrect">D : Faux</strong> — <span class="text-incorrect">Tableau différent.</span></li>
+                <li><strong class="text-incorrect">E : Faux</strong> — <span class="text-incorrect">Pas de myélémie.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 59 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 59 :</span> Le Sd de Richter correspond à la définition :</span>
+            <span class="year-badge">(2025, sec A)</span>
+        </div>
+        <ol class="options alpha">
+            <li>transformation de la LLC en un lymphome de haut grade de malignité</li>
+            <li>infiltration du ganglion par des cellules de Reed-Sternberg</li>
+            <li>LLC de stade C</li>
+            <li>infiltration médullaire par lymphome malin de haut grade de malignité</li>
+            <li>la transformation de la LLC en LAL</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">A</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-correct">A : Vrai</strong> — <span class="text-correct">Le syndrome de Richter correspond à la transformation d'une LLC en lymphome malin agressif (haut grade, le plus souvent type grand b).</span></li>
+                <li><strong class="text-incorrect">B : Faux</strong> — <span class="text-incorrect">Hodgkin.</span></li>
+                <li><strong class="text-incorrect">C : Faux</strong> — <span class="text-incorrect">Stade Binet C.</span></li>
+                <li><strong class="text-incorrect">D : Faux</strong> — <span class="text-incorrect">Définition incomplète.</span></li>
+                <li><strong class="text-incorrect">E : Faux</strong> — <span class="text-incorrect">Pas en LAL.</span></li>
+            </ul>
+        </div>
+    </div>
+        <!-- QUESTION 49 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 49 :</span> Le Sd de Richter correspond à la définition :</span>
+            <span class="year-badge">(2025, sec A)</span>
+        </div>
+        <ol class="options alpha">
+            <li>transformation de la LLC en un lymphome de haut grade de malignité</li>
+            <li>infiltration du ganglion par des cellules de Reed-Sternberg</li>
+            <li>LLC de stade C</li>
+            <li>infiltration médullaire par lymphome malin de haut grade de malignité</li>
+            <li>la transformation de la LLC en LAL</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">A</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-correct">A : Vrai</strong> — <span class="text-correct">Le syndrome de Richter est la transformation de la LLC en lymphome de haut grade de malignité (lymphome diffus à grandes cellules B).</span></li>
+                <li><strong class="text-incorrect">B : Faux</strong> — <span class="text-incorrect">L'infiltration par des cellules de Reed-Sternberg évoque la maladie de Hodgkin.</span></li>
+                <li><strong class="text-incorrect">C : Faux</strong> — <span class="text-incorrect">LLC stade C n'est pas le syndrome de Richter.</span></li>
+                <li><strong class="text-incorrect">D : Faux</strong> — <span class="text-incorrect">L'infiltration médullaire par un lymphome de haut grade n'est pas la définition.</span></li>
+                <li><strong class="text-incorrect">E : Faux</strong> — <span class="text-incorrect">La transformation en LAL est rare et ne définit pas le syndrome de Richter.</span></li>
+            </ul>
+        </div>
+    </div>
+        <!-- QUESTION 60 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 60 :</span> Dans les LLC, au stade B, les adénopathies sont :</span>
+            <span class="year-badge">(2026, sec A)</span>
+        </div>
+        <ol class="options alpha">
+            <li>constantes dans 100% des cas</li>
+            <li>fréquentes mais peuvent être absentes</li>
+            <li>bilatérales et symétriques</li>
+            <li>indolores, mobiles, fermes et non fistulées</li>
+        </ol>
+        <ol class="options alpha" style="list-style-type: upper-alpha; margin-top: 10px;">
+            <li>A - a, b, c</li>
+            <li>B - a, c</li>
+            <li>C - b, d</li>
+            <li>D - a, b, c, d</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">B</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-incorrect">a : Faux</strong> — <span class="text-incorrect">Les adénopathies ne sont pas nécessairement présentes dans 100% des cas (le stade B se définit par 3 aires ganglionnaires ou plus atteintes, mais l'examen clinique peut parfois retrouver des profils particuliers, bien que la clinique repose sur la définition Binet).</span></li>
+                <li><strong class="text-correct">b : Faux</strong> — <span class="text-correct">Au stade B, l'atteinte ganglionnaire est un critère de définition (≥ 3 aires atteintes), elles sont donc généralement présentes.</span></li>
+                <li><strong class="text-correct">c : Vrai</strong> — <span class="text-correct">Les adénopathies de la LLC sont typiquement bilatérales, symétriques, indolores, mobiles et fermes.</span></li>
+                <li><strong class="text-incorrect">d : Faux</strong> — <span class="text-incorrect">Elles ne sont jamais fistulées (la fistulisation évoque une origine infectieuse ou tumorale nécrotique, comme dans la tuberculose ou certains lymphomes agressifs).</span></li>
+            </ul>
+        </div>
+    </div>
+        <!-- QUESTION 85 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 85 :</span> Le pronostic de la LMC est amélioré grâce à l'élaboration de :</span>
+            <span class="year-badge">(2026, sec A)</span>
+        </div>
+        <ol class="options alpha">
+            <li>Thérapie ciblée</li>
+            <li>Chimiothérapie intensive</li>
+            <li>L'autogreffe de la moelle osseuse</li>
+            <li>L'allogreffe de la moelle osseuse</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">A</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-correct">A : Vrai</strong> — <span class="text-correct">La thérapie ciblée (inhibiteurs de tyrosine kinase : imatinib) a révolutionné le pronostic de la LMC.</span></li>
+                <li><strong class="text-incorrect">B : Faux</strong> — <span class="text-incorrect">La chimiothérapie intensive n'est pas le traitement de référence.</span></li>
+                <li><strong class="text-incorrect">C : Faux</strong> — <span class="text-incorrect">L'autogreffe n'est pas le traitement de choix.</span></li>
+                <li><strong class="text-incorrect">D : Faux</strong> — <span class="text-incorrect">L'allogreffe est réservée aux cas résistants ou en phase accélérée.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- QUESTION 86 -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Question 86 :</span> Dans la LLC, l'anémie est un signe de mauvais pronostic, elle peut être secondaire à :</span>
+            <span class="year-badge">(2026, sec A)</span>
+        </div>
+        <ol class="options alpha">
+            <li>Infiltration médullaire par les lymphocytes clonaux.</li>
+            <li>Immunologique par des Ac contre les GR.</li>
+            <li>Permet du passer du stade B au stade C.</li>
+            <li>Traité par le fer.</li>
+        </ol>
+        <ol class="options alpha" style="list-style-type: upper-alpha; margin-top: 10px;">
+            <li>A - a, b, c</li>
+            <li>B - a, c</li>
+            <li>C - b, d</li>
+            <li>D - d</li>
+            <li>E - a, b, c, d</li>
+        </ol>
+        <div class="answer-section">
+            <hr class="answer-divider">
+            <div class="answer-line"><span class="answer-label">Réponse :</span> <span class="answer-badge">A</span></div>
+            <div class="justification-title">Justification :</div>
+            <ul class="justifications">
+                <li><strong class="text-correct">a : Vrai</strong> — <span class="text-correct">Infiltration médullaire par les lymphocytes clonaux (insuffisance médullaire centrale).</span></li>
+                <li><strong class="text-correct">b : Vrai</strong> — <span class="text-correct">Origine immunologique par des anticorps dirigés contre les globules rouges (anémie hémolytique auto-immune associée).</span></li>
+                <li><strong class="text-correct">c : Vrai</strong> — <span class="text-correct">L'apparition d'une anémie (Hb < 10 g/dl) fait basculer le patient du stade B au stade C de la classification de Binet.</span></li>
+                <li><strong class="text-incorrect">d : Faux</strong> — <span class="text-incorrect">Elle n'est pas traitée par le fer (sauf en cas de carence martiale surajoutée).</span></li>
+            </ul>
+        </div>
+    </div>
+        <!-- NOTE INFORMATIVE -->
+    <div class="question-box">
+        <div class="question-header">
+            <span class="q-stem"><span class="q-num">Note :</span> 19- TD : CAT devant un accident transfusionnel</span>
+        </div>
+        <div class="answer-section">
+            <div class="answer-line"><span class="answer-badge">Information</span></div>
+            <div class="justification-title">Remarque pédagogique :</div>
+            <p style="margin-top: 5px; color: #555;">Il n'y a pas de QCSs à ce cours dans les examens disponibles.</p>
+        </div>
+    </div>
+    </main>
+
+
+</body>
+
+</html>
