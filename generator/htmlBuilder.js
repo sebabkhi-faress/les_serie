@@ -5,7 +5,7 @@ function buildCompleteHtml(seriesData) {
     const {
         title = "MODULE 01 : ONCO-HÉMATOLOGIE",
         subtitle = "QCM Corrigés & Justifiés",
-        headerCategory = "RÉSIDANAT & INTERNAT EN MÉDECINE",
+        headerCategory = "",
         footerTag = "QCM D'ANNALES",
         startPage = 4,
         questions = [],
@@ -247,13 +247,13 @@ function buildCompleteHtml(seriesData) {
                 color: #94a3b8;
                 letter-spacing: 0.3px;
             }
-            @bottom-right {
+            ${headerCategory ? `@bottom-right {
                 content: "${escapeHtml(headerCategory)}";
                 font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
                 font-size: 7.5pt;
                 font-weight: 600;
                 color: #94a3b8;
-            }
+            }` : ''}
         }
 
         * {

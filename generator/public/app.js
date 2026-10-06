@@ -6,7 +6,7 @@
 const state = {
     title: "MODULE 01 : ONCO-HÉMATOLOGIE",
     subtitle: "QCM Corrigés & Justifiés",
-    headerCategory: "RÉSIDANAT & INTERNAT EN MÉDECINE",
+    headerCategory: "",
     footerTag: "QCM D'ANNALES",
     startPage: 4,
     filename: "serie1.html",
