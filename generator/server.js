@@ -176,7 +176,8 @@ const { generateBarcodeSVG, generateUniqueCode } = require('./barcodeGenerator')
 
 function checkHtmlIsProtected(content) {
     if (!content) return false;
-    return content.includes('<thead class="running-print-header">') ||
+    return content.includes('chameleon-') ||
+           content.includes('<thead class="running-print-header">') ||
            content.includes('class="protection-screen-banner"') ||
            content.includes('EXEMPLAIRE SÉCURISÉ &amp; TRAÇABLE') ||
            content.includes('EXEMPLAIRE SÉCURISÉ & TRAÇABLE') ||
@@ -185,7 +186,9 @@ function checkHtmlIsProtected(content) {
 
 function extractProtectedStudentName(content) {
     if (!content) return '';
-    const match = content.match(/Attribué\s*à\s*:\s*<strong>(.*?)<\/strong>/i) ||
+    const match = content.match(/<strong class="chameleon-student">(.*?)<\/strong>/i) ||
+                  content.match(/Exemplaire\s*:\s*<strong>(.*?)<\/strong>/i) ||
+                  content.match(/Attribué\s*à\s*:\s*<strong>(.*?)<\/strong>/i) ||
                   content.match(/Attribué\s*à\s*:\s*([^\n<]+)/i);
     return match ? match[1].trim() : '';
 }
@@ -873,7 +876,7 @@ ${rawText}
                     const targetPath = path.join(FILES_DIR, safeName);
                     fs.writeFileSync(targetPath, content, 'utf-8');
 
-                    const isProtected = content.includes('running-print-header') || content.includes('doc-table-wrapper');
+                    const isProtected = content.includes('chameleon-') || content.includes('running-print-header') || content.includes('doc-table-wrapper');
                     return sendJson(res, 200, {
                         ok: true,
                         filename: safeName,

@@ -183,49 +183,70 @@
             box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
         }
 
-        /* ================= BANNIÈRE DE PROTECTION (ÉCRAN) ================= */
-        .protection-screen-banner {
+        /* ================= EN-TÊTE CHAMELEON (ÉCRAN & IMPRESSION) ================= */
+        .chameleon-screen-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #f8fafc;
-            border: 1.5px solid #cbd5e1;
-            border-left: 4px solid #0284c7;
-            border-radius: 6px;
-            padding: 8px 12px;
-            margin-bottom: 12px;
+            background: transparent;
+            border: none;
+            border-bottom: 0.8px solid #cbd5e1;
+            padding: 2px 0 5px 0;
+            margin: 0 auto 10px auto;
+            max-width: 900px;
+            box-sizing: border-box;
         }
 
-        .prot-banner-left {
+        .chameleon-header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            background: transparent;
+        }
+
+        .chameleon-meta {
             display: flex;
             flex-direction: column;
             gap: 2px;
         }
 
-        .prot-badge {
-            font-size: 8pt;
-            font-weight: 800;
-            color: #0369a1;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .prot-user {
-            font-size: 9.5pt;
+        .chameleon-title-line {
+            font-size: 7.5pt;
+            font-weight: 700;
             color: #0f172a;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
         }
 
-        .prot-date {
-            font-size: 8pt;
+        .chameleon-sub-line {
+            font-size: 6.8pt;
             color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        .prot-banner-right svg {
+        .chameleon-sub-line strong {
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        .chameleon-sep {
+            color: #cbd5e1;
+        }
+
+        .chameleon-barcode {
+            display: flex;
+            align-items: center;
+        }
+
+        .chameleon-barcode svg {
             display: block;
+            height: 22px;
         }
 
-        /* ================= EN-TÊTE RÉPÉTÉ SUR TOUTES LES PAGES (IMPRESSION) ================= */
-        .running-print-header {
+        .chameleon-running-header-fixed {
             display: none;
         }
 

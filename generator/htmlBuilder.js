@@ -882,135 +882,136 @@ function applyProtectionToExistingHtml(html, protectionOptions = {}) {
 
     const protectionCSS = `
 <style id="protectionInjectedStyles">
-/* ================= PROTECTION SÉCURISÉE SANS TABLE (ZÉRO LAG) ================= */
-.protection-screen-banner {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #f8fafc;
-    border: 1.5px solid #cbd5e1;
-    border-left: 4px solid #0284c7;
-    border-radius: 6px;
-    padding: 8px 12px;
-    margin: 12px auto;
-    max-width: 900px;
-    box-sizing: border-box;
+/* ================= PROTECTION CHAMELEON (TRANSPARENTE & INTÉGRÉE) ================= */
+.chameleon-screen-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 0.8px solid #cbd5e1 !important;
+    padding: 2px 0 5px 0 !important;
+    margin: 0 auto 10px auto !important;
+    max-width: 900px !important;
+    box-sizing: border-box !important;
 }
-.prot-banner-left {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-.prot-badge {
-    font-size: 8pt;
-    font-weight: 800;
-    color: #0369a1;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-.prot-user {
-    font-size: 9.5pt;
-    color: #0f172a;
-}
-.prot-date {
-    font-size: 8pt;
-    color: #64748b;
-}
-.prot-banner-right svg {
-    display: block;
-}
-.running-print-header-fixed {
+.chameleon-running-header-fixed {
     display: none;
+}
+.chameleon-header-content {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    width: 100% !important;
+    background: transparent !important;
+}
+.chameleon-meta {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2px !important;
+}
+.chameleon-title-line {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+    font-size: 7.5pt !important;
+    font-weight: 700 !important;
+    color: #0f172a !important;
+    letter-spacing: 0.3px !important;
+    text-transform: uppercase !important;
+}
+.chameleon-sub-line {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+    font-size: 6.8pt !important;
+    color: #64748b !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+}
+.chameleon-sub-line strong {
+    color: #1e293b !important;
+    font-weight: 600 !important;
+}
+.chameleon-sep {
+    color: #cbd5e1 !important;
+}
+.chameleon-barcode {
+    display: flex !important;
+    align-items: center !important;
+}
+.chameleon-barcode svg {
+    display: block !important;
+    height: 22px !important;
 }
 
 @media print {
     @page {
         size: A4 portrait !important;
-        margin-top: 24mm !important;
-        margin-bottom: 12mm !important;
-        margin-left: 10mm !important;
-        margin-right: 10mm !important;
+        margin-top: 18mm !important;
+        margin-bottom: 11mm !important;
+        margin-left: 8mm !important;
+        margin-right: 8mm !important;
     }
     @page:first {
-        margin-top: 24mm !important;
+        margin-top: 18mm !important;
     }
-    .protection-screen-banner {
+    .chameleon-screen-header {
         display: none !important;
     }
-    .running-print-header-fixed {
+    .chameleon-running-header-fixed {
         display: block !important;
         position: fixed !important;
-        top: -18mm !important;
+        top: -14mm !important;
         left: 0 !important;
         right: 0 !important;
-        height: 12mm !important;
-        border-bottom: 1.5px solid #0284c7 !important;
-        padding-bottom: 2mm !important;
-        font-size: 8pt !important;
+        height: 10mm !important;
         background: #ffffff !important;
+        border: none !important;
+        border-bottom: 0.8px solid #cbd5e1 !important;
+        padding-bottom: 1.5mm !important;
         z-index: 9999 !important;
     }
-    .protection-header-content {
+    .chameleon-running-header-fixed .chameleon-header-content {
         display: flex !important;
         justify-content: space-between !important;
         align-items: center !important;
         width: 100% !important;
     }
-    .prot-badge-mini {
-        background: #0284c7 !important;
-        color: #ffffff !important;
-        padding: 1px 4px !important;
-        border-radius: 3px !important;
-        font-size: 7pt !important;
-        font-weight: 800 !important;
-        letter-spacing: 0.3px !important;
-        margin-right: 4px !important;
-    }
-    .running-left {
-        color: #0f172a !important;
-        font-size: 8pt !important;
-    }
-    .running-right svg {
-        height: 24px !important;
+    .chameleon-barcode svg {
+        height: 20px !important;
     }
 }
 </style>
 `;
 
-    const printHeaderHtml = `
-<div class="running-print-header-fixed">
-    <div class="protection-header-content">
-        <div class="running-left">
-            <span class="prot-badge-mini">DOCUMENT SÉCURISÉ</span>
-            <span class="running-user">Attribué à : <strong>${safeStudent}</strong></span>
-            <span class="running-doc">• ${safeTitle}</span>
+    const chameleonHeaderInner = `
+    <div class="chameleon-header-content">
+        <div class="chameleon-meta">
+            <div class="chameleon-title-line">FACULTÉ DE MÉDECINE  •  ${safeTitle}</div>
+            <div class="chameleon-sub-line">
+                <span>Exemplaire : <strong>${safeStudent}</strong></span>
+                <span class="chameleon-sep">•</span>
+                <span>Réf. : ${safeBarcode}</span>
+                <span class="chameleon-sep">•</span>
+                <span>${safeDate}</span>
+            </div>
         </div>
-        <div class="running-right">
+        <div class="chameleon-barcode">
             ${safeBarcodeSvg}
         </div>
-    </div>
-</div>`;
+    </div>`;
 
-    const screenBannerHtml = `
-<div class="protection-screen-banner">
-    <div class="prot-banner-left">
-        <span class="prot-badge">🛡️ EXEMPLAIRE SÉCURISÉ & TRAÇABLE</span>
-        <span class="prot-user">Attribué à : <strong>${safeStudent}</strong></span>
-        <span class="prot-date">Émis le : ${safeDate}</span>
-    </div>
-    <div class="prot-banner-right">
-        ${safeBarcodeSvg}
-    </div>
-</div>`;
+    const printHeaderHtml = `<div class="chameleon-running-header-fixed">${chameleonHeaderInner}</div>`;
+    const screenBannerHtml = `<div class="chameleon-screen-header">${chameleonHeaderInner}</div>`;
 
     let result = html;
 
     // 1. Clean previous protection artefacts if any
-    result = result.replace(/<style id="protectionInjectedStyles">[\s\S]*?<\/style>/i, '');
-    result = result.replace(/<table class="doc-table-wrapper">[\s\S]*?<tbody[^>]*>[\s\S]*?<tr>[\s\S]*?<td>/i, '');
-    result = result.replace(/<\/td>[\s\S]*?<\/tr>[\s\S]*?<\/tbody>[\s\S]*?<\/table>/i, '');
-    result = result.replace(/<div class="running-print-header-fixed">[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/i, '');
-    result = result.replace(/<div class="protection-screen-banner">[\s\S]*?<\/div>\s*<\/div>/i, '');
+    result = result.replace(/<style id="protectionInjectedStyles">[\s\S]*?<\/style>/gi, '');
+    result = result.replace(/<table class="doc-table-wrapper">[\s\S]*?<tbody[^>]*>[\s\S]*?<tr>[\s\S]*?<td>/gi, '');
+    result = result.replace(/<\/td>[\s\S]*?<\/tr>[\s\S]*?<\/tbody>[\s\S]*?<\/table>/gi, '');
+    result = result.replace(/<div class="running-print-header-fixed">[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/gi, '');
+    result = result.replace(/<div class="protection-screen-banner">[\s\S]*?<\/div>\s*<\/div>/gi, '');
+    result = result.replace(/<div class="chameleon-running-header-fixed">[\s\S]*?<\/div>\s*<\/div>/gi, '');
+    result = result.replace(/<div class="chameleon-screen-header">[\s\S]*?<\/div>\s*<\/div>/gi, '');
 
     // 2. Inject CSS before </head>
     if (result.includes('</head>')) {
@@ -1019,7 +1020,7 @@ function applyProtectionToExistingHtml(html, protectionOptions = {}) {
         result = protectionCSS + result;
     }
 
-    // 3. Inject banner and print header at the top of container (ZERO table wrapping!)
+    // 3. Inject Chameleon header inside the main container
     const containerOpenMatch = result.match(/(<(?:div|main)[^>]*class="[^"]*container[^"]*"[^>]*>)/i);
     if (containerOpenMatch) {
         result = result.replace(containerOpenMatch[0], `${containerOpenMatch[0]}\n${screenBannerHtml}\n${printHeaderHtml}\n`);

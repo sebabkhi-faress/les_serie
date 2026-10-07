@@ -63,9 +63,9 @@ async function protectExistingPdf(pdfBuffer, options = {}) {
     const pages = pdfDoc.getPages();
 
     // Reserved header zone height (pt) so original content is NEVER covered
-    const bannerHeight = 30;
-    const topMargin = 5;
-    const totalTopReserved = bannerHeight + topMargin + 7; // 42pt clear headroom
+    const bannerHeight = 22;
+    const topMargin = 4;
+    const totalTopReserved = bannerHeight + topMargin + 3; // 29pt headroom (subtle, minimal scale)
 
     for (let idx = 0; idx < pages.length; idx++) {
         const origPage = pages[idx];
@@ -77,7 +77,7 @@ async function protectExistingPdf(pdfBuffer, options = {}) {
         const scaledWidth = width * scale;
         const scaledHeight = height * scale;
         const offsetX = (width - scaledWidth) / 2;
-        const offsetY = 4; // slight bottom padding
+        const offsetY = 3;
 
         const newPage = newDoc.addPage([width, height]);
 
@@ -89,67 +89,46 @@ async function protectExistingPdf(pdfBuffer, options = {}) {
             yScale: scale
         });
 
-        // 3. Draw security header in the reserved top zone (ZERO OVERLAP!)
+        // 3. Draw Chameleon Header (ZERO background, ZERO border-box, completely integrated!)
         const bannerY = height - bannerHeight - topMargin;
-        const marginX = 16;
+        const marginX = 20;
         const bannerWidth = width - (marginX * 2);
 
-        // Header background banner
-        newPage.drawRectangle({
+        // Delicate hairline divider under the header
+        newPage.drawLine({
+            start: { x: marginX, y: bannerY },
+            end: { x: marginX + bannerWidth, y: bannerY },
+            thickness: 0.5,
+            color: rgb(0.80, 0.84, 0.89)
+        });
+
+        // Chameleon Line 1: Academic / Module Header
+        const cleanDocTitle = (documentTitle || "MODULE MEDICAL").replace(/[^\x20-\x7E]/g, '').toUpperCase();
+        newPage.drawText(`FACULTE DE MEDECINE  •  ${cleanDocTitle}`.slice(0, 68), {
             x: marginX,
-            y: bannerY,
-            width: bannerWidth,
-            height: bannerHeight,
-            color: rgb(0.97, 0.98, 0.99),
-            borderColor: rgb(0.79, 0.84, 0.89),
-            borderWidth: 0.8
+            y: bannerY + bannerHeight - 7,
+            size: 7.2,
+            font: fontBold,
+            color: rgb(0.12, 0.18, 0.28)
         });
 
-        // Left vertical accent bar (Medical cyan)
-        newPage.drawRectangle({
+        // Chameleon Line 2: Natural administrative registration index
+        const cleanStudent = studentName.replace(/[^\x20-\x7E]/g, '');
+        const metaLine = `Exemplaire : ${cleanStudent}   •   Ref : ${barcode}   •   ${date}   •   Page ${idx + 1}/${pages.length}`;
+        newPage.drawText(metaLine.slice(0, 85), {
             x: marginX,
-            y: bannerY,
-            width: 3.5,
-            height: bannerHeight,
-            color: rgb(0.01, 0.52, 0.78)
-        });
-
-        // Line 1: Title badge
-        newPage.drawText("", {
-            x: marginX + 8,
-            y: bannerY + bannerHeight - 9,
-            size: 6.8,
-            font: fontBold,
-            color: rgb(0.01, 0.41, 0.63)
-        });
-
-        // Line 2: Student Name
-        const cleanStudent = studentName.replace(/[^\x20-\x7E]/g, ''); // ASCII safe for Helvetica
-        newPage.drawText(`Attribue a : ${cleanStudent}`, {
-            x: marginX + 8,
-            y: bannerY + bannerHeight - 18,
-            size: 8.5,
-            font: fontBold,
-            color: rgb(0.06, 0.09, 0.16)
-        });
-
-        // Line 3: Date & Document Title & Page counter
-        const cleanDocTitle = documentTitle.replace(/[^\x20-\x7E]/g, '');
-        const metaLine = `Emis le : ${date}  •  ${cleanDocTitle}  (Page ${idx + 1}/${pages.length})`;
-        newPage.drawText(metaLine.slice(0, 75), {
-            x: marginX + 8,
-            y: bannerY + bannerHeight - 26,
-            size: 6.2,
+            y: bannerY + bannerHeight - 16,
+            size: 6.0,
             font: fontRegular,
-            color: rgb(0.39, 0.45, 0.54)
+            color: rgb(0.42, 0.48, 0.56)
         });
 
-        // Barcode on Right
-        const unitWidth = 0.82;
-        const barHeight = 14;
+        // Barcode on Right (Official Archival Code)
+        const unitWidth = 0.78;
+        const barHeight = 12.5;
         const totalBarWidth = pattern.split('').reduce((acc, d) => acc + parseInt(d, 10) * unitWidth, 0);
-        let barX = width - marginX - 8 - totalBarWidth;
-        const barY = bannerY + 10.5;
+        let barX = width - marginX - totalBarWidth;
+        const barY = bannerY + 6;
 
         for (let i = 0; i < pattern.length; i++) {
             const w = parseInt(pattern[i], 10) * unitWidth;
@@ -159,7 +138,7 @@ async function protectExistingPdf(pdfBuffer, options = {}) {
                     y: barY,
                     width: w,
                     height: barHeight,
-                    color: rgb(0, 0, 0)
+                    color: rgb(0.08, 0.10, 0.14)
                 });
             }
             barX += w;
@@ -167,13 +146,13 @@ async function protectExistingPdf(pdfBuffer, options = {}) {
 
         // 12-digit number below barcode
         const numText = barcode;
-        const numWidth = fontMono.widthOfTextAtSize(numText, 6.2);
+        const numWidth = fontMono.widthOfTextAtSize(numText, 5.8);
         newPage.drawText(numText, {
-            x: (width - marginX - 8 - totalBarWidth) + (totalBarWidth - numWidth) / 2,
-            y: barY - 7.5,
-            size: 6.2,
+            x: (width - marginX - totalBarWidth) + (totalBarWidth - numWidth) / 2,
+            y: barY - 5.5,
+            size: 5.8,
             font: fontMono,
-            color: rgb(0, 0, 0)
+            color: rgb(0.15, 0.20, 0.28)
         });
     }
 
