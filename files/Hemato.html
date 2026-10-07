@@ -21,8 +21,9 @@
             }
         }
 
-        @page: first {
-            counter-set: page 4;
+        @page:first {
+            counter-set: page 6;
+            counter-reset: page 5;
 
             @bottom-left {
                 content: "MODULE 01: ONCO_HEMATOLOGIE • QCM D&#39;ANNALES";
@@ -32,6 +33,10 @@
                 color: #94a3b8;
                 letter-spacing: 0.3px;
             }
+        }
+
+        body {
+            counter-reset: page 5;
         }
 
         * {

@@ -239,6 +239,7 @@ function buildCompleteHtml(seriesData) {
 
         @page:first {
             counter-set: page ${startPage};
+            counter-reset: page ${startPage > 1 ? startPage - 1 : 0};
             @bottom-left {
                 content: "${escapeHtml(title)} • ${escapeHtml(footerTag)}${isProtected ? ` [${barcodeNumber}]` : ''}";
                 font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -263,6 +264,7 @@ function buildCompleteHtml(seriesData) {
         }
 
         body {
+            counter-reset: page ${startPage > 1 ? startPage - 1 : 0};
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             color: #1e293b;
             background-color: #f1f5f9;

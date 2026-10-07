@@ -517,6 +517,15 @@ async function handleConfirmPrint() {
         // Standard Print
         try {
             const frameWin = previewIframe.contentWindow;
+            const doc = previewIframe.contentDocument || frameWin?.document;
+            if (doc && doc.body) {
+                const prevP = Math.max(0, state.startPage - 1);
+                doc.body.style.counterReset = `page ${prevP}`;
+                const dynStyle = doc.getElementById('dynamic-print-counter') || doc.createElement('style');
+                dynStyle.id = 'dynamic-print-counter';
+                dynStyle.textContent = `@page:first { counter-set: page ${state.startPage}; counter-reset: page ${prevP}; } body { counter-reset: page ${prevP}; }`;
+                doc.head.appendChild(dynStyle);
+            }
             frameWin.focus();
             frameWin.print();
         } catch (e) {
@@ -906,13 +915,38 @@ function initToolbarButtons() {
     document.getElementById('btnUpdateMeta')?.addEventListener('click', () => {
         state.title = document.getElementById('metaTitle').value.trim() || state.title;
         state.subtitle = document.getElementById('metaSubtitle').value.trim() || state.subtitle;
-        state.startPage = parseInt(document.getElementById('metaStartPage').value) || 4;
-        state.filename = document.getElementById('metaFilename').value.trim() || "serie2.html";
+        state.startPage = parseInt(document.getElementById('metaStartPage').value) || 1;
+        state.filename = document.getElementById('metaFilename').value.trim() || state.filename || "serie2.html";
         state.headerCategory = document.getElementById('metaCategory').value.trim() || state.headerCategory;
 
+        if (state.activeFileContent) {
+            // 1. Fix @page: first syntax typo if present
+            state.activeFileContent = state.activeFileContent.replace(/@page:\s+first/gi, '@page:first');
+
+            // 2. Update counter-set: page X
+            if (/counter-set:\s*page\s*\d+/i.test(state.activeFileContent)) {
+                state.activeFileContent = state.activeFileContent.replace(/counter-set:\s*page\s*\d+/gi, `counter-set: page ${state.startPage}`);
+            } else if (/@page:first\s*\{/i.test(state.activeFileContent)) {
+                state.activeFileContent = state.activeFileContent.replace(/(@page:first\s*\{)/i, `$1\n            counter-set: page ${state.startPage};`);
+            }
+
+            // 3. Update counter-reset: page (X - 1) on body
+            const prevPage = Math.max(0, state.startPage - 1);
+            if (/counter-reset:\s*page\s*\d+/i.test(state.activeFileContent)) {
+                state.activeFileContent = state.activeFileContent.replace(/counter-reset:\s*page\s*\d+/gi, `counter-reset: page ${prevPage}`);
+            } else if (/\bbody\s*\{/i.test(state.activeFileContent)) {
+                state.activeFileContent = state.activeFileContent.replace(/(\bbody\s*\{)/i, `$1\n            counter-reset: page ${prevPage};`);
+            }
+
+            // 4. Update title / subtitle in activeFileContent
+            state.activeFileContent = state.activeFileContent.replace(/<h1>[\s\S]*?<\/h1>/i, `<h1>${escapeHtml(state.title)}</h1>`);
+            state.activeFileContent = state.activeFileContent.replace(/<h2>[\s\S]*?<\/h2>/i, `<h2>${escapeHtml(state.subtitle)}</h2>`);
+        }
+
+        if (previewPageIndicator) previewPageIndicator.textContent = `Démarre Page ${state.startPage}`;
         updatePreview();
         triggerAutoSave();
-        showToast("Paramètres mis à jour & auto-sauvegardés !", "success");
+        showToast(`Paramètres mis à jour : Démarre à la Page ${state.startPage} (auto-sauvegardé) !`, "success");
     });
 }
 
@@ -1541,13 +1575,37 @@ function setIframeContent(html) {
     if (!previewIframe) return;
     previewIframe.srcdoc = html;
 
-    previewIframe.onload = () => {
+    const applyIframeTweaks = () => {
+        try {
+            const doc = previewIframe.contentDocument || previewIframe.contentWindow?.document;
+            if (doc && doc.body) {
+                // 1. Hide redundant .screen-toolbar inside preview iframe to eliminate duplicate buttons
+                const toolbars = doc.querySelectorAll('.screen-toolbar');
+                toolbars.forEach(tb => tb.style.setProperty('display', 'none', 'important'));
+
+                // 2. Synchronize Mode Étude checkbox state with iframe body
+                const studyCheckbox = document.getElementById('checkStudyMode');
+                if (studyCheckbox && studyCheckbox.checked) {
+                    doc.body.classList.add('mode-study');
+                } else {
+                    doc.body.classList.remove('mode-study');
+                }
+
+                // 3. Ensure start page counter is applied directly to body style
+                if (state.startPage) {
+                    const prevP = Math.max(0, state.startPage - 1);
+                    doc.body.style.counterReset = `page ${prevP}`;
+                }
+            }
+        } catch (e) { }
         resizePreviewIframe();
     };
 
-    setTimeout(resizePreviewIframe, 60);
-    setTimeout(resizePreviewIframe, 200);
-    setTimeout(resizePreviewIframe, 600);
+    previewIframe.onload = applyIframeTweaks;
+
+    setTimeout(applyIframeTweaks, 40);
+    setTimeout(applyIframeTweaks, 150);
+    setTimeout(applyIframeTweaks, 500);
 }
 
 function resizePreviewIframe() {
@@ -2164,6 +2222,29 @@ window.switchToFileTab = async function (filename, shouldNotify = true) {
                 const metaTitleInput = document.getElementById('metaTitle');
                 if (metaTitleInput) metaTitleInput.value = cleanT;
             }
+
+            // Extract subtitle if present
+            const subMatch = data.content.match(/<header[^>]*class="[^"]*doc-header[^"]*"[^>]*>[\s\S]*?<h2>([\s\S]*?)<\/h2>/i);
+            if (subMatch) {
+                const cleanSub = subMatch[1].replace(/<[^>]+>/g, '').trim();
+                state.subtitle = cleanSub;
+                const metaSubInput = document.getElementById('metaSubtitle');
+                if (metaSubInput) metaSubInput.value = cleanSub;
+            }
+
+            // Extract startPage from counter-set / counter-reset in HTML
+            const pageMatch = data.content.match(/counter-set:\s*page\s*(\d+)/i) ||
+                              data.content.match(/counter-reset:\s*page\s*(\d+)/i);
+            if (pageMatch) {
+                let p = parseInt(pageMatch[1]);
+                if (data.content.match(/counter-reset:\s*page\s*(\d+)/i) && !data.content.match(/counter-set:\s*page\s*(\d+)/i)) {
+                    p += 1;
+                }
+                state.startPage = p;
+                const metaStartPageInput = document.getElementById('metaStartPage');
+                if (metaStartPageInput) metaStartPageInput.value = state.startPage;
+            }
+            if (previewPageIndicator) previewPageIndicator.textContent = `Démarre Page ${state.startPage}`;
 
             updateActiveFileProtBadge(data.isProtected, data.studentName || '');
 
