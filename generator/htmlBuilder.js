@@ -1,6 +1,17 @@
 // Compiles structured QCM series data into complete, production-ready HTML matching serie1.html standards
 const { generateBarcodeSVG, generateUniqueCode } = require('./barcodeGenerator');
 
+function cleanCssString(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&amp;/g, '&')
+        .replace(/&#39;/g, "'")
+        .replace(/&quot;/g, '"')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/"/g, '\\"');
+}
+
 function buildCompleteHtml(seriesData) {
     const {
         title = "MODULE 01 : ONCO-HÉMATOLOGIE",
@@ -238,10 +249,9 @@ function buildCompleteHtml(seriesData) {
         }
 
         @page:first {
-            counter-set: page ${startPage};
-            counter-reset: page ${startPage > 1 ? startPage - 1 : 0};
+            counter-increment: page ${startPage};
             @bottom-left {
-                content: "${escapeHtml(title)} • ${escapeHtml(footerTag)}${isProtected ? ` [${barcodeNumber}]` : ''}";
+                content: "${cleanCssString(title)} • ${cleanCssString(footerTag)}${isProtected ? ` [${barcodeNumber}]` : ''}";
                 font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
                 font-size: 7.5pt;
                 font-weight: 600;
@@ -249,7 +259,7 @@ function buildCompleteHtml(seriesData) {
                 letter-spacing: 0.3px;
             }
             ${headerCategory ? `@bottom-right {
-                content: "${escapeHtml(headerCategory)}";
+                content: "${cleanCssString(headerCategory)}";
                 font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
                 font-size: 7.5pt;
                 font-weight: 600;
@@ -264,7 +274,6 @@ function buildCompleteHtml(seriesData) {
         }
 
         body {
-            counter-reset: page ${startPage > 1 ? startPage - 1 : 0};
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             color: #1e293b;
             background-color: #f1f5f9;

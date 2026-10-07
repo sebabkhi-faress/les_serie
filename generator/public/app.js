@@ -519,11 +519,9 @@ async function handleConfirmPrint() {
             const frameWin = previewIframe.contentWindow;
             const doc = previewIframe.contentDocument || frameWin?.document;
             if (doc && doc.body) {
-                const prevP = Math.max(0, state.startPage - 1);
-                doc.body.style.counterReset = `page ${prevP}`;
                 const dynStyle = doc.getElementById('dynamic-print-counter') || doc.createElement('style');
                 dynStyle.id = 'dynamic-print-counter';
-                dynStyle.textContent = `@page:first { counter-set: page ${state.startPage}; counter-reset: page ${prevP}; } body { counter-reset: page ${prevP}; }`;
+                dynStyle.textContent = `@page { counter-increment: page; } @page:first { counter-increment: page ${state.startPage}; }`;
                 doc.head.appendChild(dynStyle);
             }
             frameWin.focus();
@@ -923,22 +921,24 @@ function initToolbarButtons() {
             // 1. Fix @page: first syntax typo if present
             state.activeFileContent = state.activeFileContent.replace(/@page:\s+first/gi, '@page:first');
 
-            // 2. Update counter-set: page X
-            if (/counter-set:\s*page\s*\d+/i.test(state.activeFileContent)) {
-                state.activeFileContent = state.activeFileContent.replace(/counter-set:\s*page\s*\d+/gi, `counter-set: page ${state.startPage}`);
+            // 2. Remove buggy counter-set and counter-reset that cause Chromium to reset subsequent pages to 1
+            state.activeFileContent = state.activeFileContent.replace(/counter-set:\s*page[^;]*;/gi, '');
+            state.activeFileContent = state.activeFileContent.replace(/counter-reset:\s*page[^;]*;/gi, '');
+            state.activeFileContent = state.activeFileContent.replace(/&#39;/g, "'");
+
+            // 3. Update counter-increment: page ${state.startPage} in @page:first
+            if (/counter-increment:\s*page\s*\d+/i.test(state.activeFileContent)) {
+                state.activeFileContent = state.activeFileContent.replace(/counter-increment:\s*page\s*\d+/gi, `counter-increment: page ${state.startPage}`);
             } else if (/@page:first\s*\{/i.test(state.activeFileContent)) {
-                state.activeFileContent = state.activeFileContent.replace(/(@page:first\s*\{)/i, `$1\n            counter-set: page ${state.startPage};`);
+                state.activeFileContent = state.activeFileContent.replace(/(@page:first\s*\{)/i, `$1\n            counter-increment: page ${state.startPage};`);
             }
 
-            // 3. Update counter-reset: page (X - 1) on body
-            const prevPage = Math.max(0, state.startPage - 1);
-            if (/counter-reset:\s*page\s*\d+/i.test(state.activeFileContent)) {
-                state.activeFileContent = state.activeFileContent.replace(/counter-reset:\s*page\s*\d+/gi, `counter-reset: page ${prevPage}`);
-            } else if (/\bbody\s*\{/i.test(state.activeFileContent)) {
-                state.activeFileContent = state.activeFileContent.replace(/(\bbody\s*\{)/i, `$1\n            counter-reset: page ${prevPage};`);
+            // 4. Ensure @page has counter-increment: page;
+            if (!state.activeFileContent.includes('counter-increment: page;')) {
+                state.activeFileContent = state.activeFileContent.replace(/(@page\s*\{)/i, `$1\n            counter-increment: page;`);
             }
 
-            // 4. Update title / subtitle in activeFileContent
+            // 5. Update title / subtitle in activeFileContent
             state.activeFileContent = state.activeFileContent.replace(/<h1>[\s\S]*?<\/h1>/i, `<h1>${escapeHtml(state.title)}</h1>`);
             state.activeFileContent = state.activeFileContent.replace(/<h2>[\s\S]*?<\/h2>/i, `<h2>${escapeHtml(state.subtitle)}</h2>`);
         }
@@ -1591,10 +1591,12 @@ function setIframeContent(html) {
                     doc.body.classList.remove('mode-study');
                 }
 
-                // 3. Ensure start page counter is applied directly to body style
+                // 3. Ensure start page counter is applied in dynamic style tag
                 if (state.startPage) {
-                    const prevP = Math.max(0, state.startPage - 1);
-                    doc.body.style.counterReset = `page ${prevP}`;
+                    const dynStyle = doc.getElementById('dynamic-print-counter') || doc.createElement('style');
+                    dynStyle.id = 'dynamic-print-counter';
+                    dynStyle.textContent = `@page { counter-increment: page; } @page:first { counter-increment: page ${state.startPage}; }`;
+                    doc.head.appendChild(dynStyle);
                 }
             }
         } catch (e) { }
@@ -2232,12 +2234,13 @@ window.switchToFileTab = async function (filename, shouldNotify = true) {
                 if (metaSubInput) metaSubInput.value = cleanSub;
             }
 
-            // Extract startPage from counter-set / counter-reset in HTML
-            const pageMatch = data.content.match(/counter-set:\s*page\s*(\d+)/i) ||
+            // Extract startPage from counter-increment / counter-set in HTML
+            const pageMatch = data.content.match(/@page:first[\s\S]*?counter-increment:\s*page\s*(\d+)/i) ||
+                              data.content.match(/counter-set:\s*page\s*(\d+)/i) ||
                               data.content.match(/counter-reset:\s*page\s*(\d+)/i);
             if (pageMatch) {
                 let p = parseInt(pageMatch[1]);
-                if (data.content.match(/counter-reset:\s*page\s*(\d+)/i) && !data.content.match(/counter-set:\s*page\s*(\d+)/i)) {
+                if (data.content.match(/counter-reset:\s*page\s*(\d+)/i) && !pageMatch[0].includes('counter-increment')) {
                     p += 1;
                 }
                 state.startPage = p;

@@ -22,21 +22,16 @@
         }
 
         @page:first {
-            counter-set: page 6;
-            counter-reset: page 5;
+            counter-increment: page 6;
 
             @bottom-left {
-                content: "MODULE 01: ONCO_HEMATOLOGIE • QCM D&#39;ANNALES";
+                content: "MODULE 01: ONCO_HEMATOLOGIE • QCM D'ANNALES";
                 font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
                 font-size: 7.5pt;
                 font-weight: 600;
                 color: #94a3b8;
                 letter-spacing: 0.3px;
             }
-        }
-
-        body {
-            counter-reset: page 5;
         }
 
         * {

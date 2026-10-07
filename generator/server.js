@@ -679,6 +679,42 @@ ${rawText}
                         } catch (e) {}
                     }
 
+                    // Robust Page Numbering Sanitizer:
+                    // Fixes Chromium bug where counter-set causes page 2 to reset to 1
+                    if (finalHtml && typeof finalHtml === 'string') {
+                        finalHtml = finalHtml.replace(/&amp;amp;/gi, '&amp;');
+                        let detectedPage = 1;
+                        const pageIncMatch = finalHtml.match(/@page:first[\s\S]*?counter-increment:\s*page\s*(\d+)/i);
+                        const pageSetMatch = finalHtml.match(/counter-set:\s*page\s*(\d+)/i);
+                        const pageResetMatch = finalHtml.match(/counter-reset:\s*page\s*(\d+)/i);
+                        if (pageIncMatch) {
+                            detectedPage = parseInt(pageIncMatch[1], 10);
+                        } else if (pageSetMatch) {
+                            detectedPage = parseInt(pageSetMatch[1], 10);
+                        } else if (pageResetMatch) {
+                            detectedPage = parseInt(pageResetMatch[1], 10) + 1;
+                        }
+
+                        // Remove buggy counter-set and counter-reset
+                        finalHtml = finalHtml.replace(/counter-set:\s*page[^;]*;/gi, '');
+                        finalHtml = finalHtml.replace(/counter-reset:\s*page[^;]*;/gi, '');
+                        finalHtml = finalHtml.replace(/&#39;/g, "'");
+
+                        // Ensure @page:first has counter-increment: page detectedPage
+                        if (/@page:first\s*\{/i.test(finalHtml)) {
+                            if (/counter-increment:\s*page\s*\d+/i.test(finalHtml)) {
+                                finalHtml = finalHtml.replace(/counter-increment:\s*page\s*\d+/gi, `counter-increment: page ${detectedPage}`);
+                            } else {
+                                finalHtml = finalHtml.replace(/(@page:first\s*\{)/i, `$1\n            counter-increment: page ${detectedPage};`);
+                            }
+                        }
+
+                        // Ensure @page has counter-increment: page;
+                        if (!finalHtml.includes('counter-increment: page;')) {
+                            finalHtml = finalHtml.replace(/(@page\s*\{)/i, `$1\n            counter-increment: page;`);
+                        }
+                    }
+
                     fs.writeFileSync(tempHtmlPath, finalHtml, 'utf-8');
 
                     // If destPdfPath exists, try unlinking to avoid stale file/lock
