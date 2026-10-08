@@ -9,6 +9,13 @@ export interface StorageFile {
   };
 }
 
+export interface AttachedImage {
+  dataUrl?: string;
+  mimeType: string;
+  base64: string;
+  name?: string;
+}
+
 export interface AgentAction {
   action: "update_html" | "replace_question" | "insert_at_top" | "replace_text" | string;
   target?: string;
@@ -20,6 +27,7 @@ export interface ChatMessage {
   id?: string;
   role: "user" | "assistant";
   content: string;
+  image?: string;
   timestamp?: string;
   action?: AgentAction;
 }

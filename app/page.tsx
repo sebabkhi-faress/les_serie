@@ -25,6 +25,7 @@ import {
   SaveStatus,
   ActivePanel,
   EditorViewMode,
+  AttachedImage,
 } from "@/types/studio";
 import { generateBarcodeSVG } from "@/lib/barcode";
 
@@ -43,15 +44,102 @@ const DEFAULT_MEDICAL_HTML = `<!DOCTYPE html>
       line-height: 1.45;
       font-size: 10pt;
     }
-    .empty-notice-box {
-      border: 1.5px solid #000000;
-      padding: 6px 14px;
-      margin: 0 auto 12px auto;
-      max-width: 540px;
+    .doc-header-container {
+      margin-bottom: 22px;
+      page-break-inside: avoid;
+    }
+    .doc-section-field {
+      min-height: 28px;
+      display: block;
+      clear: both;
+      position: relative;
+      box-sizing: border-box;
+      margin: 6px 0;
       text-align: center;
+      outline: none;
+      border-radius: 4px;
+      transition: background-color 150ms;
+    }
+    .doc-section-field:hover {
+      background-color: rgba(2, 132, 199, 0.03);
+    }
+    .doc-section-field:focus {
+      background-color: rgba(2, 132, 199, 0.06);
+      outline: 1px dashed #38bdf8;
+    }
+    .doc-section-field:empty::before,
+    .doc-section-field[data-empty="true"]::before {
+      content: attr(data-placeholder);
+      color: #94a3b8;
+      font-style: italic;
+      font-weight: 500;
+      pointer-events: none;
+      display: inline-block;
+    }
+    .doc-section-field:empty {
+      min-height: 28px;
+      line-height: 28px;
+    }
+    .doc-section-field.module-field {
+      color: #0369a1;
+      font-size: 13.5pt;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      min-height: 32px;
+    }
+    .doc-section-field.section-field {
+      color: #0f172a;
+      font-size: 11.5pt;
+      font-weight: 700;
+      min-height: 26px;
+    }
+    .doc-section-field.course-field {
+      color: #0f172a;
+      font-size: 12.5pt;
+      font-weight: 800;
+      text-decoration: underline;
+      min-height: 30px;
+    }
+    .doc-divider {
+      height: 2px;
+      background-color: #0284c7;
+      border: none;
+      margin: 12px auto 16px auto;
+      width: 100%;
+      display: block;
+      clear: both;
+    }
+    .empty-notice-box {
+      border: 1.5px solid #0284c7;
+      background: #ffffff;
+      border-radius: 6px;
+      padding: 7px 18px;
+      margin: 14px auto;
+      max-width: 580px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: #0284c7;
       font-size: 9.5pt;
       font-weight: 500;
-      color: #0f172a;
+      box-sizing: border-box;
+      min-height: 36px;
+    }
+    .notice-icon-badge {
+      background: #0284c7;
+      color: #ffffff;
+      width: 17px;
+      height: 17px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: 800;
+      font-family: monospace;
+      flex-shrink: 0;
     }
     .course-header-banner {
       text-align: center;
@@ -213,9 +301,15 @@ const DEFAULT_MEDICAL_HTML = `<!DOCTYPE html>
   </style>
 </head>
 <body>
-  <div class="empty-notice-box">Il n'y a pas de QCSs à ce cours dans les examens disponibles</div>
-  <div class="course-header-banner">
-    <h2>2- Fièvre</h2>
+  <div class="doc-header-container">
+    <div class="doc-section-field module-field" data-field-id="module" data-placeholder="Titre du module (ex: UEI1 CARDIO-VASCULAIRE...)">UEI1 CARDIO-VASCULAIRE, RESPIRATOIRE ET PSYCHOLOGIE MÉDICALE</div>
+    <div class="doc-section-field section-field" data-field-id="section" data-placeholder="Titre de la section (ex: I- Sémiologie)">I- Sémiologie</div>
+    <div class="doc-divider"></div>
+    <div class="doc-section-field course-field" data-field-id="course" data-placeholder="Nom du cours (ex: 1- Sémiologie générale)">1- Sémiologie générale</div>
+    <div class="empty-notice-box" data-field-id="notice">
+      <span class="notice-icon-badge">i</span>
+      <span class="notice-text">Il n'y a pas de QCS à ce cours dans les examens disponibles.</span>
+    </div>
   </div>
 
   <!-- QUESTION 1 -->
@@ -371,10 +465,11 @@ export default function StudioPage() {
     onSubmit: () => {},
   });
 
-  // ==================== STRICT QUESTION BOUNDARIES ====================
+  // ==================== STRICT QUESTION & SECTION BOUNDARIES ====================
   // Enforces:
   // 1. Two questions can NEVER be in the same square (nested question boxes are extracted as siblings)
-  // 2. A question can NEVER be in the same field/container with a course title banner or empty notice
+  // 2. A question can NEVER be in the same field/container with a section title, header banner or notice box
+  // 3. Section fields never collapse or mix when their content is deleted
   const enforceQuestionBoundaries = (doc: Document): boolean => {
     let modified = false;
 
@@ -390,11 +485,13 @@ export default function StudioPage() {
       }
     }
 
-    // 2. Check for trapped titles/banners inside question boxes
+    // 2. Check for trapped titles/banners/section fields inside question boxes
     const currentBoxes = Array.from(doc.querySelectorAll(".question-box"));
     for (const box of currentBoxes) {
       const trappedBanners = Array.from(
-        box.querySelectorAll(".course-header-banner, .empty-notice-box, h1, h2, h3")
+        box.querySelectorAll(
+          ".course-header-banner, .empty-notice-box, .doc-section-field, .doc-header-container, .doc-divider, h1, h2, h3"
+        )
       );
       for (const banner of trappedBanners) {
         if (box.parentNode) {
@@ -403,6 +500,30 @@ export default function StudioPage() {
         }
       }
     }
+
+    // 3. Check for trapped questions inside section fields or header containers
+    const sectionContainers = Array.from(
+      doc.querySelectorAll(".doc-header-container, .doc-section-field, .empty-notice-box, .course-header-banner")
+    );
+    for (const container of sectionContainers) {
+      const trappedQBoxes = Array.from(container.querySelectorAll(".question-box"));
+      for (const qBox of trappedQBoxes) {
+        if (container.parentNode) {
+          container.parentNode.insertBefore(qBox, container.nextSibling);
+          modified = true;
+        }
+      }
+    }
+
+    // 4. Update data-empty attribute on section fields
+    doc.querySelectorAll(".doc-section-field").forEach((field) => {
+      const txt = field.textContent?.trim() || "";
+      if (!txt) {
+        field.setAttribute("data-empty", "true");
+      } else {
+        field.removeAttribute("data-empty");
+      }
+    });
 
     return modified;
   };
@@ -528,7 +649,7 @@ export default function StudioPage() {
       safeHtml = safeHtml.replace("<head>", '<head><meta charset="utf-8">');
     }
 
-    // Add CSS rule hiding any duplicate header bar inside document
+    // Add CSS rule hiding any duplicate header bar inside document and enforcing section field isolation
     const hideHeaderCss = `<style id="qcm-studio-overrides">
       .screen-toolbar, aside.screen-toolbar, .toolbar-brand, .toolbar-tags, .toolbar-actions,
       .document-header-bar, .header-bar, .exam-top-bar, .action-bar-top, .header-actions,
@@ -543,6 +664,64 @@ export default function StudioPage() {
       }
       .study-mode-active .answer-section {
         display: none !important;
+      }
+      /* Strict Section Field Isolation: prevents fields from collapsing or mixing when text is emptied */
+      .doc-section-field {
+        min-height: 28px !important;
+        display: block !important;
+        clear: both !important;
+        position: relative !important;
+        box-sizing: border-box !important;
+        margin: 6px 0 !important;
+        text-align: center !important;
+      }
+      .doc-section-field:empty::before,
+      .doc-section-field[data-empty="true"]::before {
+        content: attr(data-placeholder) !important;
+        color: #94a3b8 !important;
+        font-style: italic !important;
+        font-weight: 500 !important;
+        pointer-events: none !important;
+        display: inline-block !important;
+      }
+      .doc-divider {
+        height: 2px !important;
+        background-color: #0284c7 !important;
+        border: none !important;
+        margin: 12px auto 16px auto !important;
+        width: 100% !important;
+        display: block !important;
+        clear: both !important;
+      }
+      .empty-notice-box {
+        border: 1.5px solid #0284c7 !important;
+        background: #ffffff !important;
+        border-radius: 6px !important;
+        padding: 7px 18px !important;
+        margin: 14px auto !important;
+        max-width: 580px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 10px !important;
+        color: #0284c7 !important;
+        font-size: 9.5pt !important;
+        font-weight: 500 !important;
+        box-sizing: border-box !important;
+        min-height: 36px !important;
+      }
+      .notice-icon-badge {
+        background: #0284c7 !important;
+        color: #ffffff !important;
+        width: 17px !important;
+        height: 17px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 3px !important;
+        font-size: 11px !important;
+        font-weight: 800 !important;
+        font-family: monospace !important;
       }
     </style>`;
     if (!safeHtml.includes("qcm-studio-overrides")) {
@@ -568,10 +747,28 @@ export default function StudioPage() {
         doc.body.classList.remove("study-mode-active", "mode-study");
       }
 
+      // Initialiser le statut data-empty des champs de section
+      doc.querySelectorAll(".doc-section-field").forEach((field) => {
+        const txt = field.textContent?.trim() || "";
+        if (!txt) {
+          field.setAttribute("data-empty", "true");
+        } else {
+          field.removeAttribute("data-empty");
+        }
+      });
+
       extractQuestionsFromDoc(doc);
 
       const handleInput = () => {
         setSaveStatus("unsaved");
+        doc.querySelectorAll(".doc-section-field").forEach((field) => {
+          const txt = field.textContent?.trim() || "";
+          if (!txt) {
+            field.setAttribute("data-empty", "true");
+          } else {
+            field.removeAttribute("data-empty");
+          }
+        });
         extractQuestionsFromDoc(doc);
         if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
         autoSaveTimerRef.current = setTimeout(() => {
@@ -582,8 +779,36 @@ export default function StudioPage() {
       doc.body.addEventListener("input", handleInput);
       doc.body.addEventListener("keyup", handleInput);
 
-      // Keyboard shortcuts inside iframe
+      // Keyboard shortcuts and field isolation guard inside iframe
       doc.addEventListener("keydown", (e: KeyboardEvent) => {
+        // Protection anti-suppression de champ : empêche le navigateur d'effacer le container .doc-section-field
+        if (e.key === "Backspace" || e.key === "Delete") {
+          const sel = doc.getSelection();
+          if (sel && sel.anchorNode) {
+            const anchorEl =
+              sel.anchorNode.nodeType === Node.ELEMENT_NODE
+                ? (sel.anchorNode as HTMLElement)
+                : sel.anchorNode.parentElement;
+            const fieldEl = anchorEl?.closest(".doc-section-field") as HTMLElement | null;
+            if (fieldEl) {
+              const text = fieldEl.textContent?.trim() || "";
+              const selectedText = sel.toString().trim();
+              if (text.length <= 1 || (selectedText.length > 0 && selectedText === text)) {
+                e.preventDefault();
+                fieldEl.innerHTML = "<br>";
+                fieldEl.setAttribute("data-empty", "true");
+                const range = doc.createRange();
+                range.selectNodeContents(fieldEl);
+                range.collapse(true);
+                sel.removeAllRanges();
+                sel.addRange(range);
+                handleInput();
+                return;
+              }
+            }
+          }
+        }
+
         if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
           e.preventDefault();
           saveCurrentDocument();
@@ -906,7 +1131,7 @@ export default function StudioPage() {
     if (!doc) return;
 
     const bannerHtml = `
-      <div class="course-header-banner" style="text-align: center; margin: 16px 0 20px 0;">
+      <div class="course-header-banner doc-section-field course-field" data-field-id="course" data-placeholder="Nom du cours (ex: 2- Fièvre)" style="text-align: center; margin: 16px 0 20px 0;">
         <h2 style="margin: 0; font-size: 13pt; font-weight: 800; color: #0f172a; text-decoration: underline;">${moduleName}</h2>
       </div>
     `;
@@ -986,11 +1211,21 @@ export default function StudioPage() {
   };
 
   // ==================== 7. ASSISTANT IA (GEMINI) ====================
-  const handleSendPrompt = async (textToSend: string) => {
-    if (!textToSend.trim() || isAiThinking) return;
+  const handleSendPrompt = async (textToSend: string, attachedImage?: AttachedImage) => {
+    const trimmed = textToSend.trim();
+    if ((!trimmed && !attachedImage) || isAiThinking) return;
 
-    const userText = textToSend.trim();
-    setChatMessages((prev) => [...prev, { role: "user", content: userText }]);
+    const userText = trimmed || (attachedImage ? "Analyse l'image médicale jointe et traite le contenu." : "");
+    const imgUrl = attachedImage?.dataUrl || (attachedImage ? `data:${attachedImage.mimeType};base64,${attachedImage.base64}` : undefined);
+
+    setChatMessages((prev) => [
+      ...prev,
+      {
+        role: "user",
+        content: userText,
+        image: imgUrl,
+      },
+    ]);
     setIsAiThinking(true);
 
     try {
@@ -999,6 +1234,12 @@ export default function StudioPage() {
         headers: { "Content-Type": "application/json; charset=utf-8" },
         body: JSON.stringify({
           prompt: userText,
+          image: attachedImage
+            ? {
+                mimeType: attachedImage.mimeType,
+                data: attachedImage.base64,
+              }
+            : undefined,
           currentHtml: documentContent,
           history: chatMessages.slice(-6),
         }),
@@ -1053,25 +1294,37 @@ export default function StudioPage() {
       const current = doc.body.innerHTML;
       if (current.includes(action.target)) {
         doc.body.innerHTML = current.replace(action.target, action.content);
+        enforceQuestionBoundaries(doc);
         extractQuestionsFromDoc(doc);
         saveCurrentDocument();
       }
     } else if (action.action === "insert_at_top") {
       doc.body.insertAdjacentHTML("afterbegin", action.content);
+      enforceQuestionBoundaries(doc);
       extractQuestionsFromDoc(doc);
       saveCurrentDocument();
     } else if (action.action === "replace_question") {
       if (action.target) {
         const qBoxes = doc.querySelectorAll(".question-box");
+        let matched = false;
         for (const box of Array.from(qBoxes)) {
-          if (box.textContent?.includes(action.target)) {
+          const qNumEl = box.querySelector(".q-num");
+          if (
+            (qNumEl && qNumEl.textContent?.includes(action.target)) ||
+            box.textContent?.includes(action.target)
+          ) {
             (box as HTMLElement).outerHTML = action.content;
+            matched = true;
             break;
           }
+        }
+        if (!matched) {
+          doc.body.insertAdjacentHTML("beforeend", action.content);
         }
       } else {
         doc.body.insertAdjacentHTML("beforeend", action.content);
       }
+      enforceQuestionBoundaries(doc);
       extractQuestionsFromDoc(doc);
       saveCurrentDocument();
     }

@@ -6,28 +6,39 @@ const SUCCESSOR_MODEL = "gemini-3.8-flash";
 
 const SYSTEM_PROMPT = `Tu es "Antigravity QCM Medical Agent", un expert en pédagogie médicale et en conception de séries de QCM d'annales (Résidanat & Internat en Médecine).
 
-Tu as pour mission d'assister l'utilisateur dans l'édition, la vérification, la correction et la génération de QCMs médicaux au format HTML.
-Quand l'utilisateur te demande de modifier le document ou une question :
-1. Donne une explication claire et concise de tes actions.
-2. Si une modification HTML directe est demandée, tu peux renvoyer un bloc d'action JSON sous la forme :
+Tu as pour mission d'assister l'utilisateur dans l'édition, la vérification, la correction, la génération et la transcription de QCMs médicaux au format HTML.
+
+Capacités Multimodales & Images :
+Si l'utilisateur te transmet une image (capture d'écran de cours, sujet d'examen papier, photo de QCM, tableau clinique ou schéma) :
+- Analyse minutieusement le contenu textuel et visuel de l'image.
+- Extrais fidèlement les énoncés, les items 1..5, les propositions A..E, ainsi que les réponses correctes et justifications cliniques.
+- Reproduis exactement le style visuel exigé pour les QCMs médicaux (boîte .question-box avec bordure cyan/bleue, badge d'auteur/année, badge réponse vert, justifications avec A: Faux / D: Vrai).
+- Quand demandé, utilise l'image comme source de vérité pour répondre, vérifier ou remplacer une question.
+
+Actions JSON Structurées :
+Quand une modification HTML directe ou ciblée est requise, renvoie TOUJOURS un bloc d'action JSON :
 \`\`\`json-action
 {
   "action": "update_html" | "replace_question" | "insert_at_top" | "replace_text",
-  "target": "...", // texte à remplacer ou numéro de question si applicable
-  "content": "...", // nouveau fragment HTML ou document complet
-  "description": "..." // résumé en français de l'action effectuée (ex: "Titre du cours mis à jour", "Justification Q4 enrichie")
+  "target": "...", // numéro de question (ex: "1" ou "q-1") pour replace_question, texte exact pour replace_text
+  "content": "...", // fragment HTML complet ou document HTML
+  "description": "..." // résumé en français de l'action (ex: "Transcription de la question depuis l'image", "Justification Q4 complétée")
 }
 \`\`\`
-Reste rigoureux sur le plan médical (justifications, exactitude clinique, valeurs seuils, etc.). Encode toujours tes sorties strictement en UTF-8 avec accents corrects (ex: Pédiatrie, Énoncé, etc.).`;
+
+Règles strictes de délimitation (Boundaries) :
+- Ne fusionne jamais deux questions dans la même boîte .question-box. Chaque question doit être autonome.
+- Les titres de modules, sections, cours et les boîtes d'information (ex: "Il n'y a pas de QCS...") doivent impérativement rester en dehors des boîtes .question-box, dans leurs propres conteneurs séparés.
+- Encode toutes tes sorties strictement en UTF-8 avec accents français impeccables (Pédiatrie, Énoncé, Fièvre, etc.).`;
 
 export async function POST(req: NextRequest) {
   try {
-    const { prompt, currentHtml, history } = await req.json();
+    const { prompt, image, currentHtml, history } = await req.json();
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
-        { error: "GEMINI_API_KEY non configurée dans .env.local" },
+        { error: "GEMINI_API_KEY non configurée dans .env" },
         {
           status: 500,
           headers: { "Content-Type": "application/json; charset=utf-8" },
@@ -35,7 +46,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const contents: Array<{ role: string; parts: Array<{ text: string }> }> = [];
+    const contents: Array<{
+      role: string;
+      parts: Array<{
+        text?: string;
+        inlineData?: { mimeType: string; data: string };
+      }>;
+    }> = [];
 
     // System instruction as first user/model exchange or systemInstruction if API supports it
     if (history && Array.isArray(history)) {
@@ -54,9 +71,29 @@ ${currentHtml ? currentHtml.slice(0, 15000) : "Aucun document ouvert"}
 DEMANDE UTILISATEUR :
 ${prompt}`;
 
+    const userParts: Array<{
+      text?: string;
+      inlineData?: { mimeType: string; data: string };
+    }> = [];
+
+    // Inject attached multimodal image if provided
+    if (image && image.data) {
+      const cleanData = image.data.includes("base64,")
+        ? image.data.split("base64,")[1]
+        : image.data;
+      userParts.push({
+        inlineData: {
+          mimeType: image.mimeType || "image/png",
+          data: cleanData,
+        },
+      });
+    }
+
+    userParts.push({ text: userPromptWithContext });
+
     contents.push({
       role: "user",
-      parts: [{ text: userPromptWithContext }],
+      parts: userParts,
     });
 
     const callModel = async (model: string) => {
