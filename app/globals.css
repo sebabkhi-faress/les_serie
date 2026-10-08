@@ -1,0 +1,155 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --primary: #0F766E;
+    --primary-hover: #115E59;
+    --accent: #4F46E5;
+    --background: #F6F8FA;
+    --surface: #FFFFFF;
+    --surface-secondary: #F1F4F8;
+    --surface-hover: #E9ECEF;
+    --border: #E3E8EF;
+    --border-hover: #CBD5E1;
+    --foreground: #0F172A;
+    --text: #0F172A;
+    --muted: #64748B;
+    --foreground-muted: #64748B;
+    --success: #16A34A;
+    --warning: #D97706;
+    --danger: #DC2626;
+  }
+
+  .dark {
+    --primary: #2DD4BF;
+    --primary-hover: #14B8A6;
+    --accent: #818CF8;
+    --background: #0B1220;
+    --surface: #131C2E;
+    --surface-secondary: #1A253C;
+    --surface-hover: #1E2D47;
+    --border: #243049;
+    --border-hover: #334366;
+    --foreground: #E6EDF7;
+    --text: #E6EDF7;
+    --muted: #94A3B8;
+    --foreground-muted: #94A3B8;
+    --success: #22C55E;
+    --warning: #F59E0B;
+    --danger: #EF4444;
+  }
+}
+
+@theme {
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-accent: var(--accent);
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-secondary: var(--surface-secondary);
+  --color-surface-hover: var(--surface-hover);
+  --color-border: var(--border);
+  --color-border-hover: var(--border-hover);
+  --color-foreground: var(--foreground);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --font-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--background);
+  color: var(--foreground);
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}
+
+/* A4 Page & Document Styles */
+.a4-page-sheet {
+  background: #ffffff;
+  color: #0f172a;
+  width: 210mm;
+  min-height: 297mm;
+  padding: 18mm 20mm;
+  margin: 0 auto;
+  box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+  position: relative;
+  transition: transform 0.15s ease-out;
+  transform-origin: top center;
+  font-size: 9.8pt;
+  line-height: 1.4;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* Print simulation & stylesheet */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
+  body, html {
+    background: #ffffff !important;
+    color: #000000 !important;
+    overflow: visible !important;
+    height: auto !important;
+  }
+  .no-print,
+  .app-header,
+  .icon-rail,
+  .side-panel,
+  .status-bar,
+  .floating-toolbar,
+  .toolbar-container {
+    display: none !important;
+  }
+  .a4-page-sheet {
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    min-height: auto !important;
+    border-radius: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
+/* Accessibility: prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
