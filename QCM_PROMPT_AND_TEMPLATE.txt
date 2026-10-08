@@ -1,0 +1,437 @@
+================================================================================
+           GUIDE OFFICIEL & MODÈLE POUR IA : PROMPT & TEMPLATE HTML QCM
+                     (CONFORME EXACT AU DESIGN DE RÉFÉRENCE)
+================================================================================
+
+Ce fichier contient :
+1. LE SYSTEM PROMPT à fournir à n'importe quelle IA (ChatGPT, Claude, Gemini, Antigravity, Mistral, etc.)
+2. LE CODE HTML/CSS EXACT de la boîte de question (fidèle pixel-par-pixel à l'image)
+3. LE TEMPLATE HTML COMPLET avec styles intégrés (A4 Médical autonome)
+4. LES RÈGLES STRICTES D'INSERTION ET DE STYLISATION (pour éviter le mélange des champs)
+5. LES FORMATS D'ACTIONS JSON pour automatiser l'insertion dans un éditeur ou une API
+
+--------------------------------------------------------------------------------
+PARTIE 1 : LE SYSTEM PROMPT (À COPIER-COLLER DANS VOTRE IA)
+--------------------------------------------------------------------------------
+
+Tu es un expert en pédagogie médicale et en conception de séries de QCM d'annales pour le Résidanat et l'Internat de Médecine.
+
+Ton rôle est de générer, transcrire, corriger ou reformater des QCMs médicaux au format HTML strict en respectant rigoureusement le design visuel officiel.
+
+RÈGLES DE CONCEPTION & DESIGN :
+1. Conteneur Question (.question-box) :
+   - Chaque question doit résider dans un conteneur autonome <div class="question-box">.
+   - Bordure : 1.5px solid #38bdf8 avec bordure gauche épaisse 5px solid #0284c7 et coins arrondis 8px.
+   - Fond : Blanc (#ffffff) avec marge inférieure de 20px.
+   - Ne JAMAIS fusionner deux questions dans le même conteneur.
+   - Les titres de cours/sections (<div class="course-header-banner">) doivent TOUJOURS rester EN DEHORS des boîtes de question.
+
+2. En-tête de la Question :
+   - Numéro (<span class="q-num">) : Couleur bleue (#0284c7), gras (font-weight: 800). Format : "Question X :".
+   - Énoncé (<span class="q-stem">) : Couleur ardoise (#0f172a), gras (font-weight: 700).
+   - Badge Source/Auteur/Année (<span class="year-badge">) : Pilule arrondie à droite avec fond bleu très clair (#f0f9ff), bordure cyan (#38bdf8) et texte bleu (#0284c7). Ex: "(Dr Kahel,2024,2025)".
+   - Bouton de suppression inline (optionnel) : <button type="button" class="btn-delete-q" ...>✕</button>.
+
+3. Propositions et Choix :
+   - Pour les QCMs avec propositions numérotées : <div class="propositions-list"> avec éléments 1) .. 5).
+   - Pour les choix multiples combinés : <div class="options-group"> avec choix A. .. E.
+   - Pour les QCMs classiques à 5 propositions directes : <ol class="options alpha"> avec <li>.
+
+4. Section Réponse & Justifications :
+   - Séparateur supérieur : Ligne en pointillés (border-top: 1px dashed #cbd5e1).
+   - Label "RÉPONSE :" en bleu (#0284c7), majuscules, gras.
+   - Badge Réponse (<span class="answer-badge">) : Rectangle vert (#059669), texte blanc, gras, centré.
+   - Label "JUSTIFICATION :" en bleu (#0284c7), majuscules, gras.
+   - Liste des justifications (<ul class="justifications">) :
+     * Chaque item erroné : Texte ENTIÈREMENT EN ROUGE (#dc2626) avec <strong class="text-incorrect">A : Faux</strong> — explication clinique.
+     * L'item / les items vrais : Texte ENTIÈREMENT EN VERT (#059669) avec <strong class="text-correct">D : Vrai</strong> — justification clinique détaillée (référence de cours, tableau, mécanisme).
+
+5. Typographie et Encodage :
+   - Encodage strict UTF-8 avec tous les accents français (Fièvre, Ostéomyélite, Pneumonie, etc.).
+   - Police : 'Inter', -apple-system, Roboto, sans-serif.
+
+--------------------------------------------------------------------------------
+PARTIE 2 : LE CODE HTML DU MODÈLE (CORRESPONDANCE EXACTE AVEC L'IMAGE)
+--------------------------------------------------------------------------------
+
+<!-- 1. TITRE DU COURS (PLACÉ EN DEHORS DE LA BOÎTE QUESTION) -->
+<div class="course-header-banner">
+  <h2><u>2- Fièvre</u></h2>
+</div>
+
+<!-- 2. BOÎTE DE LA QUESTION (EXACTEMENT COMME DANS L'IMAGE) -->
+<div class="question-box" data-question-num="1">
+  <!-- EN-TÊTE QUESTION & BADGE DOCTEUR/ANNÉE -->
+  <div class="question-header">
+    <div style="display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap;">
+      <span class="q-num">Question 1 :</span>
+      <span class="q-stem">1. Les causes infectieuses localisées de la fièvre :</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <span class="year-badge">(Dr Kahel,2024,2025)</span>
+      <button type="button" class="btn-delete-q" title="Supprimer cette question" onclick="window.parent?.postMessage({type:'REQUEST_DELETE_QUESTION', num: '1'},'*');">✕</button>
+    </div>
+  </div>
+
+  <!-- PROPOSITIONS NUMÉROTÉES (1 à 5) -->
+  <div class="propositions-list">
+    <div>1) Pneumonie.</div>
+    <div>2) Tuberculeuse.</div>
+    <div>3) Endocardite infectieuse.</div>
+    <div>4) Ostéomyélite.</div>
+    <div>5) Fièvre typhoïde</div>
+  </div>
+
+  <!-- CHOIX MULTIPLES (A à E) -->
+  <div class="options-group">
+    <div>A. 1.2</div>
+    <div>B. 4.5</div>
+    <div>C. 1.2.3.4.5</div>
+    <div>D. 1.3.4</div>
+    <div>E. 3.4.5</div>
+  </div>
+
+  <!-- SECTION RÉPONSE & JUSTIFICATIONS CLINIQUES -->
+  <div class="answer-section">
+    <div class="answer-line">
+      <span class="answer-label">RÉPONSE :</span>
+      <span class="answer-badge">D</span>
+    </div>
+
+    <div class="justification-title">JUSTIFICATION :</div>
+    <ul class="justifications">
+      <li class="justif-item item-faux">
+        <strong class="text-incorrect">A : Faux</strong> — La tuberculose (2) est une infection spécifique bactérienne, pas une infection localisée.
+      </li>
+      <li class="justif-item item-faux">
+        <strong class="text-incorrect">B : Faux</strong> — La fièvre typhoïde (5) est une infection spécifique bactérienne, pas une infection localisée.
+      </li>
+      <li class="justif-item item-faux">
+        <strong class="text-incorrect">C : Faux</strong> — Inclut la tuberculose (2) et la fièvre typhoïde (5) qui ne sont pas des infections localisées.
+      </li>
+      <li class="justif-item item-vrai">
+        <strong class="text-correct">D : Vrai</strong> — Selon le tableau de la page 29, les infections localisées sont : Pyélonéphrite aiguë, Pneumonie (1), Abcès, Rhino-sinusite aiguë, Ostéomyélite (4), Endocardite infectieuse (3).
+      </li>
+      <li class="justif-item item-faux">
+        <strong class="text-incorrect">E : Faux</strong> — Inclut la fièvre typhoïde (5) qui n'est pas une infection localisée.
+      </li>
+    </ul>
+  </div>
+</div>
+
+--------------------------------------------------------------------------------
+PARTIE 3 : DOCUMENT HTML COMPLET AUTONOME (AVEC STYLES CSS INTÉGRÉS)
+--------------------------------------------------------------------------------
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Série de QCM Médical - Format Standard</title>
+  <style>
+    /* ========== MISE EN PAGE GÉNÉRALE & FORMAT A4 ========== */
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 24px;
+      color: #0f172a;
+      background: #ffffff;
+      line-height: 1.45;
+      font-size: 10pt;
+    }
+
+    /* ========== BANNIÈRE TITRE DE COURS ========== */
+    .course-header-banner {
+      text-align: center;
+      margin: 16px 0 22px 0;
+    }
+    .course-header-banner h2 {
+      margin: 0;
+      font-size: 13.5pt;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.2px;
+    }
+
+    /* ========== BOÎTE DE QUESTION (STYLE IMAGE DE RÉFÉRENCE) ========== */
+    .question-box {
+      margin-bottom: 22px;
+      padding: 14px 18px;
+      border: 1.5px solid #38bdf8;
+      border-left: 5px solid #0284c7;
+      border-radius: 8px;
+      background: #ffffff;
+      page-break-inside: avoid;
+      position: relative;
+      box-sizing: border-box;
+    }
+
+    /* ========== EN-TÊTE DE LA QUESTION ========== */
+    .question-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+      gap: 10px;
+    }
+    .q-num {
+      color: #0284c7;
+      font-weight: 800;
+      font-size: 10pt;
+      white-space: nowrap;
+    }
+    .q-stem {
+      font-weight: 700;
+      color: #0f172a;
+      font-size: 10pt;
+      line-height: 1.4;
+    }
+    .year-badge {
+      font-size: 8.5pt;
+      font-weight: 600;
+      color: #0284c7;
+      background: #f0f9ff;
+      border: 1px solid #38bdf8;
+      padding: 2px 10px;
+      border-radius: 12px;
+      white-space: nowrap;
+    }
+    .btn-delete-q {
+      background: none;
+      border: 1px solid transparent;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 11px;
+      padding: 2px 5px;
+      border-radius: 4px;
+      line-height: 1;
+      transition: all 120ms;
+    }
+    .btn-delete-q:hover {
+      color: #dc2626;
+      background: #fee2e2;
+      border-color: #fca5a5;
+    }
+
+    /* ========== LISTE DES PROPOSITIONS NUMÉROTÉES (1..5) ========== */
+    .propositions-list {
+      margin: 6px 0 10px 0;
+      padding-left: 4px;
+      color: #0f172a;
+      font-weight: 500;
+      line-height: 1.5;
+    }
+    .propositions-list div {
+      margin-bottom: 2px;
+    }
+
+    /* ========== GROUPES D'OPTIONS (A..E) ========== */
+    .options-group {
+      margin: 8px 0 12px 0;
+      padding-left: 4px;
+      color: #1e293b;
+      font-weight: 500;
+      line-height: 1.5;
+    }
+    .options-group div {
+      margin-bottom: 2px;
+    }
+
+    /* Alternative pour QCM classique direct */
+    ol.options {
+      margin: 8px 0;
+      padding-left: 20px;
+      color: #1e293b;
+      line-height: 1.5;
+    }
+    ol.options li {
+      margin-bottom: 3px;
+    }
+
+    /* ========== SECTION RÉPONSE & JUSTIFICATIONS ========== */
+    .answer-section {
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px dashed #cbd5e1;
+      font-size: 8.5pt;
+    }
+    .answer-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .answer-label {
+      font-weight: 800;
+      color: #0284c7;
+      font-size: 8.5pt;
+      letter-spacing: 0.5px;
+    }
+    .answer-badge {
+      background: #059669;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 9pt;
+      padding: 2px 8px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+    .justification-title {
+      font-weight: 800;
+      color: #0284c7;
+      font-size: 8.5pt;
+      margin-top: 6px;
+      letter-spacing: 0.5px;
+    }
+    .justifications {
+      margin: 4px 0 0 0;
+      padding-left: 18px;
+      list-style-type: disc;
+    }
+    .justifications li {
+      margin-bottom: 4px;
+      line-height: 1.45;
+    }
+
+    /* Codes couleurs stricts pour Vrai / Faux */
+    .item-faux {
+      color: #dc2626 !important;
+    }
+    .item-vrai {
+      color: #059669 !important;
+    }
+    .text-incorrect {
+      color: #dc2626 !important;
+      font-weight: 700;
+    }
+    .text-correct {
+      color: #059669 !important;
+      font-weight: 700;
+    }
+
+    /* ========== MODE MASQUAGE DES RÉPONSES (ÉTUDE / EXAMEN) ========== */
+    .study-mode-active .answer-section {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- BANNIÈRE COURS -->
+  <div class="course-header-banner">
+    <h2><u>2- Fièvre</u></h2>
+  </div>
+
+  <!-- QUESTION 1 -->
+  <div class="question-box" data-question-num="1">
+    <div class="question-header">
+      <div style="display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap;">
+        <span class="q-num">Question 1 :</span>
+        <span class="q-stem">1. Les causes infectieuses localisées de la fièvre :</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span class="year-badge">(Dr Kahel,2024,2025)</span>
+        <button type="button" class="btn-delete-q" title="Supprimer cette question" onclick="window.parent?.postMessage({type:'REQUEST_DELETE_QUESTION', num: '1'},'*');">✕</button>
+      </div>
+    </div>
+
+    <div class="propositions-list">
+      <div>1) Pneumonie.</div>
+      <div>2) Tuberculeuse.</div>
+      <div>3) Endocardite infectieuse.</div>
+      <div>4) Ostéomyélite.</div>
+      <div>5) Fièvre typhoïde</div>
+    </div>
+
+    <div class="options-group">
+      <div>A. 1.2</div>
+      <div>B. 4.5</div>
+      <div>C. 1.2.3.4.5</div>
+      <div>D. 1.3.4</div>
+      <div>E. 3.4.5</div>
+    </div>
+
+    <div class="answer-section">
+      <div class="answer-line">
+        <span class="answer-label">RÉPONSE :</span>
+        <span class="answer-badge">D</span>
+      </div>
+      <div class="justification-title">JUSTIFICATION :</div>
+      <ul class="justifications">
+        <li class="justif-item item-faux">
+          <strong class="text-incorrect">A : Faux</strong> — La tuberculose (2) est une infection spécifique bactérienne, pas une infection localisée.
+        </li>
+        <li class="justif-item item-faux">
+          <strong class="text-incorrect">B : Faux</strong> — La fièvre typhoïde (5) est une infection spécifique bactérienne, pas une infection localisée.
+        </li>
+        <li class="justif-item item-faux">
+          <strong class="text-incorrect">C : Faux</strong> — Inclut la tuberculose (2) et la fièvre typhoïde (5) qui ne sont pas des infections localisées.
+        </li>
+        <li class="justif-item item-vrai">
+          <strong class="text-correct">D : Vrai</strong> — Selon le tableau de la page 29, les infections localisées sont : Pyélonéphrite aiguë, Pneumonie (1), Abcès, Rhino-sinusite aiguë, Ostéomyélite (4), Endocardite infectieuse (3).
+        </li>
+        <li class="justif-item item-faux">
+          <strong class="text-incorrect">E : Faux</strong> — Inclut la fièvre typhoïde (5) qui n'est pas une infection localisée.
+        </li>
+      </ul>
+    </div>
+  </div>
+
+</body>
+</html>
+
+--------------------------------------------------------------------------------
+PARTIE 4 : RÈGLES STRICTES D'INSERTION & DE POSITIONNEMENT (BOUNDARIES)
+--------------------------------------------------------------------------------
+
+Pour préserver l'intégrité du document lors de l'insertion par une IA ou un utilisateur :
+
+1. Isolation Absolue des Conteneurs :
+   - Une balise `.question-box` NE DOIT JAMAIS se trouver à l'intérieur d'une autre `.question-box`.
+   - Une balise `.course-header-banner`, `.doc-header-container` ou `.empty-notice-box` NE DOIT JAMAIS se trouver à l'intérieur d'une `.question-box`.
+   - Si une question est insérée, elle doit être insérée comme élément frère (sibling) immédiat, après le dernier conteneur ou avant le premier conteneur.
+
+2. Numérotation Cohérente :
+   - Lorsqu'une question est insérée, mettre à jour la valeur de `.q-num` (ex: "Question 2 :", "Question 3 :").
+   - Mettre à jour l'attribut `data-question-num="X"` et le paramètre `num: 'X'` dans l'attribut `onclick` du bouton de suppression.
+
+3. Format des Justifications :
+   - Utiliser toujours la structure avec tiret cadratin :
+     `<strong class="text-incorrect">X : Faux</strong> — [Explication clinique en rouge]`
+     `<strong class="text-correct">Y : Vrai</strong> — [Justification médicale en vert]`
+
+--------------------------------------------------------------------------------
+PARTIE 5 : FORMATS D'ACTIONS JSON POUR LES AGENTS IA AUTOMATISÉS
+--------------------------------------------------------------------------------
+
+Si l'IA génère du code pour une intégration programmatique (comme l'agent Antigravity ou une extension), elle doit encapsuler son action dans un bloc ```json-action :
+
+Exemple 1 : Remplacer une question existante (ex: Question 1)
+```json-action
+{
+  "action": "replace_question",
+  "target": "1",
+  "content": "<div class=\"question-box\" data-question-num=\"1\">...</div>",
+  "description": "Remplacement de la Question 1 avec correction du corrigé et des justifications"
+}
+```
+
+Exemple 2 : Insérer une nouvelle question en haut de la série
+```json-action
+{
+  "action": "insert_at_top",
+  "content": "<div class=\"question-box\" data-question-num=\"1\">...</div>",
+  "description": "Insertion de la nouvelle question après le titre du cours"
+}
+```
+
+Exemple 3 : Remplacer tout le document HTML
+```json
+{
+  "action": "update_html",
+  "content": "<!DOCTYPE html><html>...</html>",
+  "description": "Mise à jour complète de la série avec mise en page A4 et justifications cliniques"
+}
+```
+================================================================================
