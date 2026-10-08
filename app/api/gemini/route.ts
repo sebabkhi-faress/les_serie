@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const GEMINI_MODELS = [
-  "gemini-2.0-flash",
-  "gemini-1.5-flash",
-  "gemini-1.5-pro",
-  "gemini-flash-latest",
-];
+// Modèle unique pour garantir une cohérence maximale
+const GEMINI_MODEL = "gemini-2.5-flash";
+const SUCCESSOR_MODEL = "gemini-3.8-flash";
 
 const SYSTEM_PROMPT = `Tu es "Antigravity QCM Medical Agent", un expert en pédagogie médicale et en conception de séries de QCM d'annales (Résidanat & Internat en Médecine).
 
@@ -38,7 +35,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const contents = [];
+    const contents: Array<{ role: string; parts: Array<{ text: string }> }> = [];
 
     // System instruction as first user/model exchange or systemInstruction if API supports it
     if (history && Array.isArray(history)) {
@@ -62,38 +59,51 @@ ${prompt}`;
       parts: [{ text: userPromptWithContext }],
     });
 
-    let lastError = null;
+    const callModel = async (model: string) => {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      return await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json; charset=utf-8" },
+        body: JSON.stringify({
+          contents,
+          systemInstruction: {
+            parts: [{ text: SYSTEM_PROMPT }],
+          },
+          generationConfig: {
+            temperature: 0.2,
+            maxOutputTokens: 8192,
+          },
+        }),
+      });
+    };
+
     let replyText = "";
+    let lastError: string | null = null;
 
-    for (const model of GEMINI_MODELS) {
-      try {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-        const res = await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json; charset=utf-8" },
-          body: JSON.stringify({
-            contents,
-            systemInstruction: {
-              parts: [{ text: SYSTEM_PROMPT }],
-            },
-            generationConfig: {
-              temperature: 0.2,
-              maxOutputTokens: 8192,
-            },
-          }),
-        });
+    try {
+      let res = await callModel(GEMINI_MODEL);
 
-        if (res.ok) {
-          const data = await res.json();
-          replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-          if (replyText) break;
+      if (res.ok) {
+        const data = await res.json();
+        replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      } else {
+        const errText = await res.text();
+        // Si l'API Google signale que le modèle gemini-2.5-flash est retiré (404),
+        // redirection transparente vers le successeur recommandé gemini-3.8-flash
+        if (res.status === 404 && errText.includes("no longer available")) {
+          const fallbackRes = await callModel(SUCCESSOR_MODEL);
+          if (fallbackRes.ok) {
+            const data = await fallbackRes.json();
+            replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+          } else {
+            lastError = `${SUCCESSOR_MODEL}: ${await fallbackRes.text()}`;
+          }
         } else {
-          const errData = await res.text();
-          lastError = `${model}: ${errData}`;
+          lastError = `${GEMINI_MODEL}: ${errText}`;
         }
-      } catch (e: unknown) {
-        lastError = e instanceof Error ? e.message : String(e);
       }
+    } catch (e: unknown) {
+      lastError = e instanceof Error ? e.message : String(e);
     }
 
     if (!replyText) {

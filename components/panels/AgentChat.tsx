@@ -250,7 +250,7 @@ export function AgentChat({
             <h3 className="text-xs font-bold text-text">Copilote Médical IA</h3>
             <span className="text-[10px] text-muted flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-              Gemini Flash • Spécialisé QCMs
+              Gemini 2.5 Flash • Spécialisé QCMs
             </span>
           </div>
         </div>

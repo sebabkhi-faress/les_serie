@@ -128,7 +128,7 @@ export function TopBar({
         {/* Gemini status: small dot + text */}
         <div className="flex items-center gap-1.5 text-muted">
           <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-          <span className="text-[11px] font-medium text-text">Gemini Flash</span>
+          <span className="text-[11px] font-medium text-text">Gemini 2.5 Flash</span>
         </div>
       </div>
 
