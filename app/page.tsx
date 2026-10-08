@@ -17,6 +17,7 @@ import { NewSeriesModal } from "@/components/panels/NewSeriesModal";
 import { CodebarsPanel } from "@/components/panels/CodebarsPanel";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { PromptModal } from "@/components/ui/PromptModal";
+import { LockedModal } from "@/components/ui/LockedModal";
 import {
   StorageFile,
   ChatMessage,
@@ -428,12 +429,26 @@ export default function StudioPage() {
   const [startPageNumber, setStartPageNumber] = useState<number>(1);
 
   // Panels & Modals
-  const [activePanel, setActivePanel] = useState<ActivePanel>("ai");
+  const [activePanel, setActivePanel] = useState<ActivePanel>(null);
   const [isProtectionModalOpen, setIsProtectionModalOpen] = useState<boolean>(false);
   const [isNewSeriesModalOpen, setIsNewSeriesModalOpen] = useState<boolean>(false);
+  const [lockedModal, setLockedModal] = useState<{
+    isOpen: boolean;
+    feature: string;
+  }>({
+    isOpen: false,
+    feature: "",
+  });
   const [studentName, setStudentName] = useState<string>("Dr. Médecin Résident");
   const [studentCode, setStudentCode] = useState<string>("RES-2026-ALG");
   const [isProtected, setIsProtected] = useState<boolean>(false);
+
+  const showLockedNotice = (feature: string) => {
+    setLockedModal({
+      isOpen: true,
+      feature,
+    });
+  };
 
   // Parsed Questions state
   const [parsedQuestions, setParsedQuestions] = useState<ParsedQuestion[]>([]);
@@ -858,8 +873,7 @@ export default function StudioPage() {
           handlePrint();
         } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
           e.preventDefault();
-          setActivePanel("ai");
-          setTimeout(() => aiInputRef.current?.focus(), 100);
+          showLockedNotice("Agent IA");
         }
       });
     }
@@ -1024,8 +1038,7 @@ export default function StudioPage() {
         handlePrint();
       } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
-        setActivePanel("ai");
-        setTimeout(() => aiInputRef.current?.focus(), 100);
+        showLockedNotice("Agent IA");
       }
     };
 
@@ -1144,25 +1157,7 @@ export default function StudioPage() {
   };
 
   const insertQuestionTemplate = () => {
-    // Si le document est vide, créer et initialiser avec la série complète
-    if (!documentContent || documentContent.trim().length === 0) {
-      const name = selectedFile || "Série_QCM_Initiale.html";
-      createAndSaveNewDocument(name, DEFAULT_MEDICAL_HTML);
-      return;
-    }
-
-    const nextNum = parsedQuestions.length + 1;
-    setPromptModal({
-      isOpen: true,
-      title: "Ajouter une Question",
-      description: "Indiquez le numéro de la question à insérer dans la série :",
-      label: "Numéro de la question",
-      defaultValue: `${nextNum}`,
-      placeholder: `${nextNum}`,
-      submitText: "Ajouter la question",
-      cancelText: "Annuler",
-      onSubmit: (val) => doInsertQuestion(val),
-    });
+    showLockedNotice("Ajouter une Question");
   };
 
   const doInsertCourseTitle = (moduleName: string) => {
@@ -1511,6 +1506,16 @@ export default function StudioPage() {
     saveCurrentDocument();
   };
 
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        showLockedNotice("Agent IA");
+      }
+    };
+    window.addEventListener("keydown", handleGlobalKeyDown);
+    return () => window.removeEventListener("keydown", handleGlobalKeyDown);
+  }, []);
 
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden bg-bg text-text select-none">
@@ -1533,7 +1538,16 @@ export default function StudioPage() {
         {/* Left Icon Rail (72px) */}
         <IconRail
           activePanel={activePanel}
-          onSelectPanel={(panel) => setActivePanel(panel)}
+          onSelectPanel={(panel) => {
+            if (panel === "ai" || panel === "paste" || panel === "questions") {
+              showLockedNotice(
+                panel === "ai" ? "Agent IA" : panel === "paste" ? "Coller" : "Questions"
+              );
+              return;
+            }
+            setActivePanel(panel);
+          }}
+          onLockedItemClick={showLockedNotice}
           questionsCount={parsedQuestions.length}
         />
 
@@ -1627,9 +1641,10 @@ export default function StudioPage() {
           {viewMode === "edit" && (
             <Toolbar
               onExecCommand={execRibbonCmd}
-              onInsertQuestion={insertQuestionTemplate}
+              onInsertQuestion={() => showLockedNotice("Ajouter une Question")}
               onInsertCourseTitle={insertCourseTitleBanner}
               onRenumberQuestions={renumberQuestions}
+              isQuestionLocked={true}
             />
           )}
 
@@ -1667,17 +1682,14 @@ export default function StudioPage() {
               createAndSaveNewDocument(name, DEFAULT_MEDICAL_HTML);
             }}
             onCreateNewSeries={() => setIsNewSeriesModalOpen(true)}
-            onOpenPastePanel={() => setActivePanel("paste")}
+            onOpenPastePanel={() => showLockedNotice("Coller")}
             currentPage={currentPage}
             totalPages={totalPages}
             startPageNumber={startPageNumber}
             onStartPageNumberChange={setStartPageNumber}
             onPageChange={setCurrentPage}
             onExecCommand={execRibbonCmd}
-            onAskAiWithSelection={(text) => {
-              setActivePanel("ai");
-              handleSendPrompt(`À propos de ce passage : "${text}"\nPeux-tu vérifier ou améliorer sa formulation médicale ?`);
-            }}
+            onAskAiWithSelection={undefined}
           />
         </div>
       </div>
@@ -1734,6 +1746,12 @@ export default function StudioPage() {
         placeholder={promptModal.placeholder}
         submitText={promptModal.submitText}
         cancelText={promptModal.cancelText}
+      />
+
+      <LockedModal
+        isOpen={lockedModal.isOpen}
+        onClose={() => setLockedModal({ isOpen: false, feature: "" })}
+        feature={lockedModal.feature}
       />
     </div>
   );

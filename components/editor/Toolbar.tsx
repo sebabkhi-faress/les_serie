@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import {
   Undo,
   Redo,
@@ -22,6 +21,7 @@ import {
   AlignLeft,
   AlignCenter,
   Eraser,
+  Lock,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
@@ -33,12 +33,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface ToolbarProps {
   onExecCommand: (command: string, value?: string) => void;
   onInsertQuestion: () => void;
   onInsertCourseTitle: () => void;
   onRenumberQuestions: () => void;
+  isQuestionLocked?: boolean;
 }
 
 export function Toolbar({
@@ -46,6 +48,7 @@ export function Toolbar({
   onInsertQuestion,
   onInsertCourseTitle,
   onRenumberQuestions,
+  isQuestionLocked = false,
 }: ToolbarProps) {
   const medicalColors = [
     { color: "#0F766E", label: "Bleu/Vert Médical" },
@@ -240,10 +243,15 @@ export function Toolbar({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-52 bg-surface border border-border shadow-xl">
             <DropdownMenuItem onClick={onInsertQuestion} className="gap-2 cursor-pointer hover:bg-surface-2 font-semibold text-primary">
-              <Plus className="w-4 h-4 text-primary" />
+              {isQuestionLocked ? <Lock className="w-4 h-4 text-amber-500 shrink-0" /> : <Plus className="w-4 h-4 text-primary shrink-0" />}
               <div className="flex flex-col">
-                <span>+ Insérer Question QCM</span>
-                <span className="text-[10px] text-muted font-normal">Modèle standard d&apos;annales</span>
+                <span className="flex items-center gap-1.5">
+                  <span>+ Insérer Question QCM</span>
+                  {isQuestionLocked && <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-amber-500/15 text-amber-500 font-bold">🔒</span>}
+                </span>
+                <span className="text-[10px] text-muted font-normal">
+                  {isQuestionLocked ? "Verrouillé — Apprentissage Antigravity" : "Modèle standard d'annales"}
+                </span>
               </div>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={onInsertCourseTitle} className="gap-2 cursor-pointer hover:bg-surface-2">
@@ -299,12 +307,25 @@ export function Toolbar({
       {/* Quick Add Question Shortcut Button */}
       <Button
         size="sm"
-        variant="default"
+        variant={isQuestionLocked ? "secondary" : "default"}
         onClick={onInsertQuestion}
-        className="h-8 text-xs font-bold gap-1 px-3 shrink-0"
+        className={cn(
+          "h-8 text-xs font-bold gap-1 px-3 shrink-0 cursor-pointer",
+          isQuestionLocked && "text-muted hover:text-text border border-amber-500/20 bg-surface-2"
+        )}
       >
-        <Plus className="w-3.5 h-3.5" />
-        <span>+ Question</span>
+        {isQuestionLocked ? (
+          <>
+            <Lock className="w-3.5 h-3.5 text-amber-500" />
+            <span>Question</span>
+            <span className="text-[9px] px-1 rounded bg-amber-500/15 text-amber-500 font-bold ml-0.5">🔒</span>
+          </>
+        ) : (
+          <>
+            <Plus className="w-3.5 h-3.5" />
+            <span>+ Question</span>
+          </>
+        )}
       </Button>
     </div>
   );
