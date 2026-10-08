@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 
 // Modèle unique pour garantir une cohérence maximale
 const GEMINI_MODEL = "gemini-2.5-flash";
-const SUCCESSOR_MODEL = "gemini-3.8-flash";
 
 const SYSTEM_PROMPT = `Tu es "Antigravity QCM Medical Agent", un expert en pédagogie médicale et en conception de séries de QCM d'annales (Résidanat & Internat en Médecine).
 
@@ -125,15 +124,15 @@ ${prompt}`;
         replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
       } else {
         const errText = await res.text();
-        // Si l'API Google signale que le modèle gemini-2.5-flash est retiré (404),
-        // redirection transparente vers le successeur recommandé gemini-3.8-flash
+        // Si l'API Google signale que le modèle gemini-2.5-flash est restreint (404),
+        // bascule transparente vers gemini-flash-latest (stable, sans erreur 503 de saturation)
         if (res.status === 404 && errText.includes("no longer available")) {
-          const fallbackRes = await callModel(SUCCESSOR_MODEL);
+          const fallbackRes = await callModel("gemini-flash-latest");
           if (fallbackRes.ok) {
             const data = await fallbackRes.json();
             replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
           } else {
-            lastError = `${SUCCESSOR_MODEL}: ${await fallbackRes.text()}`;
+            lastError = `${GEMINI_MODEL}: ${await fallbackRes.text()}`;
           }
         } else {
           lastError = `${GEMINI_MODEL}: ${errText}`;

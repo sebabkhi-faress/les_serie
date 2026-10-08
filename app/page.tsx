@@ -141,6 +141,26 @@ const DEFAULT_MEDICAL_HTML = `<!DOCTYPE html>
       font-family: monospace;
       flex-shrink: 0;
     }
+    .protection-screen-banner {
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      width: 100% !important;
+      margin: -14px 0 10px 0 !important;
+      padding: 0 !important;
+      background: transparent !important;
+      border: none !important;
+      border-left: none !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+    }
+    .protection-screen-banner > div,
+    .protection-screen-banner > div > div {
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+    }
     .course-header-banner {
       text-align: center;
       margin: 14px 0 20px 0;
@@ -722,6 +742,27 @@ export default function StudioPage() {
         font-size: 11px !important;
         font-weight: 800 !important;
         font-family: monospace !important;
+      }
+      /* Protection Watermark: No box, pushed right to the top, zero wasted space */
+      .protection-screen-banner {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        width: 100% !important;
+        margin: -14px 0 8px 0 !important;
+        padding: 0 !important;
+        background: transparent !important;
+        border: none !important;
+        border-left: none !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+      }
+      .protection-screen-banner > div,
+      .protection-screen-banner > div > div {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
       }
     </style>`;
     if (!safeHtml.includes("qcm-studio-overrides")) {
@@ -1441,16 +1482,16 @@ export default function StudioPage() {
 
     let existingBanner = doc.querySelector(".protection-screen-banner");
     const bannerHtml = `
-      <div class="protection-screen-banner" style="display: flex; justify-content: space-between; align-items: center; background: #ffffff; border: 1.5px solid #cbd5e1; border-left: 4px solid #0284c7; border-radius: 6px; padding: 6px 12px; margin-bottom: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); gap: 12px;">
-          <div style="display: flex; align-items: center; gap: 8px; font-size: 8.5pt; color: #0f172a; flex-wrap: wrap;">
+      <div class="protection-screen-banner" style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin: -14px 0 8px 0; padding: 0; background: transparent; border: none; box-shadow: none;">
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 8.5pt; color: #475569; flex-wrap: wrap;">
               <span style="font-weight: 700; color: #0284c7;">${nameToUse}</span>
               <span style="color: #cbd5e1;">•</span>
               <span style="font-family: monospace; font-size: 8pt; color: #475569;">Matricule: ${codeToUse}</span>
               <span style="color: #cbd5e1;">•</span>
               <span style="font-size: 7.5pt; color: #64748b;">${new Date().toLocaleDateString("fr-FR")}</span>
           </div>
-          <div style="display: flex; align-items: center; gap: 6px; shrink-0;">
-              ${svgToEmbed ? `<div style="background: #ffffff; padding: 2px; border-radius: 4px; border: 1px solid #e2e8f0; max-height: 36px; overflow: hidden; display: flex; align-items: center;">${svgToEmbed}</div>` : ""}
+          <div style="display: flex; align-items: center; gap: 6px; background: transparent; border: none; padding: 0; margin: 0; shrink-0;">
+              ${svgToEmbed ? `<div style="background: transparent; padding: 0; border: none; max-height: 32px; overflow: hidden; display: flex; align-items: center;">${svgToEmbed}</div>` : ""}
           </div>
       </div>
     `;

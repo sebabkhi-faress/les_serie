@@ -373,8 +373,8 @@ export function ProtectionModal({
                 </span>
               </div>
 
-              {/* Slim & Essential Watermark Banner Simulation */}
-              <div className="bg-white text-slate-900 border border-slate-200 rounded-lg p-2.5 shadow-2xs flex items-center justify-between gap-3">
+              {/* Slim & Essential Borderless Watermark Strip Simulation */}
+              <div className="bg-transparent text-slate-900 p-1.5 flex items-center justify-between gap-3 border-b border-border/70">
                 <div className="flex items-center gap-2 font-medium text-xs text-slate-900 flex-wrap">
                   <span className="font-bold text-sky-700">{studentName || "Dr. Destinataire"}</span>
                   <span className="text-slate-300">•</span>
@@ -386,7 +386,7 @@ export function ProtectionModal({
                 <div className="flex items-center gap-2 shrink-0">
                   {barcodeSvg && (
                     <div
-                      className="bg-white p-0.5 rounded border border-slate-100 max-h-10 overflow-hidden flex items-center"
+                      className="bg-transparent p-0 max-h-9 overflow-hidden flex items-center"
                       dangerouslySetInnerHTML={{ __html: barcodeSvg }}
                     />
                   )}
