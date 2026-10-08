@@ -22,6 +22,7 @@ import {
   ActivePanel,
   EditorViewMode,
 } from "@/types/studio";
+import { generateBarcodeSVG } from "@/lib/barcode";
 
 const DEFAULT_MEDICAL_HTML = `<!DOCTYPE html>
 <html lang="fr">
@@ -185,6 +186,7 @@ export default function StudioPage() {
   const [files, setFiles] = useState<StorageFile[]>([]);
   const [selectedFile, setSelectedFile] = useState<string>("");
   const [loadingFiles, setLoadingFiles] = useState<boolean>(true);
+  const [isLoadingDocument, setIsLoadingDocument] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   // Editor states
@@ -222,55 +224,6 @@ export default function StudioPage() {
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
   const aiInputRef = useRef<HTMLTextAreaElement>(null);
 
-  // ==================== 1. CHARGEMENT DE LA LISTE DES FICHIERS ====================
-  const loadFilesList = useCallback(async () => {
-    setLoadingFiles(true);
-    try {
-      const res = await fetch("/api/storage/files");
-      const data = await res.json();
-      if (data.files && Array.isArray(data.files)) {
-        setFiles(data.files);
-        if (data.files.length > 0 && !selectedFile) {
-          const firstHtml =
-            data.files.find((f: StorageFile) => f.name.endsWith(".html")) || data.files[0];
-          selectDocument(firstHtml.name);
-        }
-      }
-    } catch (e) {
-      console.error("Erreur de chargement des fichiers:", e);
-    } finally {
-      setLoadingFiles(false);
-    }
-  }, [selectedFile]);
-
-  useEffect(() => {
-    loadFilesList();
-  }, [loadFilesList]);
-
-  // ==================== 2. CHARGEMENT D'UN DOCUMENT ====================
-  const selectDocument = async (filename: string) => {
-    setSelectedFile(filename);
-    setSaveStatus("saving");
-    try {
-      const res = await fetch(`/api/storage/content?filename=${encodeURIComponent(filename)}`);
-      const data = await res.json();
-      if (data.content) {
-        setDocumentContent(data.content);
-        injectIntoIframe(data.content);
-        setSaveStatus("saved");
-        setLastSavedTime(new Date().toLocaleTimeString("fr-FR"));
-      } else {
-        setDocumentContent(DEFAULT_MEDICAL_HTML);
-        injectIntoIframe(DEFAULT_MEDICAL_HTML);
-        setSaveStatus("saved");
-      }
-    } catch (e) {
-      console.error("Erreur de lecture du document:", e);
-      setSaveStatus("unsaved");
-      setDocumentContent(DEFAULT_MEDICAL_HTML);
-      injectIntoIframe(DEFAULT_MEDICAL_HTML);
-    }
-  };
 
   // ==================== 3. ANALYSE ET INDEXATION DES QUESTIONS ====================
   const extractQuestionsFromDoc = (doc: Document) => {
@@ -385,6 +338,113 @@ export default function StudioPage() {
     }
   };
 
+  // ==================== 5. CRÉATION & SAUVEGARDE DE NOUVEAU DOCUMENT ====================
+  const createAndSaveNewDocument = async (filename: string, initialHtml: string) => {
+    setIsLoadingDocument(true);
+    setSelectedFile(filename);
+    setDocumentContent(initialHtml);
+    injectIntoIframe(initialHtml);
+    setSaveStatus("saving");
+
+    try {
+      const res = await fetch("/api/storage/content", {
+        method: "POST",
+        headers: { "Content-Type": "application/json; charset=utf-8" },
+        body: JSON.stringify({
+          filename,
+          content: initialHtml,
+        }),
+      });
+
+      if (res.ok) {
+        setSaveStatus("saved");
+        setLastSavedTime(new Date().toLocaleTimeString("fr-FR"));
+        // Rafraîchir la liste des fichiers
+        const listRes = await fetch("/api/storage/files");
+        const listData = await listRes.json();
+        if (listData.files && Array.isArray(listData.files)) {
+          setFiles(listData.files);
+        }
+      } else {
+        setSaveStatus("unsaved");
+      }
+    } catch (err) {
+      console.error("Erreur de création de document sur Supabase:", err);
+      setSaveStatus("unsaved");
+    } finally {
+      setIsLoadingDocument(false);
+    }
+  };
+
+  // ==================== 6. CHARGEMENT D'UN DOCUMENT ====================
+  const selectDocument = async (filename: string) => {
+    setIsLoadingDocument(true);
+    setSelectedFile(filename);
+    setSaveStatus("saving");
+    try {
+      const res = await fetch(`/api/storage/content?filename=${encodeURIComponent(filename)}`);
+      const data = await res.json();
+      if (data.content && data.content.trim().length > 0) {
+        setDocumentContent(data.content);
+        injectIntoIframe(data.content);
+        setSaveStatus("saved");
+        setLastSavedTime(new Date().toLocaleTimeString("fr-FR"));
+      } else {
+        // Si le fichier est vide sur Supabase Storage, initialiser avec DEFAULT_MEDICAL_HTML et le sauvegarder
+        setDocumentContent(DEFAULT_MEDICAL_HTML);
+        injectIntoIframe(DEFAULT_MEDICAL_HTML);
+        await fetch("/api/storage/content", {
+          method: "POST",
+          headers: { "Content-Type": "application/json; charset=utf-8" },
+          body: JSON.stringify({ filename, content: DEFAULT_MEDICAL_HTML }),
+        });
+        setSaveStatus("saved");
+        setLastSavedTime(new Date().toLocaleTimeString("fr-FR"));
+      }
+    } catch (e) {
+      console.error("Erreur de lecture du document:", e);
+      setSaveStatus("unsaved");
+      setDocumentContent(DEFAULT_MEDICAL_HTML);
+      injectIntoIframe(DEFAULT_MEDICAL_HTML);
+    } finally {
+      setIsLoadingDocument(false);
+    }
+  };
+
+  // ==================== 7. CHARGEMENT DE LA LISTE DES FICHIERS ====================
+  const loadFilesList = useCallback(async () => {
+    setLoadingFiles(true);
+    try {
+      const res = await fetch("/api/storage/files");
+      const data = await res.json();
+      if (data.files && Array.isArray(data.files) && data.files.length > 0) {
+        setFiles(data.files);
+        // Si aucun fichier sélectionné ou fichier non trouvé, prendre le premier fichier HTML
+        const target =
+          selectedFile && data.files.some((f: StorageFile) => f.name === selectedFile)
+            ? selectedFile
+            : (data.files.find((f: StorageFile) => f.name.endsWith(".html")) || data.files[0]).name;
+        await selectDocument(target);
+      } else {
+        // SI AUCUN FICHIER N'EXISTE SUR SUPABASE STORAGE -> EN CRÉER UN AUTOMATIQUEMENT
+        console.log("Aucune série sur Supabase Storage. Création automatique de la série initiale...");
+        const initialFile = "Série_QCM_Cardiologie.html";
+        await createAndSaveNewDocument(initialFile, DEFAULT_MEDICAL_HTML);
+      }
+    } catch (e) {
+      console.error("Erreur de chargement des fichiers:", e);
+      setDocumentContent(DEFAULT_MEDICAL_HTML);
+      injectIntoIframe(DEFAULT_MEDICAL_HTML);
+      setIsLoadingDocument(false);
+    } finally {
+      setLoadingFiles(false);
+    }
+  }, [selectedFile]);
+
+  useEffect(() => {
+    loadFilesList();
+  }, [loadFilesList]);
+
   useEffect(() => {
     const iframe = iframeRef.current;
     if (!iframe) return;
@@ -481,6 +541,13 @@ export default function StudioPage() {
     if (!iframe) return;
     const doc = iframe.contentDocument || iframe.contentWindow?.document;
     if (!doc) return;
+
+    // Si le document est vide, créer et initialiser avec la série complète
+    if (!documentContent || documentContent.trim().length === 0) {
+      const name = selectedFile || "Série_QCM_Initiale.html";
+      createAndSaveNewDocument(name, DEFAULT_MEDICAL_HTML);
+      return;
+    }
 
     const nextNum = parsedQuestions.length + 1;
     const qNum = prompt("Numéro de la question :", `${nextNum}`) || `${nextNum}`;
@@ -777,23 +844,31 @@ export default function StudioPage() {
     }
   };
 
-  // ==================== 10. PROTECTION ANTI-COPIE ====================
-  const applyProtectionWatermark = () => {
+  // ==================== 10. PROTECTION ANTI-COPIE & CODE-BARRES ====================
+  const applyProtectionWatermark = (passedSvg?: string, finalCode?: string) => {
     const iframe = iframeRef.current;
     if (!iframe) return;
     const doc = iframe.contentDocument || iframe.contentWindow?.document;
     if (!doc || !doc.body) return;
 
+    const codeToUse = finalCode || studentCode || "717271883927";
+    const svgToEmbed =
+      passedSvg ||
+      generateBarcodeSVG(codeToUse, { height: 38, fontSize: 10, unitWidth: 1.5 });
+
     let existingBanner = doc.querySelector(".protection-screen-banner");
     const bannerHtml = `
-      <div class="protection-screen-banner" style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; border: 1.5px solid #cbd5e1; border-left: 4px solid #0f766e; border-radius: 6px; padding: 8px 12px; margin-bottom: 16px;">
+      <div class="protection-screen-banner" style="display: flex; justify-content: space-between; align-items: center; background: #ffffff; border: 1.5px solid #cbd5e1; border-left: 5px solid #0f766e; border-radius: 6px; padding: 8px 12px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); gap: 12px;">
           <div style="display: flex; flex-direction: column; gap: 2px;">
-              <span style="font-size: 8pt; font-weight: 800; color: #0f766e; text-transform: uppercase;">DOCUMENT MÉDICAL CERTIFIÉ & PROTÉGÉ</span>
-              <span style="font-size: 9.5pt; font-weight: 700; color: #0f172a;">Attribué nominativement à : ${studentName}</span>
-              <span style="font-size: 8pt; color: #64748b;">Matricule: ${studentCode} • Date: ${new Date().toLocaleDateString("fr-FR")}</span>
+              <span style="font-size: 8pt; font-weight: 800; color: #0f766e; text-transform: uppercase; letter-spacing: 0.5px;">DOCUMENT MÉDICAL CERTIFIÉ & SÉCURISÉ</span>
+              <span style="font-size: 9.5pt; font-weight: 700; color: #0f172a;">Attribué nominativement à : ${studentName || "Dr. Destinataire Résident"}</span>
+              <span style="font-size: 8pt; color: #64748b;">Matricule: ${codeToUse} • Date: ${new Date().toLocaleDateString("fr-FR")}</span>
           </div>
-          <div style="font-size: 8pt; font-weight: 800; background: #fee2e2; color: #991b1b; padding: 3px 8px; border-radius: 4px;">
-              COPIE STRICTEMENT INTERDITE
+          <div style="display: flex; align-items: center; gap: 10px; shrink-0;">
+              ${svgToEmbed ? `<div style="background: #ffffff; padding: 2px; border-radius: 4px; border: 1px solid #e2e8f0;">${svgToEmbed}</div>` : ""}
+              <div style="font-size: 8pt; font-weight: 800; background: #fee2e2; color: #991b1b; padding: 4px 8px; border-radius: 4px; white-space: nowrap;">
+                  COPIE STRICTEMENT INTERDITE
+              </div>
           </div>
       </div>
     `;
@@ -809,6 +884,7 @@ export default function StudioPage() {
     setIsProtectionModalOpen(false);
     saveCurrentDocument();
   };
+
 
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden bg-bg text-text select-none">
@@ -931,8 +1007,30 @@ export default function StudioPage() {
             }}
             zoom={zoom}
             onZoomChange={setZoom}
-            isEmpty={!documentContent || documentContent.trim().length === 0}
-            onInsertFirstQuestion={insertQuestionTemplate}
+            isLoading={loadingFiles || isLoadingDocument}
+            loadingMessage={
+              loadingFiles
+                ? "Connexion et synchronisation avec Supabase Cloud..."
+                : `Chargement de la série "${selectedFile || "A4"}"...`
+            }
+            isEmpty={
+              (!documentContent || documentContent.trim().length === 0) &&
+              !loadingFiles &&
+              !isLoadingDocument
+            }
+            onInsertFirstQuestion={() => {
+              const name = selectedFile || "Série_QCM_Initiale.html";
+              createAndSaveNewDocument(name, DEFAULT_MEDICAL_HTML);
+            }}
+            onCreateNewSeries={() => {
+              const name = prompt(
+                "Nom de la nouvelle série (ex: Cardiologie_2026.html) :",
+                "Nouvelle_Série.html"
+              );
+              if (!name) return;
+              const cleanName = name.endsWith(".html") ? name : `${name}.html`;
+              createAndSaveNewDocument(cleanName, DEFAULT_MEDICAL_HTML);
+            }}
             onOpenPastePanel={() => setActivePanel("paste")}
             currentPage={currentPage}
             totalPages={totalPages}
@@ -963,6 +1061,7 @@ export default function StudioPage() {
         onClose={() => setIsProtectionModalOpen(false)}
         studentName={studentName}
         studentCode={studentCode}
+        documentTitle={selectedFile || "DOCUMENT MÉDICAL"}
         onStudentNameChange={setStudentName}
         onStudentCodeChange={setStudentCode}
         onApplyProtection={applyProtectionWatermark}

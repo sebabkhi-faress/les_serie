@@ -13,6 +13,8 @@ import {
   ClipboardPaste,
   PanelLeftClose,
   PanelLeft,
+  Loader2,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ViewSwitcher } from "./ViewSwitcher";
@@ -35,8 +37,11 @@ interface CanvasProps {
   zoom: number;
   onZoomChange: (newZoom: number) => void;
   isEmpty: boolean;
+  isLoading?: boolean;
+  loadingMessage?: string;
   onInsertFirstQuestion: () => void;
   onOpenPastePanel: () => void;
+  onCreateNewSeries?: () => void;
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
@@ -53,8 +58,11 @@ export function Canvas({
   zoom,
   onZoomChange,
   isEmpty,
+  isLoading = false,
+  loadingMessage = "Synchronisation avec Supabase Cloud...",
   onInsertFirstQuestion,
   onOpenPastePanel,
+  onCreateNewSeries,
   currentPage,
   totalPages,
   onPageChange,
@@ -250,7 +258,29 @@ export function Canvas({
 
         {/* Center Canvas Area with A4 Sheet */}
         <div className="flex-1 overflow-auto p-4 sm:p-6 flex justify-center items-start bg-bg">
-          {isEmpty ? (
+          {isLoading ? (
+            /* Elegant Cloud Loading State */
+            <div className="my-auto max-w-sm w-full bg-surface border border-border rounded-2xl p-8 text-center shadow-xl flex flex-col items-center gap-4 animate-in fade-in zoom-in-95 duration-200">
+              <div className="relative">
+                <div className="h-16 w-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <h3 className="text-sm font-bold text-text">Chargement de la série QCM</h3>
+                <p className="text-xs text-muted leading-relaxed">
+                  {loadingMessage}
+                </p>
+              </div>
+
+              {/* Shimmer pulse lines */}
+              <div className="w-full space-y-2 pt-1 opacity-70">
+                <div className="h-2.5 bg-surface-2 rounded-full w-4/5 mx-auto animate-pulse" />
+                <div className="h-2 bg-surface-2 rounded-full w-3/5 mx-auto animate-pulse" />
+              </div>
+            </div>
+          ) : isEmpty ? (
             /* Empty State */
             <div className="my-auto max-w-sm w-full bg-surface border border-border rounded-2xl p-6 text-center shadow-lg flex flex-col items-center gap-3">
               <div className="h-12 w-12 rounded-xl bg-primary/15 text-primary flex items-center justify-center">
@@ -260,7 +290,7 @@ export function Canvas({
               <div>
                 <h3 className="text-sm font-bold text-text">Série de QCM vide</h3>
                 <p className="text-xs text-muted mt-1 leading-relaxed">
-                  Ajoutez votre première question ou collez votre texte d&apos;annales pour mise en page automatique.
+                  Aucun document actif. Créez une nouvelle série ou collez vos annales pour démarrer.
                 </p>
               </div>
 
@@ -268,11 +298,11 @@ export function Canvas({
                 <Button
                   variant="default"
                   size="default"
-                  onClick={onInsertFirstQuestion}
-                  className="w-full gap-2 font-bold"
+                  onClick={onCreateNewSeries || onInsertFirstQuestion}
+                  className="w-full gap-2 font-bold cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
-                  <span>Ajoutez votre première question</span>
+                  <span>Créer une série de QCMs</span>
                 </Button>
 
                 <button
@@ -280,7 +310,7 @@ export function Canvas({
                   className="text-xs font-semibold text-primary hover:underline flex items-center justify-center gap-1.5 py-1 cursor-pointer"
                 >
                   <ClipboardPaste className="w-3.5 h-3.5" />
-                  <span>Coller depuis un texte</span>
+                  <span>Coller depuis un texte brut</span>
                 </button>
               </div>
             </div>

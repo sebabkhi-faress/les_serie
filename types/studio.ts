@@ -46,3 +46,15 @@ export interface ProtectionConfig {
   watermarkText?: string;
   enabled: boolean;
 }
+
+export interface CodebarRecord {
+  id: string;
+  barcode: string;
+  student_name: string;
+  document_title: string;
+  series_subtitle?: string;
+  barcode_svg?: string;
+  status: string;
+  created_at: string;
+  updated_at?: string;
+}
