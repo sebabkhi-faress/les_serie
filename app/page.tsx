@@ -13,6 +13,7 @@ import { SettingsPanel } from "@/components/panels/SettingsPanel";
 import { Toolbar } from "@/components/editor/Toolbar";
 import { Canvas } from "@/components/editor/Canvas";
 import { ProtectionModal } from "@/components/editor/ProtectionModal";
+import { NewSeriesModal } from "@/components/panels/NewSeriesModal";
 import {
   StorageFile,
   ChatMessage,
@@ -144,8 +145,16 @@ const DEFAULT_MEDICAL_HTML = `<!DOCTYPE html>
       display: none !important;
     }
     /* Hide duplicate action bar inside A4 document */
-    .document-header-bar, .header-bar, .exam-top-bar, .action-bar-top, .header-actions, .study-header, [class*="action-bar"], [class*="action_bar"], .ue1-header-actions, button.print-btn, button.mode-btn {
+    .screen-toolbar, aside.screen-toolbar, .toolbar-brand, .toolbar-tags, .toolbar-actions,
+    .document-header-bar, .header-bar, .exam-top-bar, .action-bar-top, .header-actions,
+    .study-header, [class*="action-bar"], [class*="action_bar"], .ue1-header-actions,
+    button.print-btn, button.mode-btn, .btn-toggle-mode, .btn-print {
       display: none !important;
+      visibility: hidden !important;
+      height: 0 !important;
+      overflow: hidden !important;
+      margin: 0 !important;
+      padding: 0 !important;
     }
   </style>
 </head>
@@ -202,6 +211,7 @@ export default function StudioPage() {
   // Panels & Modals
   const [activePanel, setActivePanel] = useState<ActivePanel>("ai");
   const [isProtectionModalOpen, setIsProtectionModalOpen] = useState<boolean>(false);
+  const [isNewSeriesModalOpen, setIsNewSeriesModalOpen] = useState<boolean>(false);
   const [studentName, setStudentName] = useState<string>("Dr. Médecin Résident");
   const [studentCode, setStudentCode] = useState<string>("RES-2026-ALG");
   const [isProtected, setIsProtected] = useState<boolean>(false);
@@ -282,8 +292,16 @@ export default function StudioPage() {
 
     // Add CSS rule hiding any duplicate header bar inside document
     const hideHeaderCss = `<style id="qcm-studio-overrides">
-      .document-header-bar, .header-bar, .exam-top-bar, .action-bar-top, .header-actions, .study-header, [class*="action-bar"], [class*="action_bar"], .ue1-header-actions, button.print-btn, button.mode-btn {
+      .screen-toolbar, aside.screen-toolbar, .toolbar-brand, .toolbar-tags, .toolbar-actions,
+      .document-header-bar, .header-bar, .exam-top-bar, .action-bar-top, .header-actions,
+      .study-header, [class*="action-bar"], [class*="action_bar"], .ue1-header-actions,
+      button.print-btn, button.mode-btn, .btn-toggle-mode, .btn-print {
         display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        overflow: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
       }
       .study-mode-active .answer-section {
         display: none !important;
@@ -296,6 +314,11 @@ export default function StudioPage() {
     doc.open();
     doc.write(safeHtml);
     doc.close();
+
+    // Supprimer tout vestige de toolbar statique hérité directement du DOM
+    doc.querySelectorAll(
+      ".screen-toolbar, aside.screen-toolbar, .document-header-bar, .header-bar, .exam-top-bar, .action-bar-top, .header-actions"
+    ).forEach((el) => el.remove());
 
     if (doc.body) {
       doc.body.contentEditable = viewMode === "edit" ? "true" : "false";
@@ -496,6 +519,7 @@ export default function StudioPage() {
     if (iframe) {
       const doc = iframe.contentDocument || iframe.contentWindow?.document;
       if (doc && doc.documentElement) {
+        doc.querySelectorAll(".screen-toolbar, aside.screen-toolbar").forEach((el) => el.remove());
         fullHtml = "<!DOCTYPE html>\n" + doc.documentElement.outerHTML;
       }
     }
@@ -797,30 +821,8 @@ export default function StudioPage() {
     }
   };
 
-  const handleCreateNewFile = async () => {
-    const name = prompt(
-      "Nom de la nouvelle série (ex: Cardiologie_2026.html) :",
-      "Nouvelle_Serie.html"
-    );
-    if (!name) return;
-
-    const cleanName = name.endsWith(".html") ? name : `${name}.html`;
-    const formData = new FormData();
-    formData.append("name", cleanName);
-
-    try {
-      const res = await fetch("/api/storage/files", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (res.ok) {
-        await loadFilesList();
-        selectDocument(cleanName);
-      }
-    } catch (err) {
-      console.error("Erreur de création :", err);
-    }
+  const handleCreateNewFile = () => {
+    setIsNewSeriesModalOpen(true);
   };
 
   const handleDeleteFile = async (name: string, e: React.MouseEvent) => {
@@ -1022,15 +1024,7 @@ export default function StudioPage() {
               const name = selectedFile || "Série_QCM_Initiale.html";
               createAndSaveNewDocument(name, DEFAULT_MEDICAL_HTML);
             }}
-            onCreateNewSeries={() => {
-              const name = prompt(
-                "Nom de la nouvelle série (ex: Cardiologie_2026.html) :",
-                "Nouvelle_Série.html"
-              );
-              if (!name) return;
-              const cleanName = name.endsWith(".html") ? name : `${name}.html`;
-              createAndSaveNewDocument(cleanName, DEFAULT_MEDICAL_HTML);
-            }}
+            onCreateNewSeries={() => setIsNewSeriesModalOpen(true)}
             onOpenPastePanel={() => setActivePanel("paste")}
             currentPage={currentPage}
             totalPages={totalPages}
@@ -1065,6 +1059,12 @@ export default function StudioPage() {
         onStudentNameChange={setStudentName}
         onStudentCodeChange={setStudentCode}
         onApplyProtection={applyProtectionWatermark}
+      />
+
+      <NewSeriesModal
+        isOpen={isNewSeriesModalOpen}
+        onClose={() => setIsNewSeriesModalOpen(false)}
+        onCreate={(name) => createAndSaveNewDocument(name, DEFAULT_MEDICAL_HTML)}
       />
     </div>
   );
