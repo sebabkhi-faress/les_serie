@@ -12,6 +12,9 @@ import {
   Search,
   ExternalLink,
   Layers,
+  QrCode,
+  Barcode as BarcodeIcon,
+  ScanLine,
 } from "lucide-react";
 import {
   Dialog,
@@ -21,7 +24,12 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { generateBarcodeSVG, generateUniqueCode } from "@/lib/barcode";
+import {
+  generateBarcodeSVG,
+  generateUniqueCode,
+  generateUnifiedBarcodeSVG,
+  BarcodeFormat,
+} from "@/lib/barcode";
 import { CodebarRecord } from "@/types/studio";
 
 interface ProtectionModalProps {
@@ -46,6 +54,7 @@ export function ProtectionModal({
   onApplyProtection,
 }: ProtectionModalProps) {
   const [activeTab, setActiveTab] = useState<"apply" | "registry">("apply");
+  const [barcodeFormat, setBarcodeFormat] = useState<BarcodeFormat>("code128");
   const [localCode, setLocalCode] = useState(studentCode || generateUniqueCode());
   const [barcodeSvg, setBarcodeSvg] = useState<string>("");
   const [records, setRecords] = useState<CodebarRecord[]>([]);
@@ -55,14 +64,23 @@ export function ProtectionModal({
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [dbHint, setDbHint] = useState<string | null>(null);
 
+  // Re-generate SVG whenever code or format changes
+  const updateSvg = (code: string, format: BarcodeFormat) => {
+    const svg = generateUnifiedBarcodeSVG(code, format, {
+      height: 38,
+      fontSize: 10,
+      unitWidth: 1.5,
+    });
+    setBarcodeSvg(svg);
+  };
+
   // Sync with prop when opened
   useEffect(() => {
     if (isOpen) {
       const code = studentCode || generateUniqueCode();
       setLocalCode(code);
       onStudentCodeChange(code);
-      const svg = generateBarcodeSVG(code, { height: 38, fontSize: 10, unitWidth: 1.5 });
-      setBarcodeSvg(svg);
+      updateSvg(code, barcodeFormat);
       fetchRecords();
     }
   }, [isOpen]);
@@ -71,8 +89,12 @@ export function ProtectionModal({
   const handleCodeChange = (newCode: string) => {
     setLocalCode(newCode);
     onStudentCodeChange(newCode);
-    const svg = generateBarcodeSVG(newCode, { height: 38, fontSize: 10, unitWidth: 1.5 });
-    setBarcodeSvg(svg);
+    updateSvg(newCode, barcodeFormat);
+  };
+
+  const handleFormatChange = (newFormat: BarcodeFormat) => {
+    setBarcodeFormat(newFormat);
+    updateSvg(localCode, newFormat);
   };
 
   const handleRegenerateCode = () => {
@@ -132,7 +154,9 @@ export function ProtectionModal({
   const handleSaveAndApply = async () => {
     setIsSaving(true);
     const code = localCode.trim() || generateUniqueCode();
-    const svg = barcodeSvg || generateBarcodeSVG(code, { height: 38, fontSize: 10, unitWidth: 1.5 });
+    const svg =
+      barcodeSvg ||
+      generateUnifiedBarcodeSVG(code, barcodeFormat, { height: 38, fontSize: 10, unitWidth: 1.5 });
 
     try {
       // 1. Enregistrement direct dans Supabase PostgreSQL (public.codebars)
@@ -143,6 +167,8 @@ export function ProtectionModal({
           studentName: studentName || "Destinataire Inconnu",
           documentTitle: documentTitle,
           customBarcode: code,
+          barcodeFormat: barcodeFormat,
+          customSvg: svg,
         }),
       });
     } catch (e) {
@@ -236,7 +262,7 @@ export function ProtectionModal({
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="block text-xs font-semibold text-text">
-                    Code-Barres Unique (12 Chiffres) :
+                    Code Unique ({barcodeFormat === "qrcode" ? "Matricule / URL" : "12 Chiffres"}) :
                   </label>
                   <button
                     type="button"
@@ -253,10 +279,66 @@ export function ProtectionModal({
                     value={localCode}
                     onChange={(e) => handleCodeChange(e.target.value)}
                     placeholder="714415235521"
-                    maxLength={16}
+                    maxLength={barcodeFormat === "qrcode" ? 128 : 20}
                     className="w-full bg-surface-2 border border-border rounded-xl px-3.5 py-2.5 text-xs text-text font-mono font-bold tracking-wider focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                   />
                 </div>
+              </div>
+            </div>
+
+            {/* FORMAT SELECTOR PILLS */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-text">
+                Format de Code & Tatouage Anti-Copie :
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleFormatChange("code128")}
+                  className={`p-2.5 rounded-xl border text-left transition-all flex items-center gap-2.5 cursor-pointer ${
+                    barcodeFormat === "code128"
+                      ? "bg-primary/10 border-primary text-text shadow-xs"
+                      : "bg-surface-2 border-border text-muted hover:text-text hover:bg-surface-2/80"
+                  }`}
+                >
+                  <BarcodeIcon className={`w-4 h-4 shrink-0 ${barcodeFormat === "code128" ? "text-primary" : "text-muted"}`} />
+                  <div className="min-w-0">
+                    <div className="text-xs font-bold truncate">Code 128 (1D)</div>
+                    <div className="text-[10px] text-muted truncate">Concours & Douchette</div>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleFormatChange("qrcode")}
+                  className={`p-2.5 rounded-xl border text-left transition-all flex items-center gap-2.5 cursor-pointer ${
+                    barcodeFormat === "qrcode"
+                      ? "bg-primary/10 border-primary text-text shadow-xs"
+                      : "bg-surface-2 border-border text-muted hover:text-text hover:bg-surface-2/80"
+                  }`}
+                >
+                  <QrCode className={`w-4 h-4 shrink-0 ${barcodeFormat === "qrcode" ? "text-primary" : "text-muted"}`} />
+                  <div className="min-w-0">
+                    <div className="text-xs font-bold truncate">QR Code (2D)</div>
+                    <div className="text-[10px] text-muted truncate">Scan Smartphone</div>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleFormatChange("code39")}
+                  className={`p-2.5 rounded-xl border text-left transition-all flex items-center gap-2.5 cursor-pointer ${
+                    barcodeFormat === "code39"
+                      ? "bg-primary/10 border-primary text-text shadow-xs"
+                      : "bg-surface-2 border-border text-muted hover:text-text hover:bg-surface-2/80"
+                  }`}
+                >
+                  <ScanLine className={`w-4 h-4 shrink-0 ${barcodeFormat === "code39" ? "text-primary" : "text-muted"}`} />
+                  <div className="min-w-0">
+                    <div className="text-xs font-bold truncate">Code 39 (1D)</div>
+                    <div className="text-[10px] text-muted truncate">Matricule Classique</div>
+                  </div>
+                </button>
               </div>
             </div>
 
@@ -267,7 +349,13 @@ export function ProtectionModal({
                   <Layers className="w-3.5 h-3.5" />
                   <span>Aperçu de la Bannière Tatouée :</span>
                 </span>
-                <span className="text-[10px] text-muted">Format Code 128 SVG HD</span>
+                <span className="text-[10px] text-muted">
+                  {barcodeFormat === "qrcode"
+                    ? "Format QR Code 2D Vectoriel"
+                    : barcodeFormat === "code39"
+                    ? "Format Code 39 1D"
+                    : "Format Code 128 SVG HD"}
+                </span>
               </div>
 
               {/* Watermark Banner Simulation */}

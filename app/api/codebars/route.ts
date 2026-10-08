@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { generateBarcodeSVG, generateUniqueCode } from "@/lib/barcode";
+import { generateBarcodeSVG, generateUniqueCode, generateUnifiedBarcodeSVG, BarcodeFormat } from "@/lib/barcode";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!;
@@ -62,14 +62,18 @@ export async function POST(req: NextRequest) {
       documentTitle = "DOCUMENT MÉDICAL",
       seriesSubtitle = "",
       customBarcode = null,
+      barcodeFormat = "code128",
+      customSvg = null,
     } = body;
 
     const barcodeCode = (customBarcode && String(customBarcode).trim()) || generateUniqueCode();
-    const barcodeSvg = generateBarcodeSVG(barcodeCode, {
-      height: 38,
-      fontSize: 10,
-      unitWidth: 1.5,
-    });
+    const barcodeSvg =
+      customSvg ||
+      generateUnifiedBarcodeSVG(barcodeCode, barcodeFormat as BarcodeFormat, {
+        height: 38,
+        fontSize: 10,
+        unitWidth: 1.5,
+      });
 
     const record = {
       id: `PROT_${Date.now()}`,

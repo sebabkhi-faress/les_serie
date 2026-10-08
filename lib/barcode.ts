@@ -1,5 +1,28 @@
-// Self-contained Code 128 Barcode Generator (Outputs clean scalable SVG)
-// Supports Code 128 Set B and C (optimal for numeric IDs like 717271883927)
+import QRCode from "qrcode";
+
+/**
+ * Barcode & 2D QR Code Generation Engine for QCM Studio
+ * 
+ * WHY CODE 128 ORIGINALLY?
+ * ----------------------------------------------------
+ * 1. Medical Exam / Concours Standard:
+ *    Code 128 is the global clinical & university standard for 1D printed exam sheets (A4).
+ * 2. High Density (Subset C):
+ *    Code 128-C compresses 12-digit numeric student IDs (e.g., 717271883927) into only 6 symbol
+ *    pairs, keeping the watermark banner slim (~38px height) without eating into question space.
+ * 3. Laser Scanner Reliability:
+ *    Equipped with a Modulo 103 checksum, preventing optical read errors during concours scanning.
+ * 
+ * WHY EXPAND TO QR CODE & CODE 39?
+ * ----------------------------------------------------
+ * - QR Code (2D): Allows instant scanning via any student smartphone camera or tablet without
+ *   requiring a dedicated 1D optical laser gun. Can embed verification URLs (e.g. Supabase verification).
+ * - Code 39 (1D): The traditional alphanumeric standard for medical badges and matricule IDs.
+ */
+
+// =========================================================================
+// 1. CODE 128 (1D - Standard Concours Médicaux)
+// =========================================================================
 
 const CODE128_PATTERNS: string[] = [
   "212222", "222122", "222221", "121223", "121322", "131222", "122213", "122312", "132212", "221213", // 0-9
@@ -54,7 +77,7 @@ export function generateBarcodeSVG(text: string, options: BarcodeOptions = {}): 
     }
   }
 
-  // Checksum
+  // Checksum Modulo 103
   let checksum = codes[0];
   for (let i = 1; i < codes.length; i++) {
     checksum += codes[i] * i;
@@ -63,13 +86,11 @@ export function generateBarcodeSVG(text: string, options: BarcodeOptions = {}): 
   codes.push(checksum);
   codes.push(STOP);
 
-  // Convert codes to bar pattern string
   let patternString = "";
   codes.forEach((code) => {
     patternString += CODE128_PATTERNS[code] || "";
   });
 
-  // Draw SVG bars
   const quietZone = 10;
   let currentX = quietZone;
   let rects = "";
@@ -96,6 +117,148 @@ export function generateBarcodeSVG(text: string, options: BarcodeOptions = {}): 
     ${rects}
     ${textElement}
   </svg>`;
+}
+
+// =========================================================================
+// 2. QR CODE (2D - Scan Smartphone / Vérification Instantanée)
+// =========================================================================
+
+export interface QRCodeOptions {
+  size?: number;
+  color?: string;
+  margin?: number;
+  showText?: boolean;
+}
+
+export function generateQRCodeSVG(text: string, options: QRCodeOptions = {}): string {
+  try {
+    const { size = 76, color = "#000000", margin = 2 } = options;
+    const cleanText = String(text || "").trim();
+    if (!cleanText) return "";
+
+    const qr = QRCode.create(cleanText, { errorCorrectionLevel: "M" });
+    const moduleCount = qr.modules.size;
+    const totalModules = moduleCount + margin * 2;
+    const cellSize = (size / totalModules).toFixed(2);
+
+    let rects = "";
+    for (let r = 0; r < moduleCount; r++) {
+      for (let c = 0; c < moduleCount; c++) {
+        if (qr.modules.get(r, c)) {
+          const x = ((c + margin) * (size / totalModules)).toFixed(2);
+          const y = ((r + margin) * (size / totalModules)).toFixed(2);
+          rects += `<rect x="${x}" y="${y}" width="${cellSize}" height="${cellSize}" fill="${color}" />`;
+        }
+      }
+    }
+
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}">
+      <rect width="100%" height="100%" fill="transparent" />
+      ${rects}
+    </svg>`;
+  } catch (err) {
+    console.error("Erreur de génération QR Code SVG:", err);
+    return "";
+  }
+}
+
+// =========================================================================
+// 3. CODE 39 (1D - Matricules Alphanumériques Traditionnels)
+// =========================================================================
+
+const CODE39_PATTERNS: Record<string, string> = {
+  "0": "000110100", "1": "100100001", "2": "001100001", "3": "101100000",
+  "4": "000110001", "5": "100110000", "6": "001110000", "7": "000100101",
+  "8": "100100100", "9": "001100100", "A": "100001001", "B": "001001001",
+  "C": "101001000", "D": "000011001", "E": "100011000", "F": "001011000",
+  "G": "000001101", "H": "100001100", "I": "001001100", "J": "000011100",
+  "K": "100000011", "L": "001000011", "M": "101000010", "N": "000010011",
+  "O": "100010010", "P": "001010010", "Q": "000000111", "R": "100000110",
+  "S": "001000110", "T": "000010110", "U": "110000001", "V": "011000001",
+  "W": "111000000", "X": "010010001", "Y": "110010000", "Z": "011010000",
+  "-": "010000101", ".": "110000100", " ": "011000100", "*": "010010100",
+  "$": "010101000", "/": "010100010", "+": "010001010", "%": "000101010"
+};
+
+export function generateCode39SVG(text: string, options: BarcodeOptions = {}): string {
+  const {
+    height = 40,
+    showText = true,
+    fontSize = 11,
+    barColor = "#000000",
+    unitWidth = 1.3,
+  } = options;
+
+  const raw = String(text || "").trim().toUpperCase();
+  if (!raw) return "";
+
+  // Code 39 starts and ends with asterisk delimiter
+  const formatted = `*${raw.replace(/[^*A-Z0-9\-. $/+%]/g, "")}*`;
+
+  const wideRatio = 2.4;
+  const narrowWidth = unitWidth;
+  const wideWidth = unitWidth * wideRatio;
+  const charGap = narrowWidth;
+
+  const quietZone = 10;
+  let currentX = quietZone;
+  let rects = "";
+
+  for (let i = 0; i < formatted.length; i++) {
+    const ch = formatted[i];
+    const pattern = CODE39_PATTERNS[ch] || CODE39_PATTERNS["*"];
+
+    for (let p = 0; p < 9; p++) {
+      const isWide = pattern[p] === "1";
+      const w = isWide ? wideWidth : narrowWidth;
+      const isBar = p % 2 === 0;
+
+      if (isBar) {
+        rects += `<rect x="${currentX.toFixed(1)}" y="2" width="${w.toFixed(1)}" height="${height}" fill="${barColor}" />`;
+      }
+      currentX += w;
+    }
+    currentX += charGap;
+  }
+
+  const totalWidth = currentX + quietZone;
+  const totalHeight = height + (showText ? fontSize + 7 : 4);
+
+  let textElement = "";
+  if (showText) {
+    textElement = `<text x="${(totalWidth / 2).toFixed(1)}" y="${(height + fontSize + 3).toFixed(1)}" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="${fontSize}" font-weight="700" fill="${barColor}" text-anchor="middle" letter-spacing="2">${raw}</text>`;
+  }
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${totalWidth.toFixed(1)} ${totalHeight.toFixed(1)}" width="${totalWidth.toFixed(1)}" height="${totalHeight.toFixed(1)}">
+    <rect width="100%" height="100%" fill="transparent" />
+    ${rects}
+    ${textElement}
+  </svg>`;
+}
+
+// =========================================================================
+// 4. UNIFIED DISPATCHER
+// =========================================================================
+
+export type BarcodeFormat = "code128" | "qrcode" | "code39";
+
+export function generateUnifiedBarcodeSVG(
+  text: string,
+  format: BarcodeFormat = "code128",
+  options: BarcodeOptions & QRCodeOptions = {}
+): string {
+  switch (format) {
+    case "qrcode":
+      return generateQRCodeSVG(text, {
+        size: options.height ? options.height * 1.8 : 74,
+        color: options.barColor || "#000000",
+      });
+    case "code39":
+      return generateCode39SVG(text, options);
+    case "code128":
+    default:
+      return generateBarcodeSVG(text, options);
+  }
 }
 
 // Generate unique 12-digit code like 717271883927

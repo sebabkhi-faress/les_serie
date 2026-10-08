@@ -366,8 +366,16 @@ export default function StudioPage() {
     setIsLoadingDocument(true);
     setSelectedFile(filename);
     setDocumentContent(initialHtml);
-    injectIntoIframe(initialHtml);
     setSaveStatus("saving");
+
+    // Mise à jour immédiate de la liste locale pour affichage instantané dans la sidebar
+    setFiles((prev) => {
+      const existing = prev.filter((f) => f.name !== filename);
+      return [{ name: filename, id: filename, created_at: new Date().toISOString() }, ...existing];
+    });
+
+    // Injection immédiate et prioritaire dans l'iframe
+    injectIntoIframe(initialHtml);
 
     try {
       const res = await fetch("/api/storage/content", {
@@ -382,12 +390,6 @@ export default function StudioPage() {
       if (res.ok) {
         setSaveStatus("saved");
         setLastSavedTime(new Date().toLocaleTimeString("fr-FR"));
-        // Rafraîchir la liste des fichiers
-        const listRes = await fetch("/api/storage/files");
-        const listData = await listRes.json();
-        if (listData.files && Array.isArray(listData.files)) {
-          setFiles(listData.files);
-        }
       } else {
         setSaveStatus("unsaved");
       }
@@ -396,6 +398,10 @@ export default function StudioPage() {
       setSaveStatus("unsaved");
     } finally {
       setIsLoadingDocument(false);
+      // Double garantie d'injection synchrone dans le document de l'iframe
+      setTimeout(() => {
+        injectIntoIframe(initialHtml);
+      }, 50);
     }
   };
 
@@ -431,22 +437,28 @@ export default function StudioPage() {
       injectIntoIframe(DEFAULT_MEDICAL_HTML);
     } finally {
       setIsLoadingDocument(false);
+      setTimeout(() => {
+        const iframe = iframeRef.current;
+        const doc = iframe?.contentDocument || iframe?.contentWindow?.document;
+        if (doc && (!doc.body || !doc.body.innerHTML || doc.body.innerHTML.trim() === "")) {
+          injectIntoIframe(documentContent || DEFAULT_MEDICAL_HTML);
+        }
+      }, 50);
     }
   };
 
   // ==================== 7. CHARGEMENT DE LA LISTE DES FICHIERS ====================
-  const loadFilesList = useCallback(async () => {
+  const loadFilesList = useCallback(async (preferFile?: string) => {
     setLoadingFiles(true);
     try {
       const res = await fetch("/api/storage/files");
       const data = await res.json();
       if (data.files && Array.isArray(data.files) && data.files.length > 0) {
         setFiles(data.files);
-        // Si aucun fichier sélectionné ou fichier non trouvé, prendre le premier fichier HTML
+        // Si un fichier cible est demandé ou si aucun n'est sélectionné, charger le fichier
         const target =
-          selectedFile && data.files.some((f: StorageFile) => f.name === selectedFile)
-            ? selectedFile
-            : (data.files.find((f: StorageFile) => f.name.endsWith(".html")) || data.files[0]).name;
+          (preferFile && data.files.some((f: StorageFile) => f.name === preferFile) && preferFile) ||
+          (data.files.find((f: StorageFile) => f.name.endsWith(".html")) || data.files[0]).name;
         await selectDocument(target);
       } else {
         // SI AUCUN FICHIER N'EXISTE SUR SUPABASE STORAGE -> EN CRÉER UN AUTOMATIQUEMENT
@@ -462,11 +474,18 @@ export default function StudioPage() {
     } finally {
       setLoadingFiles(false);
     }
-  }, [selectedFile]);
+  }, []); // Exécute uniquement au montage initial ou lors d'un rafraîchissement explicite !
 
   useEffect(() => {
     loadFilesList();
   }, [loadFilesList]);
+
+  // Synchronise immédiatement le document avec l'iframe lors d'une création ou sélection
+  useEffect(() => {
+    if (documentContent && iframeRef.current) {
+      injectIntoIframe(documentContent);
+    }
+  }, [documentContent]);
 
   useEffect(() => {
     const iframe = iframeRef.current;
@@ -1006,6 +1025,11 @@ export default function StudioPage() {
               setDocumentContent(val);
               injectIntoIframe(val);
               setSaveStatus("unsaved");
+            }}
+            onIframeLoad={() => {
+              if (documentContent) {
+                injectIntoIframe(documentContent);
+              }
             }}
             zoom={zoom}
             onZoomChange={setZoom}
