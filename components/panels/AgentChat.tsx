@@ -6,7 +6,6 @@ import {
   Loader2,
   Sparkles,
   Bot,
-  User,
   CheckCircle2,
   ChevronDown,
   ChevronUp,
@@ -15,7 +14,7 @@ import {
   Trash2,
   Copy,
   Check,
-  RotateCcw,
+  Plus,
   Wand2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -23,8 +22,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChatMessage, AgentAction } from "@/types/studio";
@@ -54,15 +51,15 @@ export function ActionResultCard({
   const getActionLabel = (type: string) => {
     switch (type) {
       case "update_html":
-        return "Remplacement complet du document";
+        return "Remplacement du document";
       case "replace_question":
         return "Modification de question ciblée";
       case "insert_at_top":
         return "Insertion en en-tête";
       case "replace_text":
-        return "Remplacement de texte médical";
+        return "Correction de texte médical";
       default:
-        return "Modification du document";
+        return "Modification proposée";
     }
   };
 
@@ -78,18 +75,18 @@ export function ActionResultCard({
   };
 
   return (
-    <div className="mt-2.5 rounded-xl border border-primary/30 bg-primary/5 p-3 text-xs shadow-xs">
+    <div className="mt-2 rounded-xl bg-surface-2 p-3 text-xs shadow-xs border border-border">
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <div className="h-6 w-6 rounded-lg bg-primary/20 text-primary flex items-center justify-center">
+          <div className="h-6 w-6 rounded-lg bg-primary/20 text-primary flex items-center justify-center shrink-0">
             <Wand2 className="w-3.5 h-3.5" />
           </div>
           <div>
-            <span className="font-semibold text-foreground block">
+            <span className="font-semibold text-text block">
               {action.description || getActionLabel(action.action)}
             </span>
             {action.target && (
-              <span className="text-[10px] text-muted block">
+              <span className="text-[10px] text-muted block truncate max-w-[180px]">
                 Cible : {action.target}
               </span>
             )}
@@ -98,11 +95,11 @@ export function ActionResultCard({
 
         <Button
           size="sm"
-          variant={hasApplied ? "outline" : "default"}
+          variant={hasApplied ? "secondary" : "default"}
           onClick={handleApply}
           className={cn(
-            "h-7 text-xs font-semibold gap-1 px-2.5 transition-all",
-            hasApplied && "text-success border-success/40 bg-success/10"
+            "h-7 text-xs font-semibold gap-1 px-2.5 shrink-0",
+            hasApplied && "text-success bg-success/15"
           )}
         >
           <CheckCircle2 className="w-3 h-3" />
@@ -111,14 +108,14 @@ export function ActionResultCard({
       </div>
 
       {/* Collapsible 'Voir le détail' */}
-      <div className="mt-2 pt-2 border-t border-primary/20 flex flex-col">
+      <div className="mt-2 pt-2 border-t border-border/60 flex flex-col">
         <button
           onClick={() => setIsDetailsOpen(!isDetailsOpen)}
-          className="flex items-center justify-between text-[11px] font-medium text-primary hover:underline py-0.5"
+          className="flex items-center justify-between text-[11px] font-medium text-primary hover:underline py-0.5 cursor-pointer"
         >
           <span className="flex items-center gap-1">
             <Code2 className="w-3 h-3" />
-            <span>Voir le détail (JSON de modification)</span>
+            <span>Voir le détail (JSON d&apos;action)</span>
           </span>
           {isDetailsOpen ? (
             <ChevronUp className="w-3.5 h-3.5" />
@@ -129,12 +126,12 @@ export function ActionResultCard({
 
         {isDetailsOpen && (
           <div className="mt-2 relative">
-            <pre className="p-2.5 rounded-lg bg-slate-950 text-slate-200 text-[10px] font-mono overflow-x-auto max-h-48 border border-slate-800">
+            <pre className="p-2.5 rounded-lg bg-surface text-text text-[10px] font-mono overflow-x-auto max-h-40 border border-border">
               {JSON.stringify(action, null, 2)}
             </pre>
             <button
               onClick={handleCopyJson}
-              className="absolute top-2 right-2 p-1 rounded bg-slate-800 text-slate-300 hover:text-white"
+              className="absolute top-2 right-2 p-1 rounded bg-surface-2 text-muted hover:text-text cursor-pointer"
               title="Copier le JSON"
             >
               {isCopied ? (
@@ -217,7 +214,7 @@ export function AgentChat({
     onSendMessage(inputText.trim());
     setInputText("");
     if (inputRef.current) {
-      inputRef.current.style.height = "auto";
+      inputRef.current.style.height = "48px";
     }
   };
 
@@ -228,26 +225,32 @@ export function AgentChat({
     }
   };
 
-  const quickChips = [
+  // Visible quick chips (max 3 visible, rest in '+' dropdown, wrapping on 2 lines with flex-wrap)
+  const visibleChips = [
     "Corrige la question 6",
     "Ajoute une justification clinique",
-    "Vérifie la numérotation 1..N",
+    "Vérifie la numérotation",
+  ];
+  const moreChips = [
     "Passe en tableau d'annales",
+    "Génère un cas clinique A4",
+    "Vérifie la rigueur médicale",
+    "Rédige l'explication diagnostique",
   ];
 
   return (
-    <div className="flex flex-col h-full bg-surface">
+    <div className="flex flex-col h-full bg-surface select-none">
       {/* Top Header of Chat */}
-      <div className="p-3 border-b border-border flex items-center justify-between bg-surface-secondary/40">
+      <div className="p-3 border-b border-border flex items-center justify-between bg-surface">
         <div className="flex items-center gap-2">
           <div className="h-7 w-7 rounded-lg bg-accent/15 text-accent flex items-center justify-center">
             <Sparkles className="w-3.5 h-3.5" />
           </div>
           <div>
-            <h3 className="text-xs font-bold text-foreground">Copilote Médical IA</h3>
+            <h3 className="text-xs font-bold text-text">Copilote Médical IA</h3>
             <span className="text-[10px] text-muted flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              Gemini 2.5 Flash • Spécialisé QCMs
+              <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
+              Gemini Flash • Spécialisé QCMs
             </span>
           </div>
         </div>
@@ -259,9 +262,8 @@ export function AgentChat({
               <MoreVertical className="w-3.5 h-3.5 text-muted" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuLabel>Options de l&apos;agent</DropdownMenuLabel>
-            <DropdownMenuItem onClick={onClearHistory} className="gap-2 text-danger">
+          <DropdownMenuContent align="end" className="w-48 bg-surface border border-border shadow-lg">
+            <DropdownMenuItem onClick={onClearHistory} className="gap-2 text-danger cursor-pointer hover:bg-surface-2">
               <Trash2 className="w-3.5 h-3.5 text-danger" />
               <span>Effacer la discussion</span>
             </DropdownMenuItem>
@@ -294,13 +296,13 @@ export function AgentChat({
                 )}
               </div>
 
-              {/* Message Bubble */}
+              {/* Message Bubble (Filled surfaces, NO white borders) */}
               <div
                 className={cn(
-                  "max-w-[90%] rounded-2xl p-3 whitespace-pre-wrap transition-shadow shadow-xs",
+                  "max-w-[92%] rounded-2xl p-3 whitespace-pre-wrap shadow-xs",
                   isUser
                     ? "bg-accent text-white rounded-br-xs"
-                    : "bg-surface-secondary text-foreground border border-border/80 rounded-bl-xs"
+                    : "bg-surface-2 text-text rounded-bl-xs"
                 )}
               >
                 {isUser ? (
@@ -322,7 +324,6 @@ export function AgentChat({
                       return null;
                     })}
 
-                    {/* Fallback if message has explicit action field from previous state */}
                     {msg.action && parsedParts.filter((p) => p.type === "action").length === 0 && (
                       <ActionResultCard
                         action={msg.action}
@@ -337,57 +338,92 @@ export function AgentChat({
         })}
 
         {isThinking && (
-          <div className="flex items-center gap-2 p-2.5 rounded-xl bg-accent/10 border border-accent/20 text-accent text-xs w-fit animate-pulse">
+          <div className="flex items-center gap-2 p-2.5 rounded-xl bg-surface-2 text-accent text-xs w-fit">
             <Loader2 className="w-3.5 h-3.5 animate-spin" />
-            <span>Analyse clinique et génération en cours...</span>
+            <span>Analyse clinique en cours...</span>
           </div>
         )}
 
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Quick Action Chips */}
-      <div className="px-3 py-2 border-t border-border/60 bg-surface-secondary/30 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-        {quickChips.map((chip, idx) => (
+      {/* Quick Action Chips: Wrap onto 2 lines (flex-wrap), max 3 visible, rest in '+' menu */}
+      <div className="px-3 py-2 border-t border-border bg-surface flex flex-wrap items-center gap-1.5">
+        {visibleChips.map((chip, idx) => (
           <button
             key={idx}
             onClick={() => {
               setInputText(chip);
               inputRef.current?.focus();
             }}
-            className="whitespace-nowrap px-2.5 py-1 rounded-full text-[11px] font-medium bg-surface hover:bg-surface-hover text-muted hover:text-foreground border border-border/80 transition-all shrink-0 cursor-pointer"
+            className="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-surface-2 text-muted hover:text-text hover:bg-surface-2/80 transition-colors cursor-pointer"
           >
             {chip}
           </button>
         ))}
+
+        {/* '+' dropdown menu with more chips */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              className="h-6 w-6 rounded-lg bg-surface-2 text-muted hover:text-text flex items-center justify-center cursor-pointer transition-colors"
+              title="Plus de suggestions"
+              aria-label="Plus de suggestions"
+            >
+              <Plus className="w-3.5 h-3.5" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-56 bg-surface border border-border shadow-xl">
+            {moreChips.map((chip, idx) => (
+              <DropdownMenuItem
+                key={idx}
+                onClick={() => {
+                  setInputText(chip);
+                  inputRef.current?.focus();
+                }}
+                className="text-xs cursor-pointer hover:bg-surface-2"
+              >
+                {chip}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* Chat Input Container */}
-      <div className="p-3 border-t border-border bg-surface flex items-end gap-2">
-        <textarea
-          ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-          rows={1}
-          placeholder="Demandez une correction, une justification ou une reformulation... (Entrée pour envoyer, Ctrl+K pour focus)"
-          value={inputText}
-          onChange={(e) => {
-            setInputText(e.target.value);
-            e.target.style.height = "auto";
-            e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
-          }}
-          onKeyDown={handleKeyDown}
-          className="flex-1 resize-none bg-surface-secondary border border-border rounded-xl px-3 py-2.5 text-xs text-foreground placeholder:text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent max-h-[120px] transition-colors leading-relaxed"
-        />
+      <div className="p-3 border-t border-border bg-surface flex flex-col gap-1.5">
+        <div className="flex items-end gap-2">
+          <textarea
+            ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+            rows={1}
+            placeholder="Demandez une correction médicale…"
+            value={inputText}
+            onChange={(e) => {
+              setInputText(e.target.value);
+              e.target.style.height = "48px";
+              e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
+            }}
+            onKeyDown={handleKeyDown}
+            style={{ minHeight: "48px" }}
+            className="flex-1 resize-none bg-surface-2 border border-border rounded-xl px-3.5 py-2.5 text-xs text-text placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent leading-relaxed transition-all"
+          />
 
-        <Button
-          onClick={handleSend}
-          disabled={isThinking || !inputText.trim()}
-          variant="accent"
-          size="icon"
-          className="h-10 w-10 shrink-0 rounded-xl"
-          title="Envoyer le message"
-        >
-          <Send className="w-4 h-4" />
-        </Button>
+          <Button
+            onClick={handleSend}
+            disabled={isThinking || !inputText.trim()}
+            variant="default"
+            size="icon"
+            className="h-12 w-12 shrink-0 rounded-xl bg-accent text-white hover:bg-accent/90"
+            title="Envoyer le message"
+          >
+            <Send className="w-4 h-4" />
+          </Button>
+        </div>
+
+        {/* Keyboard hint below */}
+        <span className="text-[10px] text-muted/70 px-1">
+          Appuyez sur Entrée pour envoyer • Maj+Entrée pour un saut de ligne
+        </span>
       </div>
     </div>
   );

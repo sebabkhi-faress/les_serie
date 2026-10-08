@@ -142,6 +142,10 @@ const DEFAULT_MEDICAL_HTML = `<!DOCTYPE html>
     .study-mode-active .answer-section {
       display: none !important;
     }
+    /* Hide duplicate action bar inside A4 document */
+    .document-header-bar, .header-bar, .exam-top-bar, .action-bar-top, .header-actions, .study-header, [class*="action-bar"], [class*="action_bar"], .ue1-header-actions, button.print-btn, button.mode-btn {
+      display: none !important;
+    }
   </style>
 </head>
 <body>
@@ -256,7 +260,6 @@ export default function StudioPage() {
         setSaveStatus("saved");
         setLastSavedTime(new Date().toLocaleTimeString("fr-FR"));
       } else {
-        // Fallback default
         setDocumentContent(DEFAULT_MEDICAL_HTML);
         injectIntoIframe(DEFAULT_MEDICAL_HTML);
         setSaveStatus("saved");
@@ -264,7 +267,6 @@ export default function StudioPage() {
     } catch (e) {
       console.error("Erreur de lecture du document:", e);
       setSaveStatus("unsaved");
-      // Fallback
       setDocumentContent(DEFAULT_MEDICAL_HTML);
       injectIntoIframe(DEFAULT_MEDICAL_HTML);
     }
@@ -301,11 +303,11 @@ export default function StudioPage() {
 
     setParsedQuestions(questions);
 
-    // Check if document has protection banner
+    // Check protection
     const hasProtection = !!doc.querySelector(".protection-screen-banner");
     setIsProtected(hasProtection);
 
-    // Calculate approximate page count based on height
+    // Approximate page count
     const docHeight = doc.body.scrollHeight || 1000;
     const computedPages = Math.max(1, Math.ceil(docHeight / 1120));
     setTotalPages(computedPages);
@@ -319,10 +321,23 @@ export default function StudioPage() {
     const doc = iframe.contentDocument || iframe.contentWindow?.document;
     if (!doc) return;
 
-    // Ensure utf-8 charset and lang="fr"
+    // Ensure utf-8 charset and hide rules for duplicate action header inside document
     let safeHtml = html;
     if (!safeHtml.includes('charset="utf-8"')) {
       safeHtml = safeHtml.replace("<head>", '<head><meta charset="utf-8">');
+    }
+
+    // Add CSS rule hiding any duplicate header bar inside document
+    const hideHeaderCss = `<style id="qcm-studio-overrides">
+      .document-header-bar, .header-bar, .exam-top-bar, .action-bar-top, .header-actions, .study-header, [class*="action-bar"], [class*="action_bar"], .ue1-header-actions, button.print-btn, button.mode-btn {
+        display: none !important;
+      }
+      .study-mode-active .answer-section {
+        display: none !important;
+      }
+    </style>`;
+    if (!safeHtml.includes("qcm-studio-overrides")) {
+      safeHtml = safeHtml.replace("</head>", `${hideHeaderCss}</head>`);
     }
 
     doc.open();
@@ -370,7 +385,6 @@ export default function StudioPage() {
     }
   };
 
-  // Synchronize view mode changes
   useEffect(() => {
     const iframe = iframeRef.current;
     if (!iframe) return;
@@ -381,7 +395,6 @@ export default function StudioPage() {
     }
   }, [viewMode]);
 
-  // Synchronize hide answers state
   useEffect(() => {
     const iframe = iframeRef.current;
     if (!iframe) return;
@@ -395,7 +408,6 @@ export default function StudioPage() {
     }
   }, [hideAnswers]);
 
-  // Global keybindings
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
@@ -555,7 +567,7 @@ export default function StudioPage() {
       const numEl = box.querySelector(".q-num");
       if (numEl && numEl.textContent?.includes(`${qNum}`)) {
         (box as HTMLElement).scrollIntoView({ behavior: "smooth", block: "center" });
-        (box as HTMLElement).style.outline = "2px solid #0f766e";
+        (box as HTMLElement).style.outline = "2px solid #2DD4BF";
         setTimeout(() => {
           (box as HTMLElement).style.outline = "none";
         }, 1500);
@@ -799,13 +811,12 @@ export default function StudioPage() {
   };
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-background text-foreground select-none">
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-bg text-text select-none">
       {/* 1. TOP BAR (56px) */}
       <TopBar
         selectedFile={selectedFile}
         isProtected={isProtected}
         saveStatus={saveStatus}
-        lastSavedTime={lastSavedTime}
         onSave={saveCurrentDocument}
         onPrint={handlePrint}
         onDownloadHtml={handleDownloadHtml}
@@ -824,7 +835,7 @@ export default function StudioPage() {
           questionsCount={parsedQuestions.length}
         />
 
-        {/* Side Panel (380px collapsible) */}
+        {/* Side Panel (360px default, resizable 320-480px) */}
         <SidePanel activePanel={activePanel} onClose={() => setActivePanel(null)}>
           {activePanel === "ai" && (
             <AgentChat
@@ -896,7 +907,7 @@ export default function StudioPage() {
         </SidePanel>
 
         {/* Center Workspace & Sticky Toolbar */}
-        <div className="flex-1 flex flex-col h-full overflow-hidden bg-background">
+        <div className="flex-1 flex flex-col h-full overflow-hidden bg-bg">
           {/* Sticky Compact Grouped Toolbar */}
           {viewMode === "edit" && (
             <Toolbar
@@ -935,7 +946,7 @@ export default function StudioPage() {
         </div>
       </div>
 
-      {/* 3. STATUS BAR (32px) */}
+      {/* 3. STATUS BAR (32px, Single Source of Truth for questions count & save status) */}
       <StatusBar
         questionsCount={parsedQuestions.length}
         currentPage={currentPage}
@@ -944,7 +955,6 @@ export default function StudioPage() {
         onToggleHideAnswers={() => setHideAnswers(!hideAnswers)}
         saveStatus={saveStatus}
         lastSavedTime={lastSavedTime}
-        zoom={zoom}
       />
 
       {/* 4. MODALS */}

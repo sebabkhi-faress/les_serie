@@ -1,63 +1,49 @@
 @import "tailwindcss";
 
-@layer base {
-  :root {
-    --primary: #0F766E;
-    --primary-hover: #115E59;
-    --accent: #4F46E5;
-    --background: #F6F8FA;
-    --surface: #FFFFFF;
-    --surface-secondary: #F1F4F8;
-    --surface-hover: #E9ECEF;
-    --border: #E3E8EF;
-    --border-hover: #CBD5E1;
-    --foreground: #0F172A;
-    --text: #0F172A;
-    --muted: #64748B;
-    --foreground-muted: #64748B;
-    --success: #16A34A;
-    --warning: #D97706;
-    --danger: #DC2626;
-  }
+:root {
+  --bg: #F6F8FA;
+  --surface: #FFFFFF;
+  --surface-2: #F1F4F8;
+  --border: #E3E8EF;
+  --text: #0F172A;
+  --muted: #64748B;
+  --primary: #0F766E;
+  --primary-hover: #115E59;
+  --accent: #4F46E5;
+  --success: #16A34A;
+  --warning: #D97706;
+  --danger: #DC2626;
+}
 
-  .dark {
-    --primary: #2DD4BF;
-    --primary-hover: #14B8A6;
-    --accent: #818CF8;
-    --background: #0B1220;
-    --surface: #131C2E;
-    --surface-secondary: #1A253C;
-    --surface-hover: #1E2D47;
-    --border: #243049;
-    --border-hover: #334366;
-    --foreground: #E6EDF7;
-    --text: #E6EDF7;
-    --muted: #94A3B8;
-    --foreground-muted: #94A3B8;
-    --success: #22C55E;
-    --warning: #F59E0B;
-    --danger: #EF4444;
-  }
+.dark {
+  --bg: #0B1220;
+  --surface: #131C2E;
+  --surface-2: #1A2540;
+  --border: #243049;
+  --text: #E6EDF7;
+  --muted: #94A3B8;
+  --primary: #2DD4BF;
+  --primary-hover: #14B8A6;
+  --accent: #818CF8;
+  --success: #22C55E;
+  --warning: #F59E0B;
+  --danger: #EF4444;
 }
 
 @theme {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
   --color-accent: var(--accent);
-  --color-background: var(--background);
-  --color-surface: var(--surface);
-  --color-surface-secondary: var(--surface-secondary);
-  --color-surface-hover: var(--surface-hover);
-  --color-border: var(--border);
-  --color-border-hover: var(--border-hover);
-  --color-foreground: var(--foreground);
-  --color-text: var(--text);
-  --color-muted: var(--muted);
-  --color-foreground-muted: var(--foreground-muted);
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-danger: var(--danger);
-  --font-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
   --font-mono: var(--font-jetbrains-mono), monospace;
 }
 
@@ -67,43 +53,60 @@
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--background);
-  color: var(--foreground);
+  background-color: var(--bg);
+  color: var(--text);
   margin: 0;
   padding: 0;
   overflow: hidden;
   height: 100vh;
+  width: 100vw;
+  font-size: 13px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Custom Scrollbars */
+/* Ensure no horizontal scrollbars anywhere in the shell */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--border);
+  background: var(--surface-2);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--muted);
 }
 
-/* A4 Page & Document Styles */
+/* Focus styles: visible focus ring 2px --primary offset 2px */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* A4 Page Container */
 .a4-page-sheet {
   background: #ffffff;
   color: #0f172a;
   width: 210mm;
   min-height: 297mm;
-  padding: 18mm 20mm;
   margin: 0 auto;
-  box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 20px 45px -15px rgba(0, 0, 0, 0.45);
   border-radius: 4px;
   position: relative;
-  transition: transform 0.15s ease-out;
+  transition: transform 150ms ease-out;
   transform-origin: top center;
   font-size: 9.8pt;
   line-height: 1.4;
@@ -111,7 +114,7 @@ body {
   print-color-adjust: exact;
 }
 
-/* Print simulation & stylesheet */
+/* Print styling */
 @media print {
   @page {
     size: A4 portrait;
@@ -124,12 +127,11 @@ body {
     height: auto !important;
   }
   .no-print,
-  .app-header,
-  .icon-rail,
-  .side-panel,
-  .status-bar,
-  .floating-toolbar,
-  .toolbar-container {
+  header,
+  aside,
+  footer,
+  .toolbar-container,
+  .floating-toolbar {
     display: none !important;
   }
   .a4-page-sheet {
@@ -144,7 +146,7 @@ body {
   }
 }
 
-/* Accessibility: prefers-reduced-motion */
+/* Reduce motion */
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;

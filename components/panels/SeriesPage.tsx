@@ -11,13 +11,10 @@ import {
   Download,
   Trash2,
   Database,
-  Cloud,
-  FileCode,
   Loader2,
   BookOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { StorageFile } from "@/types/studio";
 import { cn } from "@/lib/utils";
 
@@ -57,21 +54,21 @@ export function SeriesPage({
   );
 
   return (
-    <div className="flex flex-col h-full bg-surface">
+    <div className="flex flex-col h-full bg-surface select-none">
       {/* Panel Header */}
-      <div className="p-3 border-b border-border bg-surface-secondary/40 flex flex-col gap-2">
+      <div className="p-3 border-b border-border bg-surface flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="h-7 w-7 rounded-lg bg-amber-500/15 text-amber-500 flex items-center justify-center">
+            <div className="h-7 w-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center">
               <FolderKanban className="w-3.5 h-3.5" />
             </div>
             <div>
-              <h3 className="text-xs font-bold text-foreground">
+              <h3 className="text-xs font-bold text-text">
                 Séries Supabase ({files.length})
               </h3>
               <span className="text-[10px] text-muted flex items-center gap-1">
-                <Database className="w-2.5 h-2.5 text-emerald-500" />
-                Cloud Bucket • Stockage persistant
+                <Database className="w-2.5 h-2.5 text-emerald-400" />
+                Stockage persistant
               </span>
             </div>
           </div>
@@ -94,13 +91,13 @@ export function SeriesPage({
 
         {/* Search */}
         <div className="relative mt-1">
-          <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-muted" />
+          <Search className="w-3.5 h-3.5 absolute left-2.5 top-2 text-muted" />
           <input
             type="text"
             placeholder="Rechercher une série..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full bg-surface border border-border rounded-lg pl-8 pr-3 py-1.5 text-xs text-foreground placeholder:text-muted focus:outline-none focus:border-primary"
+            className="w-full bg-surface-2 border border-border rounded-lg pl-8 pr-3 py-1.5 text-xs text-text placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
 
@@ -108,7 +105,7 @@ export function SeriesPage({
         <div className="grid grid-cols-2 gap-2 mt-1">
           <Button
             size="sm"
-            variant="outline"
+            variant="secondary"
             onClick={onCreateNewFile}
             className="text-xs h-8 gap-1.5 font-semibold justify-center"
           >
@@ -118,12 +115,12 @@ export function SeriesPage({
 
           <Button
             size="sm"
-            variant="outline"
+            variant="secondary"
             onClick={() => fileInputRef.current?.click()}
             className="text-xs h-8 gap-1.5 font-semibold justify-center"
           >
-            <Upload className="w-3.5 h-3.5 text-emerald-500" />
-            <span>Importer HTML/PDF</span>
+            <Upload className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Importer Fichier</span>
           </Button>
           <input
             ref={fileInputRef}
@@ -139,10 +136,10 @@ export function SeriesPage({
             size="sm"
             variant="secondary"
             onClick={onInsertCourseTitle}
-            className="w-full text-xs h-8 gap-1.5 justify-center font-medium mt-1 text-primary border-primary/20"
+            className="w-full text-xs h-8 gap-1.5 justify-center font-medium mt-0.5 text-primary"
           >
             <BookOpen className="w-3.5 h-3.5" />
-            <span>Insérer En-tête de Cours Médical</span>
+            <span>Insérer En-tête de Cours</span>
           </Button>
         )}
       </div>
@@ -152,7 +149,7 @@ export function SeriesPage({
         {loadingFiles && files.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-muted gap-2">
             <Loader2 className="w-6 h-6 animate-spin text-primary" />
-            <span className="text-xs">Chargement du bucket Supabase...</span>
+            <span className="text-xs">Chargement du bucket...</span>
           </div>
         ) : filteredFiles.length === 0 ? (
           <div className="py-12 text-center text-xs text-muted">
@@ -168,10 +165,10 @@ export function SeriesPage({
                 key={file.name}
                 onClick={() => onSelectDocument(file.name)}
                 className={cn(
-                  "group px-3 py-2.5 rounded-xl cursor-pointer flex items-center justify-between text-xs transition-all border",
+                  "group px-3 py-2 rounded-xl cursor-pointer flex items-center justify-between text-xs transition-all",
                   isSelected
-                    ? "bg-primary/10 text-primary border-primary/30 shadow-xs font-semibold"
-                    : "bg-surface hover:bg-surface-secondary/80 text-foreground border-border/70 hover:border-border"
+                    ? "bg-surface-2 text-primary font-bold shadow-2xs"
+                    : "hover:bg-surface-2/60 text-text"
                 )}
               >
                 <div className="flex items-center gap-2.5 truncate min-w-0">
@@ -181,7 +178,7 @@ export function SeriesPage({
                       isSelected
                         ? "text-primary"
                         : isPdf
-                        ? "text-rose-500"
+                        ? "text-rose-400"
                         : "text-muted"
                     )}
                   />
@@ -201,15 +198,15 @@ export function SeriesPage({
                       e.stopPropagation();
                       onDownloadFile(file.name);
                     }}
-                    className="p-1 rounded hover:bg-surface-hover text-muted hover:text-foreground"
-                    title="Télécharger le fichier"
+                    className="p-1 rounded hover:bg-surface text-muted hover:text-text cursor-pointer"
+                    title="Télécharger"
                   >
                     <Download className="w-3.5 h-3.5" />
                   </button>
                   <button
                     onClick={(e) => onDeleteFile(file.name, e)}
-                    className="p-1 rounded hover:bg-surface-hover text-muted hover:text-danger"
-                    title="Supprimer définitivement"
+                    className="p-1 rounded hover:bg-surface text-muted hover:text-danger cursor-pointer"
+                    title="Supprimer"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>

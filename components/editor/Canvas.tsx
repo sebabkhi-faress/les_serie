@@ -4,19 +4,25 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   ZoomIn,
   ZoomOut,
-  RotateCcw,
+  ChevronLeft,
+  ChevronRight,
+  ChevronDown,
+  Layers,
   FileQuestion,
   Plus,
   ClipboardPaste,
-  Maximize2,
-  FileCode,
-  Layers,
-  ChevronLeft,
-  ChevronRight,
+  PanelLeftClose,
+  PanelLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ViewSwitcher } from "./ViewSwitcher";
 import { FloatingToolbar } from "./FloatingToolbar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { EditorViewMode } from "@/types/studio";
 import { cn } from "@/lib/utils";
 
@@ -57,6 +63,7 @@ export function Canvas({
 }: CanvasProps) {
   const [floatingPos, setFloatingPos] = useState<{ top: number; left: number } | null>(null);
   const [selectedText, setSelectedText] = useState<string>("");
+  const [showThumbnails, setShowThumbnails] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Monitor text selection inside iframe
@@ -115,47 +122,206 @@ export function Canvas({
     onZoomChange(100);
   };
 
-  // Generate page tabs
-  const pageList = Array.from({ length: Math.max(totalPages, 1) }, (_, i) => i + 1);
+  const handleFitWidth = () => {
+    if (containerRef.current) {
+      const containerWidth = containerRef.current.clientWidth - 80;
+      // 210mm in pixels at 96dpi is ~794px
+      const scale = Math.min(130, Math.max(70, Math.round((containerWidth / 794) * 100)));
+      onZoomChange(scale);
+    }
+  };
+
+  const pagesArray = Array.from({ length: Math.max(totalPages, 1) }, (_, i) => i + 1);
 
   return (
     <div
       ref={containerRef}
-      className="flex-1 flex flex-col h-full bg-slate-900/60 dark:bg-[#070b12] overflow-hidden relative select-none"
+      className="flex-1 flex flex-col h-full bg-bg overflow-hidden relative select-none"
     >
-      {/* Top Workspace Canvas Header */}
-      <div className="h-11 border-b border-border bg-surface/80 backdrop-blur-md px-4 flex items-center justify-between flex-shrink-0 z-10">
-        {/* Left: View Mode Switcher */}
-        <ViewSwitcher viewMode={viewMode} onViewModeChange={onViewModeChange} />
+      {/* 1. Canvas Header Bar (h-10) */}
+      <div className="h-10 border-b border-border bg-surface px-3 flex items-center justify-between flex-shrink-0 z-10">
+        {/* Left: View Mode Switcher + Thumbnails toggle */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowThumbnails(!showThumbnails)}
+            className={cn(
+              "h-7 w-7 rounded-lg flex items-center justify-center transition-colors cursor-pointer",
+              showThumbnails
+                ? "bg-surface-2 text-primary"
+                : "text-muted hover:text-text hover:bg-surface-2"
+            )}
+            title={showThumbnails ? "Masquer les vignettes" : "Afficher les vignettes"}
+            aria-label="Vignettes de pages"
+          >
+            {showThumbnails ? <PanelLeftClose className="w-3.5 h-3.5" /> : <PanelLeft className="w-3.5 h-3.5" />}
+          </button>
 
-        {/* Center: Page Tabs */}
-        <div className="hidden sm:flex items-center gap-1 bg-surface-secondary/60 p-1 rounded-xl border border-border/80">
-          {pageList.slice(0, 5).map((page) => (
-            <button
-              key={page}
-              onClick={() => onPageChange(page)}
-              className={cn(
-                "px-2.5 py-0.5 rounded-lg text-xs font-semibold transition-all cursor-pointer",
-                currentPage === page
-                  ? "bg-primary text-white shadow-xs"
-                  : "text-muted hover:text-foreground"
-              )}
+          <ViewSwitcher viewMode={viewMode} onViewModeChange={onViewModeChange} />
+        </div>
+
+        {/* Center: Fixed Page Navigation [<] [Page 4 / 36 v] [>] */}
+        <div className="flex items-center bg-surface-2 rounded-xl p-0.5">
+          <button
+            onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+            disabled={currentPage <= 1}
+            className="h-7 w-7 rounded-lg flex items-center justify-center text-muted hover:text-text disabled:opacity-30 disabled:hover:text-muted cursor-pointer transition-colors"
+            title="Page précédente"
+            aria-label="Page précédente"
+          >
+            <ChevronLeft className="w-3.5 h-3.5" />
+          </button>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                className="px-2.5 h-7 rounded-lg text-xs font-semibold text-text hover:bg-surface flex items-center gap-1.5 transition-colors cursor-pointer"
+                aria-label="Sélectionner une page"
+              >
+                <span>
+                  Page {currentPage} / {Math.max(totalPages, 1)}
+                </span>
+                <ChevronDown className="w-3 h-3 opacity-60" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="center" className="max-h-60 overflow-y-auto w-36 bg-surface border border-border shadow-xl p-1">
+              {pagesArray.map((p) => (
+                <DropdownMenuItem
+                  key={p}
+                  onClick={() => onPageChange(p)}
+                  className={cn(
+                    "text-xs cursor-pointer rounded-lg px-2 py-1.5",
+                    currentPage === p ? "bg-primary text-[#0B1220] font-bold" : "hover:bg-surface-2 text-text"
+                  )}
+                >
+                  Page {p}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <button
+            onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+            disabled={currentPage >= totalPages}
+            className="h-7 w-7 rounded-lg flex items-center justify-center text-muted hover:text-text disabled:opacity-30 disabled:hover:text-muted cursor-pointer transition-colors"
+            title="Page suivante"
+            aria-label="Page suivante"
+          >
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        {/* Right placeholder to keep center aligned */}
+        <div className="w-20 hidden sm:block" />
+      </div>
+
+      {/* 2. Floating Toolbar on Text Selection */}
+      <FloatingToolbar
+        position={floatingPos}
+        onExecCommand={onExecCommand}
+        onAskAiWithSelection={onAskAiWithSelection}
+        selectedText={selectedText}
+      />
+
+      {/* 3. Main Workspace Area */}
+      <div className="flex-1 flex overflow-hidden relative">
+        {/* Collapsible Left Thumbnails Strip */}
+        {showThumbnails && (
+          <aside className="w-36 border-r border-border bg-surface flex flex-col p-2 space-y-2 overflow-y-auto shrink-0 z-10 animate-in slide-in-from-left-2 duration-150">
+            <div className="text-[11px] font-semibold text-muted px-1 pb-1 border-b border-border">
+              Pages ({totalPages})
+            </div>
+            {pagesArray.map((p) => (
+              <button
+                key={p}
+                onClick={() => onPageChange(p)}
+                className={cn(
+                  "w-full h-24 rounded-lg flex flex-col items-center justify-between p-1.5 cursor-pointer transition-all border",
+                  currentPage === p
+                    ? "border-primary bg-primary/10 shadow-xs"
+                    : "border-border/60 bg-surface-2 hover:border-border"
+                )}
+              >
+                <div className="w-full flex-1 bg-white rounded shadow-2xs opacity-80" />
+                <span className="text-[10px] font-semibold text-text mt-1">Page {p}</span>
+              </button>
+            ))}
+          </aside>
+        )}
+
+        {/* Center Canvas Area with A4 Sheet */}
+        <div className="flex-1 overflow-auto p-4 sm:p-6 flex justify-center items-start bg-bg">
+          {isEmpty ? (
+            /* Empty State */
+            <div className="my-auto max-w-sm w-full bg-surface border border-border rounded-2xl p-6 text-center shadow-lg flex flex-col items-center gap-3">
+              <div className="h-12 w-12 rounded-xl bg-primary/15 text-primary flex items-center justify-center">
+                <FileQuestion className="w-6 h-6" />
+              </div>
+
+              <div>
+                <h3 className="text-sm font-bold text-text">Série de QCM vide</h3>
+                <p className="text-xs text-muted mt-1 leading-relaxed">
+                  Ajoutez votre première question ou collez votre texte d&apos;annales pour mise en page automatique.
+                </p>
+              </div>
+
+              <div className="flex flex-col w-full gap-2 pt-2">
+                <Button
+                  variant="default"
+                  size="default"
+                  onClick={onInsertFirstQuestion}
+                  className="w-full gap-2 font-bold"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Ajoutez votre première question</span>
+                </Button>
+
+                <button
+                  onClick={onOpenPastePanel}
+                  className="text-xs font-semibold text-primary hover:underline flex items-center justify-center gap-1.5 py-1 cursor-pointer"
+                >
+                  <ClipboardPaste className="w-3.5 h-3.5" />
+                  <span>Coller depuis un texte</span>
+                </button>
+              </div>
+            </div>
+          ) : viewMode === "code" ? (
+            /* Raw HTML Code View */
+            <div className="w-full max-w-4xl h-full flex flex-col bg-surface border border-border rounded-xl overflow-hidden shadow-xl">
+              <div className="px-4 py-2 border-b border-border bg-surface-2 flex items-center justify-between text-xs font-mono text-muted">
+                <span>Éditeur HTML source (UTF-8)</span>
+                <span>{documentContent.length} car.</span>
+              </div>
+              <textarea
+                value={documentContent}
+                onChange={(e) => onDocumentContentChange(e.target.value)}
+                className="flex-1 w-full bg-surface text-text font-mono text-xs p-4 resize-none focus:outline-none leading-relaxed"
+                spellCheck={false}
+              />
+            </div>
+          ) : (
+            /* A4 Document Sheet */
+            <div
+              style={{
+                transform: `scale(${zoom / 100})`,
+                transformOrigin: "top center",
+                transition: "transform 150ms ease-out",
+              }}
+              className="w-[210mm] min-h-[297mm] flex flex-col relative pb-16"
             >
-              Page {page}
-            </button>
-          ))}
-          {pageList.length > 5 && (
-            <span className="text-[11px] text-muted px-1.5 font-medium">
-              +{pageList.length - 5}
-            </span>
+              <iframe
+                ref={iframeRef}
+                title="Document QCM A4"
+                className="w-[210mm] min-h-[297mm] h-[1120px] bg-white rounded-md shadow-2xl border-0"
+              />
+            </div>
           )}
         </div>
 
-        {/* Right: Zoom Controls */}
-        <div className="flex items-center gap-1 bg-surface-secondary/80 p-0.5 rounded-xl border border-border">
+        {/* 4. Single Zoom Control (Bottom-Right of Canvas) */}
+        <div className="absolute bottom-3 right-4 z-20 flex items-center bg-surface-2 rounded-xl p-0.5 shadow-md border border-border/80">
           <button
             onClick={handleZoomOut}
-            className="h-7 w-7 rounded-lg flex items-center justify-center text-muted hover:text-foreground hover:bg-surface transition-colors cursor-pointer"
+            className="h-7 w-7 rounded-lg flex items-center justify-center text-muted hover:text-text hover:bg-surface transition-colors cursor-pointer"
             title="Zoom arrière (-)"
             aria-label="Zoom arrière"
           >
@@ -164,7 +330,7 @@ export function Canvas({
 
           <button
             onClick={handleResetZoom}
-            className="px-2 h-7 rounded-lg text-xs font-semibold text-foreground hover:bg-surface transition-colors cursor-pointer"
+            className="px-2 h-7 rounded-lg text-xs font-semibold text-text hover:bg-surface transition-colors cursor-pointer"
             title="Réinitialiser zoom à 100%"
           >
             {zoom}%
@@ -172,96 +338,13 @@ export function Canvas({
 
           <button
             onClick={handleZoomIn}
-            className="h-7 w-7 rounded-lg flex items-center justify-center text-muted hover:text-foreground hover:bg-surface transition-colors cursor-pointer"
+            className="h-7 w-7 rounded-lg flex items-center justify-center text-muted hover:text-text hover:bg-surface transition-colors cursor-pointer"
             title="Zoom avant (+)"
             aria-label="Zoom avant"
           >
             <ZoomIn className="w-3.5 h-3.5" />
           </button>
         </div>
-      </div>
-
-      {/* Floating Toolbar on Text Selection */}
-      <FloatingToolbar
-        position={floatingPos}
-        onExecCommand={onExecCommand}
-        onAskAiWithSelection={onAskAiWithSelection}
-        selectedText={selectedText}
-      />
-
-      {/* Workspace Area */}
-      <div className="flex-1 overflow-auto p-4 sm:p-8 flex justify-center items-start">
-        {isEmpty ? (
-          /* Empty State */
-          <div className="my-auto max-w-md w-full bg-surface border border-border rounded-2xl p-8 text-center shadow-xl shadow-black/10 flex flex-col items-center gap-4 animate-in fade-in zoom-in-95">
-            <div className="h-16 w-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shadow-inner">
-              <FileQuestion className="w-8 h-8" />
-            </div>
-
-            <div>
-              <h3 className="text-base font-bold text-foreground">
-                Votre série de QCM est vide
-              </h3>
-              <p className="text-xs text-muted mt-1 leading-relaxed">
-                Créez votre première question médicale d&apos;annales ou collez directement
-                le texte brut de votre concours pour mise en page automatique.
-              </p>
-            </div>
-
-            <div className="flex flex-col w-full gap-2 pt-2">
-              <Button
-                variant="default"
-                size="default"
-                onClick={onInsertFirstQuestion}
-                className="w-full gap-2 font-semibold"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Ajoutez votre première question</span>
-              </Button>
-
-              <button
-                onClick={onOpenPastePanel}
-                className="text-xs font-semibold text-primary hover:underline flex items-center justify-center gap-1.5 py-1.5 cursor-pointer"
-              >
-                <ClipboardPaste className="w-3.5 h-3.5" />
-                <span>Coller depuis un texte brut</span>
-              </button>
-            </div>
-          </div>
-        ) : viewMode === "code" ? (
-          /* Raw HTML Code View */
-          <div className="w-full max-w-4xl h-full flex flex-col bg-surface border border-border rounded-2xl overflow-hidden shadow-2xl">
-            <div className="px-4 py-2 border-b border-border bg-surface-secondary/60 flex items-center justify-between text-xs font-mono text-muted">
-              <span>Éditeur de code source HTML (UTF-8)</span>
-              <span>{documentContent.length} caractères</span>
-            </div>
-            <textarea
-              value={documentContent}
-              onChange={(e) => onDocumentContentChange(e.target.value)}
-              className="flex-1 w-full bg-slate-950 text-slate-100 font-mono text-xs p-4 resize-none focus:outline-none leading-relaxed selection:bg-primary/30"
-              spellCheck={false}
-            />
-          </div>
-        ) : (
-          /* A4 Document Sheet View */
-          <div
-            style={{
-              transform: `scale(${zoom / 100})`,
-              transformOrigin: "top center",
-              transition: "transform 0.15s ease-out",
-            }}
-            className="w-full max-w-[210mm] min-h-[297mm] flex flex-col relative pb-12"
-          >
-            <iframe
-              ref={iframeRef}
-              title="Aperçu Médical A4"
-              className={cn(
-                "w-[210mm] min-h-[297mm] h-[1050px] bg-white rounded-md shadow-2xl border border-slate-300 dark:border-slate-800 transition-all",
-                viewMode === "preview" && "pointer-events-auto"
-              )}
-            />
-          </div>
-        )}
       </div>
     </div>
   );

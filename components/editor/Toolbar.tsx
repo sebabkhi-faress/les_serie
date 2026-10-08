@@ -11,18 +11,27 @@ import {
   Highlighter,
   Heading1,
   Heading2,
+  Plus,
+  BookOpen,
+  Hash,
+  Palette,
+  ChevronDown,
+  MoreHorizontal,
   List,
   ListOrdered,
   AlignLeft,
   AlignCenter,
-  AlignRight,
-  Plus,
-  BookOpen,
-  Hash,
   Eraser,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Separator } from "@/components/ui/separator";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 
 interface ToolbarProps {
@@ -39,27 +48,27 @@ export function Toolbar({
   onRenumberQuestions,
 }: ToolbarProps) {
   const medicalColors = [
-    { color: "#0F766E", label: "Bleu/Vert Médical (#0F766E)" },
-    { color: "#16A34A", label: "Vert Vrai / Validé (#16A34A)" },
-    { color: "#DC2626", label: "Rouge Faux / Erreur (#DC2626)" },
-    { color: "#D97706", label: "Ambre Remarque (#D97706)" },
-    { color: "#4F46E5", label: "Indigo Spécialité (#4F46E5)" },
-    { color: "#0F172A", label: "Noir Texte (#0F172A)" },
+    { color: "#0F766E", label: "Bleu/Vert Médical" },
+    { color: "#16A34A", label: "Vert Vrai / Validé" },
+    { color: "#DC2626", label: "Rouge Faux / Erreur" },
+    { color: "#D97706", label: "Ambre Remarque" },
+    { color: "#4F46E5", label: "Indigo Spécialité" },
+    { color: "#0F172A", label: "Noir Texte" },
   ];
 
   return (
-    <div className="toolbar-container sticky top-0 z-10 w-full bg-surface/95 backdrop-blur-md border-b border-border px-3 py-1.5 flex items-center justify-between gap-2 overflow-x-auto no-scrollbar shadow-xs">
-      <div className="flex items-center gap-1.5">
-        {/* History: Undo / Redo */}
-        <div className="flex items-center gap-0.5">
+    <div className="toolbar-container h-10 border-b border-border bg-surface px-3 flex items-center justify-between gap-2 flex-shrink-0 z-10 select-none">
+      <div className="flex items-center gap-1.5 flex-wrap">
+        {/* 1. Undo / Redo */}
+        <div className="flex items-center bg-surface-2 rounded-lg p-0.5">
           <Tooltip>
             <TooltipTrigger asChild>
               <button
                 onClick={() => onExecCommand("undo")}
-                className="h-8 w-8 rounded-lg flex items-center justify-center text-muted hover:text-foreground hover:bg-surface-hover transition-colors"
+                className="h-7 w-7 rounded-md flex items-center justify-center text-muted hover:text-text hover:bg-surface transition-colors cursor-pointer"
                 aria-label="Annuler (Ctrl+Z)"
               >
-                <Undo className="w-4 h-4" />
+                <Undo className="w-3.5 h-3.5" />
               </button>
             </TooltipTrigger>
             <TooltipContent>Annuler (Ctrl+Z)</TooltipContent>
@@ -69,28 +78,26 @@ export function Toolbar({
             <TooltipTrigger asChild>
               <button
                 onClick={() => onExecCommand("redo")}
-                className="h-8 w-8 rounded-lg flex items-center justify-center text-muted hover:text-foreground hover:bg-surface-hover transition-colors"
+                className="h-7 w-7 rounded-md flex items-center justify-center text-muted hover:text-text hover:bg-surface transition-colors cursor-pointer"
                 aria-label="Rétablir (Ctrl+Y)"
               >
-                <Redo className="w-4 h-4" />
+                <Redo className="w-3.5 h-3.5" />
               </button>
             </TooltipTrigger>
             <TooltipContent>Rétablir (Ctrl+Y)</TooltipContent>
           </Tooltip>
         </div>
 
-        <Separator orientation="vertical" className="h-5 mx-0.5" />
-
-        {/* Text Styling: B, I, U, S, Highlight */}
-        <div className="flex items-center gap-0.5">
+        {/* 2. Text Formatting: B, I, U, S, Highlight */}
+        <div className="flex items-center bg-surface-2 rounded-lg p-0.5">
           <Tooltip>
             <TooltipTrigger asChild>
               <button
                 onClick={() => onExecCommand("bold")}
-                className="h-8 w-8 rounded-lg flex items-center justify-center text-muted hover:text-foreground hover:bg-surface-hover transition-colors font-bold"
+                className="h-7 w-7 rounded-md flex items-center justify-center text-muted hover:text-text hover:bg-surface font-bold transition-colors cursor-pointer"
                 aria-label="Gras (Ctrl+B)"
               >
-                <Bold className="w-4 h-4" />
+                <Bold className="w-3.5 h-3.5" />
               </button>
             </TooltipTrigger>
             <TooltipContent>Gras (Ctrl+B)</TooltipContent>
@@ -100,10 +107,10 @@ export function Toolbar({
             <TooltipTrigger asChild>
               <button
                 onClick={() => onExecCommand("italic")}
-                className="h-8 w-8 rounded-lg flex items-center justify-center text-muted hover:text-foreground hover:bg-surface-hover transition-colors italic"
+                className="h-7 w-7 rounded-md flex items-center justify-center text-muted hover:text-text hover:bg-surface italic transition-colors cursor-pointer"
                 aria-label="Italique (Ctrl+I)"
               >
-                <Italic className="w-4 h-4" />
+                <Italic className="w-3.5 h-3.5" />
               </button>
             </TooltipTrigger>
             <TooltipContent>Italique (Ctrl+I)</TooltipContent>
@@ -113,10 +120,10 @@ export function Toolbar({
             <TooltipTrigger asChild>
               <button
                 onClick={() => onExecCommand("underline")}
-                className="h-8 w-8 rounded-lg flex items-center justify-center text-muted hover:text-foreground hover:bg-surface-hover transition-colors underline"
+                className="h-7 w-7 rounded-md flex items-center justify-center text-muted hover:text-text hover:bg-surface underline transition-colors cursor-pointer"
                 aria-label="Souligné (Ctrl+U)"
               >
-                <Underline className="w-4 h-4" />
+                <Underline className="w-3.5 h-3.5" />
               </button>
             </TooltipTrigger>
             <TooltipContent>Souligné (Ctrl+U)</TooltipContent>
@@ -126,10 +133,10 @@ export function Toolbar({
             <TooltipTrigger asChild>
               <button
                 onClick={() => onExecCommand("strikeThrough")}
-                className="h-8 w-8 rounded-lg flex items-center justify-center text-muted hover:text-foreground hover:bg-surface-hover transition-colors line-through"
+                className="h-7 w-7 rounded-md flex items-center justify-center text-muted hover:text-text hover:bg-surface line-through transition-colors cursor-pointer"
                 aria-label="Barré"
               >
-                <Strikethrough className="w-4 h-4" />
+                <Strikethrough className="w-3.5 h-3.5" />
               </button>
             </TooltipTrigger>
             <TooltipContent>Barré</TooltipContent>
@@ -139,28 +146,26 @@ export function Toolbar({
             <TooltipTrigger asChild>
               <button
                 onClick={() => onExecCommand("hiliteColor", "#fef08a")}
-                className="h-8 w-8 rounded-lg flex items-center justify-center text-amber-500 hover:bg-surface-hover transition-colors"
-                aria-label="Surligner en jaune"
+                className="h-7 w-7 rounded-md flex items-center justify-center text-amber-400 hover:bg-surface transition-colors cursor-pointer"
+                aria-label="Surligner"
               >
-                <Highlighter className="w-4 h-4" />
+                <Highlighter className="w-3.5 h-3.5" />
               </button>
             </TooltipTrigger>
             <TooltipContent>Surligner (Jaune)</TooltipContent>
           </Tooltip>
         </div>
 
-        <Separator orientation="vertical" className="h-5 mx-0.5" />
-
-        {/* Headings */}
-        <div className="flex items-center gap-0.5">
+        {/* 3. Headings: H1, H2 */}
+        <div className="flex items-center bg-surface-2 rounded-lg p-0.5">
           <Tooltip>
             <TooltipTrigger asChild>
               <button
                 onClick={() => onExecCommand("formatBlock", "<h1>")}
-                className="h-8 w-8 rounded-lg flex items-center justify-center text-muted hover:text-foreground hover:bg-surface-hover transition-colors"
-                aria-label="Titre 1 (h1)"
+                className="h-7 w-7 rounded-md flex items-center justify-center text-muted hover:text-text hover:bg-surface transition-colors cursor-pointer"
+                aria-label="Titre 1"
               >
-                <Heading1 className="w-4 h-4" />
+                <Heading1 className="w-3.5 h-3.5" />
               </button>
             </TooltipTrigger>
             <TooltipContent>Titre 1</TooltipContent>
@@ -170,139 +175,137 @@ export function Toolbar({
             <TooltipTrigger asChild>
               <button
                 onClick={() => onExecCommand("formatBlock", "<h2>")}
-                className="h-8 w-8 rounded-lg flex items-center justify-center text-muted hover:text-foreground hover:bg-surface-hover transition-colors"
-                aria-label="Titre 2 (h2)"
+                className="h-7 w-7 rounded-md flex items-center justify-center text-muted hover:text-text hover:bg-surface transition-colors cursor-pointer"
+                aria-label="Titre 2"
               >
-                <Heading2 className="w-4 h-4" />
+                <Heading2 className="w-3.5 h-3.5" />
               </button>
             </TooltipTrigger>
             <TooltipContent>Titre 2</TooltipContent>
           </Tooltip>
         </div>
 
-        <Separator orientation="vertical" className="h-5 mx-0.5" />
-
-        {/* Couleurs médicales (6 swatches + clear) */}
-        <div className="flex items-center gap-1 bg-surface-secondary/60 px-1.5 py-1 rounded-lg border border-border/60">
-          {medicalColors.map((item) => (
-            <Tooltip key={item.color}>
-              <TooltipTrigger asChild>
+        {/* 4. Colors Popover */}
+        <DropdownMenu>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <DropdownMenuTrigger asChild>
                 <button
+                  className="h-8 px-2 rounded-lg bg-surface-2 text-muted hover:text-text flex items-center gap-1.5 transition-colors cursor-pointer"
+                  aria-label="Palette de couleurs médicales"
+                >
+                  <Palette className="w-3.5 h-3.5 text-primary" />
+                  <ChevronDown className="w-3 h-3 opacity-60" />
+                </button>
+              </DropdownMenuTrigger>
+            </TooltipTrigger>
+            <TooltipContent>Couleurs médicales</TooltipContent>
+          </Tooltip>
+          <DropdownMenuContent className="p-2 bg-surface border border-border shadow-xl">
+            <DropdownMenuLabel className="text-[11px] text-muted">Couleurs Médicales</DropdownMenuLabel>
+            <div className="grid grid-cols-3 gap-1.5 p-1">
+              {medicalColors.map((item) => (
+                <button
+                  key={item.color}
                   onClick={() => onExecCommand("foreColor", item.color)}
                   style={{ backgroundColor: item.color }}
-                  className="h-4.5 w-4.5 rounded-full transition-transform hover:scale-125 focus:scale-125 border border-white/20 shadow-xs cursor-pointer"
-                  aria-label={item.label}
+                  className="h-6 w-6 rounded-md hover:scale-110 transition-transform cursor-pointer shadow-xs border border-white/20"
+                  title={item.label}
                 />
-              </TooltipTrigger>
-              <TooltipContent>{item.label}</TooltipContent>
-            </Tooltip>
-          ))}
+              ))}
+            </div>
+            <DropdownMenuSeparator className="bg-border" />
+            <DropdownMenuItem
+              onClick={() => onExecCommand("removeFormat")}
+              className="gap-2 text-xs cursor-pointer hover:bg-surface-2"
+            >
+              <Eraser className="w-3.5 h-3.5" />
+              <span>Effacer la couleur</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                onClick={() => onExecCommand("removeFormat")}
-                className="h-5 w-5 rounded-full flex items-center justify-center text-muted hover:text-foreground hover:bg-surface transition-colors cursor-pointer ml-0.5"
-                aria-label="Effacer couleur et formatage"
-              >
-                <Eraser className="w-3 h-3" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent>Effacer la couleur</TooltipContent>
-          </Tooltip>
-        </div>
+        {/* 5. Structure Dropdown (+ Question, Titre Cours, Renuméroter) */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="secondary"
+              size="sm"
+              className="gap-1.5 text-xs font-semibold h-8"
+            >
+              <Plus className="w-3.5 h-3.5 text-primary" />
+              <span>Structure</span>
+              <ChevronDown className="w-3 h-3 opacity-60" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-52 bg-surface border border-border shadow-xl">
+            <DropdownMenuItem onClick={onInsertQuestion} className="gap-2 cursor-pointer hover:bg-surface-2 font-semibold text-primary">
+              <Plus className="w-4 h-4 text-primary" />
+              <div className="flex flex-col">
+                <span>+ Insérer Question QCM</span>
+                <span className="text-[10px] text-muted font-normal">Modèle standard d&apos;annales</span>
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onInsertCourseTitle} className="gap-2 cursor-pointer hover:bg-surface-2">
+              <BookOpen className="w-4 h-4 text-text" />
+              <div className="flex flex-col">
+                <span className="font-medium text-text">Titre de Cours</span>
+                <span className="text-[10px] text-muted">Bannière officielle du module</span>
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onRenumberQuestions} className="gap-2 cursor-pointer hover:bg-surface-2">
+              <Hash className="w-4 h-4 text-text" />
+              <div className="flex flex-col">
+                <span className="font-medium text-text">Renuméroter 1..N</span>
+                <span className="text-[10px] text-muted">Réaligner automatiquement l&apos;ordre</span>
+              </div>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
-        <Separator orientation="vertical" className="h-5 mx-0.5 hidden xl:block" />
-
-        {/* Lists & Alignment */}
-        <div className="hidden xl:flex items-center gap-0.5">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                onClick={() => onExecCommand("insertUnorderedList")}
-                className="h-8 w-8 rounded-lg flex items-center justify-center text-muted hover:text-foreground hover:bg-surface-hover transition-colors"
-                aria-label="Liste à puces"
-              >
-                <List className="w-4 h-4" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent>Liste à puces</TooltipContent>
-          </Tooltip>
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                onClick={() => onExecCommand("insertOrderedList")}
-                className="h-8 w-8 rounded-lg flex items-center justify-center text-muted hover:text-foreground hover:bg-surface-hover transition-colors"
-                aria-label="Liste numérotée"
-              >
-                <ListOrdered className="w-4 h-4" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent>Liste numérotée</TooltipContent>
-          </Tooltip>
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                onClick={() => onExecCommand("justifyLeft")}
-                className="h-8 w-8 rounded-lg flex items-center justify-center text-muted hover:text-foreground hover:bg-surface-hover transition-colors"
-                aria-label="Aligner à gauche"
-              >
-                <AlignLeft className="w-4 h-4" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent>Aligner à gauche</TooltipContent>
-          </Tooltip>
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                onClick={() => onExecCommand("justifyCenter")}
-                className="h-8 w-8 rounded-lg flex items-center justify-center text-muted hover:text-foreground hover:bg-surface-hover transition-colors"
-                aria-label="Centrer"
-              >
-                <AlignCenter className="w-4 h-4" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent>Centrer</TooltipContent>
-          </Tooltip>
-        </div>
+        {/* 6. Overflow Menu (...) for Extra Actions */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              className="h-8 w-8 rounded-lg bg-surface-2 text-muted hover:text-text flex items-center justify-center transition-colors cursor-pointer"
+              title="Plus d'actions de mise en page"
+              aria-label="Plus d'actions"
+            >
+              <MoreHorizontal className="w-3.5 h-3.5" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-48 bg-surface border border-border shadow-xl">
+            <DropdownMenuLabel className="text-[11px] text-muted">Listes & Alignement</DropdownMenuLabel>
+            <DropdownMenuItem onClick={() => onExecCommand("insertUnorderedList")} className="gap-2 cursor-pointer hover:bg-surface-2">
+              <List className="w-3.5 h-3.5" />
+              <span>Liste à puces</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onExecCommand("insertOrderedList")} className="gap-2 cursor-pointer hover:bg-surface-2">
+              <ListOrdered className="w-3.5 h-3.5" />
+              <span>Liste numérotée</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onExecCommand("justifyLeft")} className="gap-2 cursor-pointer hover:bg-surface-2">
+              <AlignLeft className="w-3.5 h-3.5" />
+              <span>Aligner à gauche</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onExecCommand("justifyCenter")} className="gap-2 cursor-pointer hover:bg-surface-2">
+              <AlignCenter className="w-3.5 h-3.5" />
+              <span>Centrer</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
-      {/* Structure Group: + Question, Titre Cours, Renuméroter 1..N */}
-      <div className="flex items-center gap-1.5 shrink-0">
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={onInsertCourseTitle}
-          className="h-8 text-xs font-semibold gap-1 px-2.5 text-foreground hover:text-primary"
-        >
-          <BookOpen className="w-3.5 h-3.5 text-muted" />
-          <span className="hidden sm:inline">Titre Cours</span>
-        </Button>
-
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={onRenumberQuestions}
-          className="h-8 text-xs font-semibold gap-1 px-2.5 text-foreground hover:text-primary"
-          title="Renuméroter toutes les questions de 1 à N automatiquement"
-        >
-          <Hash className="w-3.5 h-3.5 text-muted" />
-          <span className="hidden md:inline">Renuméroter</span>
-        </Button>
-
-        <Button
-          size="sm"
-          variant="default"
-          onClick={onInsertQuestion}
-          className="h-8 text-xs font-semibold gap-1 px-3 shadow-xs"
-        >
-          <Plus className="w-3.5 h-3.5" />
-          <span>+ Question</span>
-        </Button>
-      </div>
+      {/* Quick Add Question Shortcut Button */}
+      <Button
+        size="sm"
+        variant="default"
+        onClick={onInsertQuestion}
+        className="h-8 text-xs font-bold gap-1 px-3 shrink-0"
+      >
+        <Plus className="w-3.5 h-3.5" />
+        <span>+ Question</span>
+      </Button>
     </div>
   );
 }
