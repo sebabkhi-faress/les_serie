@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { ParsedQuestion } from "@/types/studio";
 
 interface QuestionsListProps {
@@ -30,6 +31,7 @@ export function QuestionsList({
   onDeleteQuestion,
 }: QuestionsListProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<string | number | null>(null);
 
   const filtered = questions.filter(
     (q) =>
@@ -140,9 +142,7 @@ export function QuestionsList({
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (confirm(`Supprimer définitivement la Question ${q.num} ?`)) {
-                          onDeleteQuestion(q.num);
-                        }
+                        setDeleteTarget(q.num);
                       }}
                       className="p-1 rounded-md text-muted hover:text-rose-400 hover:bg-rose-500/10 cursor-pointer transition-colors"
                       title={`Supprimer la Question ${q.num}`}
@@ -168,6 +168,21 @@ export function QuestionsList({
           ))
         )}
       </div>
+
+      <ConfirmModal
+        isOpen={deleteTarget !== null}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => {
+          if (deleteTarget !== null && onDeleteQuestion) {
+            onDeleteQuestion(deleteTarget);
+          }
+        }}
+        title={`Supprimer la Question ${deleteTarget}`}
+        description={`Confirmer la suppression définitive de la Question ${deleteTarget} ? Le document et l'index des questions seront mis à jour.`}
+        confirmText="Supprimer"
+        cancelText="Annuler"
+        variant="danger"
+      />
     </div>
   );
 }

@@ -17,6 +17,7 @@ import {
   Barcode as BarcodeIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { CodebarRecord } from "@/types/studio";
 import { generateBarcodeSVG, generateUniqueCode } from "@/lib/barcode";
 
@@ -33,6 +34,7 @@ export function CodebarsPanel({
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; code: string } | null>(null);
 
   // Inline editing state
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -113,18 +115,23 @@ export function CodebarsPanel({
     }
   };
 
-  const handleDeleteRecord = async (id: string, code: string) => {
-    if (!confirm(`Supprimer définitivement le matricule ${code} de la table Supabase ?`)) return;
+  const handleDeleteRecord = (id: string, code: string) => {
+    setDeleteTarget({ id, code });
+  };
 
+  const executeDeleteRecord = async () => {
+    if (!deleteTarget) return;
     try {
-      const res = await fetch(`/api/codebars?id=${encodeURIComponent(id)}`, {
+      const res = await fetch(`/api/codebars?id=${encodeURIComponent(deleteTarget.id)}`, {
         method: "DELETE",
       });
       if (res.ok) {
-        setRecords((prev) => prev.filter((r) => r.id !== id));
+        setRecords((prev) => prev.filter((r) => r.id !== deleteTarget.id));
       }
     } catch (e) {
       console.error("Erreur de suppression:", e);
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
@@ -424,6 +431,17 @@ export function CodebarsPanel({
           })
         )}
       </div>
+
+      <ConfirmModal
+        isOpen={deleteTarget !== null}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={executeDeleteRecord}
+        title="Supprimer le code-barres"
+        description={`Confirmer la suppression définitive du matricule ${deleteTarget?.code} de la table Supabase ? Cette opération est irréversible.`}
+        confirmText="Supprimer"
+        cancelText="Annuler"
+        variant="danger"
+      />
     </div>
   );
 }

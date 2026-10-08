@@ -26,6 +26,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import {
   generateBarcodeSVG,
   generateUniqueCode,
@@ -65,6 +66,7 @@ export function ProtectionModal({
   const [isSaving, setIsSaving] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [dbHint, setDbHint] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; code: string } | null>(null);
 
   // Inline edit state in registry
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -130,19 +132,24 @@ export function ProtectionModal({
     }
   }, []);
 
-  const handleDeleteRecord = async (id: string, code: string, e: React.MouseEvent) => {
+  const handleDeleteRecord = (id: string, code: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!confirm(`Supprimer définitivement le code-barres ${code} de Supabase ?`)) return;
+    setDeleteTarget({ id, code });
+  };
 
+  const executeDeleteRecord = async () => {
+    if (!deleteTarget) return;
     try {
-      const res = await fetch(`/api/codebars?id=${encodeURIComponent(id)}`, {
+      const res = await fetch(`/api/codebars?id=${encodeURIComponent(deleteTarget.id)}`, {
         method: "DELETE",
       });
       if (res.ok) {
-        setRecords((prev) => prev.filter((r) => r.id !== id));
+        setRecords((prev) => prev.filter((r) => r.id !== deleteTarget.id));
       }
     } catch (err) {
       console.error("Erreur de suppression:", err);
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
@@ -613,6 +620,17 @@ export function ProtectionModal({
             </div>
           </div>
         )}
+
+        <ConfirmModal
+          isOpen={deleteTarget !== null}
+          onClose={() => setDeleteTarget(null)}
+          onConfirm={executeDeleteRecord}
+          title="Supprimer le code-barres"
+          description={`Confirmer la suppression définitive du code-barres ${deleteTarget?.code} de Supabase ?`}
+          confirmText="Supprimer"
+          cancelText="Annuler"
+          variant="danger"
+        />
       </DialogContent>
     </Dialog>
   );

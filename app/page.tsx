@@ -15,6 +15,8 @@ import { Canvas } from "@/components/editor/Canvas";
 import { ProtectionModal } from "@/components/editor/ProtectionModal";
 import { NewSeriesModal } from "@/components/panels/NewSeriesModal";
 import { CodebarsPanel } from "@/components/panels/CodebarsPanel";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { PromptModal } from "@/components/ui/PromptModal";
 import {
   StorageFile,
   ChatMessage,
@@ -225,7 +227,7 @@ const DEFAULT_MEDICAL_HTML = `<!DOCTYPE html>
       </div>
       <div style="display: flex; align-items: center; gap: 8px;">
         <span class="year-badge">(Dr Kahel,2024,2025)</span>
-        <button type="button" class="btn-delete-q" title="Supprimer cette question" onclick="if(confirm('Supprimer cette question ?')){this.closest('.question-box').remove();window.parent?.postMessage({type:'DOCUMENT_CHANGED'},'*');}">✕</button>
+        <button type="button" class="btn-delete-q" title="Supprimer cette question" onclick="window.parent?.postMessage({type:'REQUEST_DELETE_QUESTION', num: '1'},'*');">✕</button>
       </div>
     </div>
     <div class="items-list">
@@ -267,7 +269,7 @@ const DEFAULT_MEDICAL_HTML = `<!DOCTYPE html>
       </div>
       <div style="display: flex; align-items: center; gap: 8px;">
         <span class="year-badge">(Dr Kahel,2025)</span>
-        <button type="button" class="btn-delete-q" title="Supprimer cette question" onclick="if(confirm('Supprimer cette question ?')){this.closest('.question-box').remove();window.parent?.postMessage({type:'DOCUMENT_CHANGED'},'*');}">✕</button>
+        <button type="button" class="btn-delete-q" title="Supprimer cette question" onclick="window.parent?.postMessage({type:'REQUEST_DELETE_QUESTION', num: '2'},'*');">✕</button>
       </div>
     </div>
     <ol class="options alpha">
@@ -336,6 +338,38 @@ export default function StudioPage() {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
   const aiInputRef = useRef<HTMLTextAreaElement>(null);
+
+  // Custom Confirmation & Prompt Modal states
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    description: string;
+    confirmText?: string;
+    cancelText?: string;
+    variant?: "danger" | "warning" | "default";
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: "",
+    description: "",
+    onConfirm: () => {},
+  });
+
+  const [promptModal, setPromptModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    description?: string;
+    label?: string;
+    defaultValue?: string;
+    placeholder?: string;
+    submitText?: string;
+    cancelText?: string;
+    onSubmit: (val: string) => void;
+  }>({
+    isOpen: false,
+    title: "",
+    onSubmit: () => {},
+  });
 
   // ==================== STRICT QUESTION BOUNDARIES ====================
   // Enforces:
@@ -448,7 +482,20 @@ export default function StudioPage() {
     saveCurrentDocument();
   };
 
-  // Listen for DOCUMENT_CHANGED messages from inside the iframe (e.g. from inline delete buttons)
+  // Custom modal-protected question deletion
+  const requestDeleteQuestion = (num: string | number) => {
+    setConfirmModal({
+      isOpen: true,
+      title: `Supprimer la Question ${num}`,
+      description: `Confirmer la suppression définitive de la Question ${num} ? Le document et l'index seront mis à jour.`,
+      confirmText: "Supprimer",
+      cancelText: "Annuler",
+      variant: "danger",
+      onConfirm: () => deleteQuestion(num),
+    });
+  };
+
+  // Listen for messages from inside the iframe (e.g. from inline delete buttons)
   useEffect(() => {
     const handleMessage = (e: MessageEvent) => {
       if (e.data?.type === "DOCUMENT_CHANGED") {
@@ -459,6 +506,8 @@ export default function StudioPage() {
           extractQuestionsFromDoc(doc);
           saveCurrentDocument();
         }
+      } else if (e.data?.type === "REQUEST_DELETE_QUESTION") {
+        requestDeleteQuestion(e.data.num);
       }
     };
     window.addEventListener("message", handleMessage);
@@ -768,21 +817,11 @@ export default function StudioPage() {
     setSaveStatus("unsaved");
   };
 
-  const insertQuestionTemplate = () => {
+  const doInsertQuestion = (qNum: string) => {
     const iframe = iframeRef.current;
     if (!iframe) return;
     const doc = iframe.contentDocument || iframe.contentWindow?.document;
     if (!doc) return;
-
-    // Si le document est vide, créer et initialiser avec la série complète
-    if (!documentContent || documentContent.trim().length === 0) {
-      const name = selectedFile || "Série_QCM_Initiale.html";
-      createAndSaveNewDocument(name, DEFAULT_MEDICAL_HTML);
-      return;
-    }
-
-    const nextNum = parsedQuestions.length + 1;
-    const qNum = prompt("Numéro de la question :", `${nextNum}`) || `${nextNum}`;
 
     const templateHtml = `
     <!-- QUESTION ${qNum} -->
@@ -794,7 +833,7 @@ export default function StudioPage() {
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
                 <span class="year-badge" style="font-size: 8.5pt; font-weight: 600; color: #0284c7; background: #f0f9ff; border: 1px solid #38bdf8; padding: 2px 10px; border-radius: 12px; white-space: nowrap;">(Dr Kahel, 2026)</span>
-                <button type="button" class="btn-delete-q" title="Supprimer cette question" onclick="if(confirm('Supprimer cette question ?')){this.closest('.question-box').remove();window.parent?.postMessage({type:'DOCUMENT_CHANGED'},'*');}">✕</button>
+                <button type="button" class="btn-delete-q" title="Supprimer cette question" onclick="window.parent?.postMessage({type:'REQUEST_DELETE_QUESTION', num: '${qNum}'},'*');">✕</button>
             </div>
         </div>
         <ol class="options alpha" style="margin: 8px 0; padding-left: 20px; color: #1e293b; line-height: 1.5;">
@@ -838,13 +877,34 @@ export default function StudioPage() {
     extractQuestionsFromDoc(doc);
   };
 
-  const insertCourseTitleBanner = () => {
+  const insertQuestionTemplate = () => {
+    // Si le document est vide, créer et initialiser avec la série complète
+    if (!documentContent || documentContent.trim().length === 0) {
+      const name = selectedFile || "Série_QCM_Initiale.html";
+      createAndSaveNewDocument(name, DEFAULT_MEDICAL_HTML);
+      return;
+    }
+
+    const nextNum = parsedQuestions.length + 1;
+    setPromptModal({
+      isOpen: true,
+      title: "Ajouter une Question",
+      description: "Indiquez le numéro de la question à insérer dans la série :",
+      label: "Numéro de la question",
+      defaultValue: `${nextNum}`,
+      placeholder: `${nextNum}`,
+      submitText: "Ajouter la question",
+      cancelText: "Annuler",
+      onSubmit: (val) => doInsertQuestion(val),
+    });
+  };
+
+  const doInsertCourseTitle = (moduleName: string) => {
     const iframe = iframeRef.current;
     if (!iframe) return;
     const doc = iframe.contentDocument || iframe.contentWindow?.document;
     if (!doc) return;
 
-    const moduleName = prompt("Nom du module ou cours médical :", "2- Fièvre") || "2- Fièvre";
     const bannerHtml = `
       <div class="course-header-banner" style="text-align: center; margin: 16px 0 20px 0;">
         <h2 style="margin: 0; font-size: 13pt; font-weight: 800; color: #0f172a; text-decoration: underline;">${moduleName}</h2>
@@ -868,6 +928,20 @@ export default function StudioPage() {
 
     enforceQuestionBoundaries(doc);
     setSaveStatus("unsaved");
+  };
+
+  const insertCourseTitleBanner = () => {
+    setPromptModal({
+      isOpen: true,
+      title: "Insérer un En-tête de Cours",
+      description: "Indiquez le titre du cours ou du module médical à afficher :",
+      label: "Nom du cours / module",
+      defaultValue: "2- Fièvre",
+      placeholder: "ex: 2- Fièvre",
+      submitText: "Insérer",
+      cancelText: "Annuler",
+      onSubmit: (val) => doInsertCourseTitle(val),
+    });
   };
 
   const renumberQuestions = () => {
@@ -1069,25 +1143,33 @@ export default function StudioPage() {
     setIsNewSeriesModalOpen(true);
   };
 
-  const handleDeleteFile = async (name: string, e: React.MouseEvent) => {
+  const handleDeleteFile = (name: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!confirm(`Confirmer la suppression définitive de "${name}" sur Supabase Storage ?`)) return;
+    setConfirmModal({
+      isOpen: true,
+      title: "Supprimer la série",
+      description: `Confirmer la suppression définitive de "${name}" sur Supabase Storage ? Cette action est irréversible.`,
+      confirmText: "Supprimer définitivement",
+      cancelText: "Annuler",
+      variant: "danger",
+      onConfirm: async () => {
+        try {
+          const res = await fetch(`/api/storage/files?filename=${encodeURIComponent(name)}`, {
+            method: "DELETE",
+          });
 
-    try {
-      const res = await fetch(`/api/storage/files?filename=${encodeURIComponent(name)}`, {
-        method: "DELETE",
-      });
-
-      if (res.ok) {
-        await loadFilesList();
-        if (selectedFile === name) {
-          setSelectedFile("");
-          setDocumentContent("");
+          if (res.ok) {
+            await loadFilesList();
+            if (selectedFile === name) {
+              setSelectedFile("");
+              setDocumentContent("");
+            }
+          }
+        } catch (err) {
+          console.error("Erreur de suppression :", err);
         }
-      }
-    } catch (err) {
-      console.error("Erreur de suppression :", err);
-    }
+      },
+    });
   };
 
   // ==================== 10. PROTECTION ANTI-COPIE & CODE-BARRES ====================
@@ -1334,6 +1416,30 @@ export default function StudioPage() {
         isOpen={isNewSeriesModalOpen}
         onClose={() => setIsNewSeriesModalOpen(false)}
         onCreate={(name) => createAndSaveNewDocument(name, DEFAULT_MEDICAL_HTML)}
+      />
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        description={confirmModal.description}
+        confirmText={confirmModal.confirmText}
+        cancelText={confirmModal.cancelText}
+        variant={confirmModal.variant || "danger"}
+      />
+
+      <PromptModal
+        isOpen={promptModal.isOpen}
+        onClose={() => setPromptModal((prev) => ({ ...prev, isOpen: false }))}
+        onSubmit={promptModal.onSubmit}
+        title={promptModal.title}
+        description={promptModal.description}
+        label={promptModal.label}
+        defaultValue={promptModal.defaultValue}
+        placeholder={promptModal.placeholder}
+        submitText={promptModal.submitText}
+        cancelText={promptModal.cancelText}
       />
     </div>
   );
