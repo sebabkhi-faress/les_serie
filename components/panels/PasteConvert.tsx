@@ -92,23 +92,38 @@ export function PasteConvert({ onInsertHtml, onSendToAi }: PasteConvertProps) {
     year: string
   ) => {
     return `
-    <div class="question-box" style="margin-bottom: 18px; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; background: #ffffff;">
-      <div class="question-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-        <span class="q-stem" style="font-weight: 700; color: #0f172a;"><span class="q-num" style="color: #0f766e;">Question ${num} :</span> ${stem}</span>
-        <span class="year-badge" style="font-size: 8pt; font-weight: 600; color: #64748b; background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">(${year})</span>
+    <!-- QUESTION ${num} -->
+    <div class="question-box" style="margin-bottom: 20px; padding: 14px 18px; border: 1.5px solid #38bdf8; border-left: 5px solid #0284c7; border-radius: 8px; background: #ffffff; page-break-inside: avoid; position: relative;">
+      <div class="question-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 8px;">
+        <div style="display: flex; align-items: baseline; gap: 4px;">
+          <span class="q-num" style="color: #0284c7; font-weight: 800; font-size: 10pt;">Question ${num} :</span>
+          <span class="q-stem" style="font-weight: 700; color: #0f172a; font-size: 10pt;">${stem}</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span class="year-badge" style="font-size: 8.5pt; font-weight: 600; color: #0284c7; background: #f0f9ff; border: 1px solid #38bdf8; padding: 2px 10px; border-radius: 12px; white-space: nowrap;">(${year})</span>
+          <button type="button" class="btn-delete-q" title="Supprimer cette question" onclick="window.parent?.postMessage({type:'REQUEST_DELETE_QUESTION', num: '${num}'},'*');">✕</button>
+        </div>
       </div>
-      <ol class="options alpha" style="margin: 6px 0; padding-left: 20px; color: #334155; line-height: 1.45;">
+      <ol class="options alpha" style="margin: 8px 0; padding-left: 20px; color: #1e293b; line-height: 1.5;">
         ${opts.map((opt) => `<li>${opt}</li>`).join("\n        ")}
       </ol>
-      <div class="answer-section" style="margin-top: 8px; padding-top: 6px; border-top: 1px dashed #cbd5e1; font-size: 8.5pt;">
-        <div class="answer-line" style="margin-bottom: 4px;">
-          <strong style="color: #0f766e;">Réponse :</strong> <span style="background: #e0f2fe; color: #0369a1; font-weight: 700; padding: 1px 6px; border-radius: 4px;">${ans || "Non spécifiée"}</span>
+      <div class="answer-section" style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed #cbd5e1; font-size: 8.5pt;">
+        <div class="answer-line" style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+          <span class="answer-label" style="font-weight: 800; color: #0284c7; font-size: 8.5pt; letter-spacing: 0.5px;">RÉPONSE :</span>
+          <span class="answer-badge" style="background: #059669; color: #ffffff; font-weight: 800; font-size: 9pt; padding: 2px 8px; border-radius: 4px; display: inline-block;">${ans || "A"}</span>
         </div>
         ${
           justs.length > 0
-            ? `<div class="justification-title" style="font-weight: 600; color: #475569; margin-top: 4px;">Justification :</div>
-        <ul class="justifications" style="margin: 2px 0; padding-left: 18px; color: #475569;">
-          ${justs.map((j) => `<li>${j}</li>`).join("\n          ")}
+            ? `<div class="justification-title" style="font-weight: 800; color: #0284c7; font-size: 8.5pt; margin-top: 6px; letter-spacing: 0.5px;">JUSTIFICATION :</div>
+        <ul class="justifications" style="margin: 4px 0 0 0; padding-left: 16px; color: #334155; list-style-type: disc;">
+          ${justs
+            .map((j) => {
+              const formatted = j
+                .replace(/^([A-Ea-e]\s*:\s*Vrai)/i, '<strong class="text-correct" style="color: #059669; font-weight: 700;">$1</strong>')
+                .replace(/^([A-Ea-e]\s*:\s*Faux)/i, '<strong class="text-incorrect" style="color: #dc2626; font-weight: 700;">$1</strong>');
+              return `<li>${formatted}</li>`;
+            })
+            .join("\n          ")}
         </ul>`
             : ""
         }
