@@ -6,6 +6,7 @@ import {
   ClipboardPaste,
   ListChecks,
   FolderKanban,
+  QrCode,
   Settings,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -48,6 +49,12 @@ export function IconRail({
       label: "Séries",
       description: "Documents Supabase Storage & métadonnées",
       icon: FolderKanban,
+    },
+    {
+      id: "codebars" as const,
+      label: "Codes",
+      description: "Registre Supabase, édition des matricules & bénéficiaires",
+      icon: QrCode,
     },
     {
       id: "settings" as const,

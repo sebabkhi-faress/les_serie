@@ -17,6 +17,7 @@ interface StatusBarProps {
   questionsCount: number;
   currentPage: number;
   totalPages: number;
+  startPageNumber?: number;
   hideAnswers: boolean;
   onToggleHideAnswers: () => void;
   saveStatus: SaveStatus;
@@ -27,11 +28,15 @@ export function StatusBar({
   questionsCount,
   currentPage,
   totalPages,
+  startPageNumber = 1,
   hideAnswers,
   onToggleHideAnswers,
   saveStatus,
   lastSavedTime,
 }: StatusBarProps) {
+  const displayCurrent = startPageNumber + currentPage - 1;
+  const displayTotal = startPageNumber + Math.max(totalPages, 1) - 1;
+
   return (
     <footer className="status-bar h-8 border-t border-border bg-surface px-4 flex items-center justify-between text-xs text-muted select-none flex-shrink-0 z-20">
       {/* Left: Questions Count & Pagination (Single source of truth) */}
@@ -48,7 +53,7 @@ export function StatusBar({
         <div className="flex items-center gap-1.5">
           <Layers className="w-3.5 h-3.5 text-muted" />
           <span>
-            Page {currentPage} sur {Math.max(totalPages, 1)}
+            Page {displayCurrent} sur {displayTotal}
           </span>
         </div>
       </div>

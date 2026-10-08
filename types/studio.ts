@@ -36,7 +36,7 @@ export interface ParsedQuestion {
 
 export type SaveStatus = "saved" | "unsaved" | "saving" | "error";
 
-export type ActivePanel = "ai" | "paste" | "questions" | "series" | "settings" | null;
+export type ActivePanel = "ai" | "paste" | "questions" | "series" | "codebars" | "settings" | null;
 
 export type EditorViewMode = "edit" | "preview" | "code";
 

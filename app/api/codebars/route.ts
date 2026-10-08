@@ -143,7 +143,7 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ success: false, error: error.message }, { status: 400 });
     }
 
-    return NextResponse.json({ success: true, message: "Code-barres supprimé avec succès de Supabase" });
+    return NextResponse.json({ success: true, message: "Code-barres supprimé" });
   } catch (err: unknown) {
     return NextResponse.json(
       { success: false, error: err instanceof Error ? err.message : String(err) },
@@ -151,3 +151,45 @@ export async function DELETE(req: NextRequest) {
     );
   }
 }
+
+// PATCH: Met à jour le nom de l'étudiant, le matricule ou le titre d'un enregistrement existant dans Supabase
+export async function PATCH(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { id, studentName, barcode, documentTitle, barcodeSvg } = body;
+
+    if (!id) {
+      return NextResponse.json(
+        { success: false, error: "Identifiant id requis pour la mise à jour" },
+        { status: 400 }
+      );
+    }
+
+    const updates: Record<string, unknown> = {
+      updated_at: new Date().toISOString(),
+    };
+    if (studentName !== undefined) updates.student_name = String(studentName).trim();
+    if (barcode !== undefined) updates.barcode = String(barcode).trim();
+    if (documentTitle !== undefined) updates.document_title = String(documentTitle).trim();
+    if (barcodeSvg !== undefined) updates.barcode_svg = barcodeSvg;
+
+    const { data, error } = await supabase
+      .from("codebars")
+      .update(updates)
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      return NextResponse.json({ success: false, error: error.message }, { status: 400 });
+    }
+
+    return NextResponse.json({ success: true, record: data });
+  } catch (err: unknown) {
+    return NextResponse.json(
+      { success: false, error: err instanceof Error ? err.message : String(err) },
+      { status: 500 }
+    );
+  }
+}
+

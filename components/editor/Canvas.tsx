@@ -45,6 +45,8 @@ interface CanvasProps {
   onCreateNewSeries?: () => void;
   currentPage: number;
   totalPages: number;
+  startPageNumber?: number;
+  onStartPageNumberChange?: (val: number) => void;
   onPageChange: (page: number) => void;
   onExecCommand: (cmd: string, val?: string) => void;
   onAskAiWithSelection?: (text: string) => void;
@@ -67,6 +69,8 @@ export function Canvas({
   onCreateNewSeries,
   currentPage,
   totalPages,
+  startPageNumber = 1,
+  onStartPageNumberChange,
   onPageChange,
   onExecCommand,
   onAskAiWithSelection,
@@ -188,24 +192,38 @@ export function Canvas({
                 aria-label="Sélectionner une page"
               >
                 <span>
-                  Page {currentPage} / {Math.max(totalPages, 1)}
+                  Page {startPageNumber + currentPage - 1} / {startPageNumber + Math.max(totalPages, 1) - 1}
                 </span>
                 <ChevronDown className="w-3 h-3 opacity-60" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="center" className="max-h-60 overflow-y-auto w-36 bg-surface border border-border shadow-xl p-1">
-              {pagesArray.map((p) => (
-                <DropdownMenuItem
-                  key={p}
-                  onClick={() => onPageChange(p)}
-                  className={cn(
-                    "text-xs cursor-pointer rounded-lg px-2 py-1.5",
-                    currentPage === p ? "bg-primary text-[#0B1220] font-bold" : "hover:bg-surface-2 text-text"
-                  )}
-                >
-                  Page {p}
-                </DropdownMenuItem>
-              ))}
+            <DropdownMenuContent align="center" className="max-h-60 overflow-y-auto w-44 bg-surface border border-border shadow-xl p-1">
+              <div className="px-2 py-1 text-[10px] text-muted font-semibold border-b border-border mb-1 flex items-center justify-between">
+                <span>Départ :</span>
+                <input
+                  type="number"
+                  min={1}
+                  value={startPageNumber}
+                  onChange={(e) => onStartPageNumberChange?.(Math.max(1, parseInt(e.target.value) || 1))}
+                  onClick={(e) => e.stopPropagation()}
+                  className="w-14 bg-surface-2 border border-border rounded px-1.5 py-0.5 text-center text-text font-bold text-xs"
+                />
+              </div>
+              {pagesArray.map((p) => {
+                const displayNum = startPageNumber + p - 1;
+                return (
+                  <DropdownMenuItem
+                    key={p}
+                    onClick={() => onPageChange(p)}
+                    className={cn(
+                      "text-xs cursor-pointer rounded-lg px-2 py-1.5",
+                      currentPage === p ? "bg-primary text-[#0B1220] font-bold" : "hover:bg-surface-2 text-text"
+                    )}
+                  >
+                    Page {displayNum}
+                  </DropdownMenuItem>
+                );
+              })}
             </DropdownMenuContent>
           </DropdownMenu>
 

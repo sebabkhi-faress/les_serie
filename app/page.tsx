@@ -14,6 +14,7 @@ import { Toolbar } from "@/components/editor/Toolbar";
 import { Canvas } from "@/components/editor/Canvas";
 import { ProtectionModal } from "@/components/editor/ProtectionModal";
 import { NewSeriesModal } from "@/components/panels/NewSeriesModal";
+import { CodebarsPanel } from "@/components/panels/CodebarsPanel";
 import {
   StorageFile,
   ChatMessage,
@@ -29,7 +30,7 @@ const DEFAULT_MEDICAL_HTML = `<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="utf-8">
-  <title>Série de QCMs Médicaux</title>
+  <title>Série d'Annales Médicales</title>
   <style>
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -40,44 +41,101 @@ const DEFAULT_MEDICAL_HTML = `<!DOCTYPE html>
       line-height: 1.45;
       font-size: 10pt;
     }
+    .empty-notice-box {
+      border: 1.5px solid #000000;
+      padding: 6px 14px;
+      margin: 0 auto 12px auto;
+      max-width: 540px;
+      text-align: center;
+      font-size: 9.5pt;
+      font-weight: 500;
+      color: #0f172a;
+    }
+    .course-header-banner {
+      text-align: center;
+      margin: 14px 0 20px 0;
+    }
+    .course-header-banner h2 {
+      margin: 0;
+      font-size: 13pt;
+      font-weight: 800;
+      color: #0f172a;
+      text-decoration: underline;
+    }
     .question-box {
       margin-bottom: 20px;
       padding: 14px 18px;
-      border: 1px solid #e2e8f0;
+      border: 1.5px solid #38bdf8;
+      border-left: 5px solid #0284c7;
       border-radius: 8px;
       background: #ffffff;
       page-break-inside: avoid;
+      position: relative;
     }
     .question-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
       margin-bottom: 8px;
+      gap: 8px;
     }
     .q-stem {
       font-weight: 700;
       color: #0f172a;
+      font-size: 10pt;
     }
     .q-num {
-      color: #0f766e;
+      color: #0284c7;
       font-weight: 800;
+      font-size: 10pt;
     }
     .year-badge {
-      font-size: 8pt;
+      font-size: 8.5pt;
       font-weight: 600;
-      color: #64748b;
-      background: #f1f5f9;
-      padding: 2px 8px;
-      border-radius: 4px;
+      color: #0284c7;
+      background: #f0f9ff;
+      border: 1px solid #38bdf8;
+      padding: 2px 10px;
+      border-radius: 12px;
       white-space: nowrap;
+    }
+    .btn-delete-q {
+      background: none;
+      border: 1px solid transparent;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 11px;
+      padding: 2px 5px;
+      border-radius: 4px;
+      line-height: 1;
+      transition: all 120ms;
+    }
+    .btn-delete-q:hover {
+      color: #dc2626;
+      background: #fee2e2;
+      border-color: #fca5a5;
+    }
+    .items-list {
+      margin: 8px 0;
+      padding-left: 4px;
+      color: #0f172a;
+      line-height: 1.5;
+    }
+    .propositions-list {
+      margin: 8px 0 10px 0;
+      padding-left: 4px;
+      color: #1e293b;
+      font-weight: 500;
+      line-height: 1.5;
     }
     ol.options {
       margin: 8px 0;
-      padding-left: 22px;
-      color: #334155;
+      padding-left: 20px;
+      color: #1e293b;
+      line-height: 1.5;
     }
     ol.options li {
-      margin-bottom: 4px;
+      margin-bottom: 3px;
     }
     .answer-section {
       margin-top: 10px;
@@ -88,58 +146,47 @@ const DEFAULT_MEDICAL_HTML = `<!DOCTYPE html>
     .answer-line {
       display: flex;
       align-items: center;
-      gap: 6px;
-      margin-bottom: 4px;
+      gap: 8px;
+      margin-bottom: 6px;
     }
     .answer-label {
-      font-weight: 700;
-      color: #0f766e;
+      font-weight: 800;
+      color: #0284c7;
+      font-size: 8.5pt;
+      letter-spacing: 0.5px;
     }
     .answer-badge {
-      background: #e0f2fe;
-      color: #0369a1;
+      background: #059669;
+      color: #ffffff;
       font-weight: 800;
-      padding: 1px 8px;
+      font-size: 9pt;
+      padding: 2px 8px;
       border-radius: 4px;
+      display: inline-block;
     }
     .justification-title {
-      font-weight: 700;
-      color: #475569;
+      font-weight: 800;
+      color: #0284c7;
+      font-size: 8.5pt;
       margin-top: 6px;
+      letter-spacing: 0.5px;
     }
     .justifications {
       margin: 4px 0 0 0;
-      padding-left: 20px;
-      color: #475569;
+      padding-left: 16px;
+      color: #334155;
+      list-style-type: disc;
     }
     .justifications li {
-      margin-bottom: 2px;
+      margin-bottom: 3px;
     }
     .text-correct {
-      color: #16a34a;
-      font-weight: 600;
+      color: #059669;
+      font-weight: 700;
     }
     .text-incorrect {
       color: #dc2626;
-      font-weight: 600;
-    }
-    .course-header-banner {
-      background: #f8fafc;
-      border: 1px solid #cbd5e1;
-      border-left: 5px solid #0f766e;
-      border-radius: 6px;
-      padding: 12px 16px;
-      margin-bottom: 20px;
-    }
-    .course-header-banner h1 {
-      margin: 0 0 4px 0;
-      font-size: 14pt;
-      color: #0f172a;
-    }
-    .course-header-banner p {
-      margin: 0;
-      font-size: 9pt;
-      color: #64748b;
+      font-weight: 700;
     }
     .study-mode-active .answer-section {
       display: none !important;
@@ -156,34 +203,89 @@ const DEFAULT_MEDICAL_HTML = `<!DOCTYPE html>
       margin: 0 !important;
       padding: 0 !important;
     }
+    @media print {
+      .btn-delete-q {
+        display: none !important;
+      }
+    }
   </style>
 </head>
 <body>
+  <div class="empty-notice-box">Il n'y a pas de QCSs à ce cours dans les examens disponibles</div>
   <div class="course-header-banner">
-    <h1>Module de Pédiatrie Médicale</h1>
-    <p>Série d'annales officielles de Résidanat & Internat • QCMs commentés</p>
+    <h2>2- Fièvre</h2>
   </div>
+
+  <!-- QUESTION 1 -->
   <div class="question-box">
     <div class="question-header">
-      <span class="q-stem"><span class="q-num">Question 1 :</span> Parmi les signes suivants, lequel évoque en premier lieu une déshydratation aiguë sévère chez le nourrisson ?</span>
-      <span class="year-badge">(2026, Alger B)</span>
+      <div style="display: flex; align-items: baseline; gap: 4px;">
+        <span class="q-num">Question 1 :</span>
+        <span class="q-stem">1. Les causes infectieuses localisées de la fièvre :</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span class="year-badge">(Dr Kahel,2024,2025)</span>
+        <button type="button" class="btn-delete-q" title="Supprimer cette question" onclick="if(confirm('Supprimer cette question ?')){this.closest('.question-box').remove();window.parent?.postMessage({type:'DOCUMENT_CHANGED'},'*');}">✕</button>
+      </div>
+    </div>
+    <div class="items-list">
+      <div>1) Pneumonie.</div>
+      <div>2) Tuberculose.</div>
+      <div>3) Endocardite infectieuse.</div>
+      <div>4) Ostéomyélite.</div>
+      <div>5) Fièvre typhoïde</div>
+    </div>
+    <div class="propositions-list">
+      <div>A. 1.2</div>
+      <div>B. 4.5</div>
+      <div>C. 1.2.3.4.5</div>
+      <div>D. 1.3.4</div>
+      <div>E. 3.4.5</div>
+    </div>
+    <div class="answer-section">
+      <div class="answer-line">
+        <span class="answer-label">RÉPONSE :</span>
+        <span class="answer-badge">D</span>
+      </div>
+      <div class="justification-title">JUSTIFICATION :</div>
+      <ul class="justifications">
+        <li><strong class="text-incorrect">A : Faux</strong> — La tuberculose (2) est une infection spécifique bactérienne, pas une infection localisée.</li>
+        <li><strong class="text-incorrect">B : Faux</strong> — La fièvre typhoïde (5) est une infection spécifique bactérienne, pas une infection localisée.</li>
+        <li><strong class="text-incorrect">C : Faux</strong> — Inclut la tuberculose (2) et la fièvre typhoïde (5) qui ne sont pas des infections localisées.</li>
+        <li><strong class="text-correct">D : Vrai</strong> — Selon le tableau de la page 29, les infections localisées sont : Pyélonéphrite aiguë, Pneumonie (1), Abcès, Rhino-sinusite aiguë, Ostéomyélite (4), Endocardite infectieuse (3).</li>
+        <li><strong class="text-incorrect">E : Faux</strong> — Inclut la fièvre typhoïde (5) qui n'est pas une infection localisée.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- QUESTION 2 -->
+  <div class="question-box">
+    <div class="question-header">
+      <div style="display: flex; align-items: baseline; gap: 4px;">
+        <span class="q-num">Question 2 :</span>
+        <span class="q-stem">L'analyse de la courbe thermique peut nous renseigner et donne :</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span class="year-badge">(Dr Kahel,2025)</span>
+        <button type="button" class="btn-delete-q" title="Supprimer cette question" onclick="if(confirm('Supprimer cette question ?')){this.closest('.question-box').remove();window.parent?.postMessage({type:'DOCUMENT_CHANGED'},'*');}">✕</button>
+      </div>
     </div>
     <ol class="options alpha">
-      <li>Pli cutané persistant</li>
-      <li>Hypotonie des globes oculaires</li>
-      <li>Perte de poids supérieure à 10%</li>
-      <li>Sécheresse des muqueuses</li>
-      <li>Fièvre isolée</li>
+      <li>La fièvre en plateau peut se voire dans le paludisme.</li>
+      <li>La fièvre ondulante on peut se voire dans la tuberculose</li>
+      <li>La fièvre intermittente en plateau peut se voire dans la brucellose.</li>
+      <li>La fièvre rémittente quotidienne se voit dans les suppurations profondes</li>
+      <li>Le fébricule qu'on peut le trouver dans la septicémie.</li>
     </ol>
     <div class="answer-section">
       <div class="answer-line">
-        <span class="answer-label">Réponse :</span>
-        <span class="answer-badge">C*</span>
+        <span class="answer-label">RÉPONSE :</span>
+        <span class="answer-badge">D</span>
       </div>
-      <div class="justification-title">Justification clinique :</div>
+      <div class="justification-title">JUSTIFICATION :</div>
       <ul class="justifications">
-        <li><strong class="text-correct">C : Vrai</strong> — La perte pondérale mesurée (> 10%) est le critère de référence quantifiant la sévérité absolue du choc hypovolémique.</li>
-        <li><strong class="text-incorrect">E : Faux</strong> — La fièvre est un signe étiologique infectieux et non une preuve directe de déshydratation aiguë.</li>
+        <li><strong class="text-correct">D : Vrai</strong> — La fièvre rémittente quotidienne est caractéristique des suppurations profondes et abcès collectés.</li>
+        <li><strong class="text-incorrect">A : Faux</strong> — La fièvre en plateau est typique de la fièvre typhoïde (pas du paludisme qui donne des accès périodiques).</li>
       </ul>
     </div>
   </div>
@@ -207,6 +309,7 @@ export default function StudioPage() {
   const [zoom, setZoom] = useState<number>(100);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
+  const [startPageNumber, setStartPageNumber] = useState<number>(1);
 
   // Panels & Modals
   const [activePanel, setActivePanel] = useState<ActivePanel>("ai");
@@ -234,9 +337,46 @@ export default function StudioPage() {
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
   const aiInputRef = useRef<HTMLTextAreaElement>(null);
 
+  // ==================== STRICT QUESTION BOUNDARIES ====================
+  // Enforces:
+  // 1. Two questions can NEVER be in the same square (nested question boxes are extracted as siblings)
+  // 2. A question can NEVER be in the same field/container with a course title banner or empty notice
+  const enforceQuestionBoundaries = (doc: Document): boolean => {
+    let modified = false;
+
+    // 1. Check for nested question boxes
+    const qBoxes = Array.from(doc.querySelectorAll(".question-box"));
+    for (const box of qBoxes) {
+      const nestedBoxes = Array.from(box.querySelectorAll(".question-box"));
+      for (const nested of nestedBoxes) {
+        if (box.parentNode) {
+          box.parentNode.insertBefore(nested, box.nextSibling);
+          modified = true;
+        }
+      }
+    }
+
+    // 2. Check for trapped titles/banners inside question boxes
+    const currentBoxes = Array.from(doc.querySelectorAll(".question-box"));
+    for (const box of currentBoxes) {
+      const trappedBanners = Array.from(
+        box.querySelectorAll(".course-header-banner, .empty-notice-box, h1, h2, h3")
+      );
+      for (const banner of trappedBanners) {
+        if (box.parentNode) {
+          box.parentNode.insertBefore(banner, box);
+          modified = true;
+        }
+      }
+    }
+
+    return modified;
+  };
 
   // ==================== 3. ANALYSE ET INDEXATION DES QUESTIONS ====================
   const extractQuestionsFromDoc = (doc: Document) => {
+    enforceQuestionBoundaries(doc);
+
     const questions: ParsedQuestion[] = [];
     const qBoxes = doc.querySelectorAll(".question-box");
 
@@ -275,6 +415,55 @@ export default function StudioPage() {
     const computedPages = Math.max(1, Math.ceil(docHeight / 1120));
     setTotalPages(computedPages);
   };
+
+  // Delete question by number or index
+  const deleteQuestion = (num: string | number) => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+    const doc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (!doc) return;
+
+    const qBoxes = doc.querySelectorAll(".question-box");
+    let removed = false;
+
+    qBoxes.forEach((box) => {
+      const qNumEl = box.querySelector(".q-num");
+      const numText = qNumEl?.textContent?.replace(/\D/g, "") || "";
+      if (numText === String(num)) {
+        box.remove();
+        removed = true;
+      }
+    });
+
+    if (!removed) {
+      const idx = parseInt(String(num), 10) - 1;
+      if (idx >= 0 && idx < qBoxes.length) {
+        qBoxes[idx].remove();
+        removed = true;
+      }
+    }
+
+    enforceQuestionBoundaries(doc);
+    extractQuestionsFromDoc(doc);
+    saveCurrentDocument();
+  };
+
+  // Listen for DOCUMENT_CHANGED messages from inside the iframe (e.g. from inline delete buttons)
+  useEffect(() => {
+    const handleMessage = (e: MessageEvent) => {
+      if (e.data?.type === "DOCUMENT_CHANGED") {
+        const iframe = iframeRef.current;
+        const doc = iframe?.contentDocument || iframe?.contentWindow?.document;
+        if (doc) {
+          enforceQuestionBoundaries(doc);
+          extractQuestionsFromDoc(doc);
+          saveCurrentDocument();
+        }
+      }
+    };
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
 
   // ==================== 4. INJECTION & SYNCHRONISATION IFRAME ====================
   const injectIntoIframe = (html: string) => {
@@ -597,12 +786,18 @@ export default function StudioPage() {
 
     const templateHtml = `
     <!-- QUESTION ${qNum} -->
-    <div class="question-box" style="margin-bottom: 20px; padding: 14px 18px; border: 1px solid #e2e8f0; border-radius: 8px; background: #ffffff;">
-        <div class="question-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-            <span class="q-stem" style="font-weight: 700; color: #0f172a;"><span class="q-num" style="color: #0f766e; font-weight: 800;">Question ${qNum} :</span> Énoncé de la question médicale...</span>
-            <span class="year-badge" style="font-size: 8pt; font-weight: 600; color: #64748b; background: #f1f5f9; padding: 2px 8px; border-radius: 4px;">(2026, session B)</span>
+    <div class="question-box" style="margin-bottom: 20px; padding: 14px 18px; border: 1.5px solid #38bdf8; border-left: 5px solid #0284c7; border-radius: 8px; background: #ffffff; page-break-inside: avoid; position: relative;">
+        <div class="question-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 8px;">
+            <div style="display: flex; align-items: baseline; gap: 4px;">
+                <span class="q-num" style="color: #0284c7; font-weight: 800; font-size: 10pt;">Question ${qNum} :</span>
+                <span class="q-stem" style="font-weight: 700; color: #0f172a; font-size: 10pt;">Énoncé de la question médicale...</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="year-badge" style="font-size: 8.5pt; font-weight: 600; color: #0284c7; background: #f0f9ff; border: 1px solid #38bdf8; padding: 2px 10px; border-radius: 12px; white-space: nowrap;">(Dr Kahel, 2026)</span>
+                <button type="button" class="btn-delete-q" title="Supprimer cette question" onclick="if(confirm('Supprimer cette question ?')){this.closest('.question-box').remove();window.parent?.postMessage({type:'DOCUMENT_CHANGED'},'*');}">✕</button>
+            </div>
         </div>
-        <ol class="options alpha" style="margin: 8px 0; padding-left: 22px; color: #334155;">
+        <ol class="options alpha" style="margin: 8px 0; padding-left: 20px; color: #1e293b; line-height: 1.5;">
             <li>Proposition A...</li>
             <li>Proposition B...</li>
             <li>Proposition C...</li>
@@ -610,19 +805,35 @@ export default function StudioPage() {
             <li>Proposition E...</li>
         </ol>
         <div class="answer-section" style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed #cbd5e1; font-size: 8.5pt;">
-            <div class="answer-line" style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
-                <span class="answer-label" style="font-weight: 700; color: #0f766e;">Réponse :</span> <span class="answer-badge" style="background: #e0f2fe; color: #0369a1; font-weight: 800; padding: 1px 8px; border-radius: 4px;">A*</span>
+            <div class="answer-line" style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                <span class="answer-label" style="font-weight: 800; color: #0284c7; font-size: 8.5pt; letter-spacing: 0.5px;">RÉPONSE :</span>
+                <span class="answer-badge" style="background: #059669; color: #ffffff; font-weight: 800; font-size: 9pt; padding: 2px 8px; border-radius: 4px; display: inline-block;">A</span>
             </div>
-            <div class="justification-title" style="font-weight: 700; color: #475569; margin-top: 6px;">Justification clinique :</div>
-            <ul class="justifications" style="margin: 4px 0 0 0; padding-left: 20px; color: #475569;">
-                <li><strong class="text-correct" style="color: #16a34a;">A : Vrai</strong> — Explication clinique détaillée...</li>
-                <li><strong class="text-incorrect" style="color: #dc2626;">B : Faux</strong> — Explication...</li>
+            <div class="justification-title" style="font-weight: 800; color: #0284c7; font-size: 8.5pt; margin-top: 6px; letter-spacing: 0.5px;">JUSTIFICATION :</div>
+            <ul class="justifications" style="margin: 4px 0 0 0; padding-left: 16px; color: #334155; list-style-type: disc;">
+                <li><strong class="text-correct" style="color: #059669; font-weight: 700;">A : Vrai</strong> — Justification clinique détaillée...</li>
+                <li><strong class="text-incorrect" style="color: #dc2626; font-weight: 700;">B : Faux</strong> — Explication clinique...</li>
             </ul>
         </div>
     </div>
     `;
 
-    doc.execCommand("insertHTML", false, templateHtml);
+    // Strict boundary enforcement: NEVER insert inside another question box
+    const sel = doc.getSelection();
+    let anchorNode = sel?.anchorNode;
+    let parentBox: Element | null = null;
+    if (anchorNode) {
+      const el = anchorNode.nodeType === Node.ELEMENT_NODE ? (anchorNode as Element) : anchorNode.parentElement;
+      parentBox = el?.closest(".question-box") || null;
+    }
+
+    if (parentBox && parentBox.parentNode) {
+      parentBox.insertAdjacentHTML("afterend", templateHtml);
+    } else {
+      doc.body.insertAdjacentHTML("beforeend", templateHtml);
+    }
+
+    enforceQuestionBoundaries(doc);
     setSaveStatus("unsaved");
     extractQuestionsFromDoc(doc);
   };
@@ -633,15 +844,29 @@ export default function StudioPage() {
     const doc = iframe.contentDocument || iframe.contentWindow?.document;
     if (!doc) return;
 
-    const moduleName = prompt("Nom du module ou cours médical :", "Pédiatrie Médicale") || "Module Médical";
+    const moduleName = prompt("Nom du module ou cours médical :", "2- Fièvre") || "2- Fièvre";
     const bannerHtml = `
-      <div class="course-header-banner" style="background: #f8fafc; border: 1px solid #cbd5e1; border-left: 5px solid #0f766e; border-radius: 6px; padding: 12px 16px; margin-bottom: 20px;">
-        <h1 style="margin: 0 0 4px 0; font-size: 14pt; color: #0f172a; font-weight: 800;">${moduleName}</h1>
-        <p style="margin: 0; font-size: 9pt; color: #64748b;">Série d'annales officielles de Résidanat & Internat • QCMs commentés</p>
+      <div class="course-header-banner" style="text-align: center; margin: 16px 0 20px 0;">
+        <h2 style="margin: 0; font-size: 13pt; font-weight: 800; color: #0f172a; text-decoration: underline;">${moduleName}</h2>
       </div>
     `;
 
-    doc.execCommand("insertHTML", false, bannerHtml);
+    // Strict boundary enforcement: NEVER insert inside a question box
+    const sel = doc.getSelection();
+    let anchorNode = sel?.anchorNode;
+    let parentBox: Element | null = null;
+    if (anchorNode) {
+      const el = anchorNode.nodeType === Node.ELEMENT_NODE ? (anchorNode as Element) : anchorNode.parentElement;
+      parentBox = el?.closest(".question-box") || null;
+    }
+
+    if (parentBox && parentBox.parentNode) {
+      parentBox.insertAdjacentHTML("beforebegin", bannerHtml);
+    } else {
+      doc.body.insertAdjacentHTML("beforeend", bannerHtml);
+    }
+
+    enforceQuestionBoundaries(doc);
     setSaveStatus("unsaved");
   };
 
@@ -866,30 +1091,31 @@ export default function StudioPage() {
   };
 
   // ==================== 10. PROTECTION ANTI-COPIE & CODE-BARRES ====================
-  const applyProtectionWatermark = (passedSvg?: string, finalCode?: string) => {
+  // Slim, essential watermark banner: no bulky certified banners or forbidden stamps
+  const applyProtectionWatermark = (passedSvg?: string, finalCode?: string, overrideStudentName?: string) => {
     const iframe = iframeRef.current;
     if (!iframe) return;
     const doc = iframe.contentDocument || iframe.contentWindow?.document;
     if (!doc || !doc.body) return;
 
-    const codeToUse = finalCode || studentCode || "717271883927";
+    const codeToUse = finalCode || studentCode || "714415235521";
+    const nameToUse = overrideStudentName || studentName || "Dr. Destinataire";
     const svgToEmbed =
       passedSvg ||
-      generateBarcodeSVG(codeToUse, { height: 38, fontSize: 10, unitWidth: 1.5 });
+      generateBarcodeSVG(codeToUse, { height: 32, fontSize: 9, unitWidth: 1.4 });
 
     let existingBanner = doc.querySelector(".protection-screen-banner");
     const bannerHtml = `
-      <div class="protection-screen-banner" style="display: flex; justify-content: space-between; align-items: center; background: #ffffff; border: 1.5px solid #cbd5e1; border-left: 5px solid #0f766e; border-radius: 6px; padding: 8px 12px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); gap: 12px;">
-          <div style="display: flex; flex-direction: column; gap: 2px;">
-              <span style="font-size: 8pt; font-weight: 800; color: #0f766e; text-transform: uppercase; letter-spacing: 0.5px;">DOCUMENT MÉDICAL CERTIFIÉ & SÉCURISÉ</span>
-              <span style="font-size: 9.5pt; font-weight: 700; color: #0f172a;">Attribué nominativement à : ${studentName || "Dr. Destinataire Résident"}</span>
-              <span style="font-size: 8pt; color: #64748b;">Matricule: ${codeToUse} • Date: ${new Date().toLocaleDateString("fr-FR")}</span>
+      <div class="protection-screen-banner" style="display: flex; justify-content: space-between; align-items: center; background: #ffffff; border: 1.5px solid #cbd5e1; border-left: 4px solid #0284c7; border-radius: 6px; padding: 6px 12px; margin-bottom: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); gap: 12px;">
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 8.5pt; color: #0f172a; flex-wrap: wrap;">
+              <span style="font-weight: 700; color: #0284c7;">${nameToUse}</span>
+              <span style="color: #cbd5e1;">•</span>
+              <span style="font-family: monospace; font-size: 8pt; color: #475569;">Matricule: ${codeToUse}</span>
+              <span style="color: #cbd5e1;">•</span>
+              <span style="font-size: 7.5pt; color: #64748b;">${new Date().toLocaleDateString("fr-FR")}</span>
           </div>
-          <div style="display: flex; align-items: center; gap: 10px; shrink-0;">
-              ${svgToEmbed ? `<div style="background: #ffffff; padding: 2px; border-radius: 4px; border: 1px solid #e2e8f0;">${svgToEmbed}</div>` : ""}
-              <div style="font-size: 8pt; font-weight: 800; background: #fee2e2; color: #991b1b; padding: 4px 8px; border-radius: 4px; white-space: nowrap;">
-                  COPIE STRICTEMENT INTERDITE
-              </div>
+          <div style="display: flex; align-items: center; gap: 6px; shrink-0;">
+              ${svgToEmbed ? `<div style="background: #ffffff; padding: 2px; border-radius: 4px; border: 1px solid #e2e8f0; max-height: 36px; overflow: hidden; display: flex; align-items: center;">${svgToEmbed}</div>` : ""}
           </div>
       </div>
     `;
@@ -900,6 +1126,9 @@ export default function StudioPage() {
       const container = doc.querySelector(".container") || doc.body;
       container.insertAdjacentHTML("afterbegin", bannerHtml);
     }
+
+    if (overrideStudentName) setStudentName(overrideStudentName);
+    if (finalCode) setStudentCode(finalCode);
 
     setIsProtected(true);
     setIsProtectionModalOpen(false);
@@ -952,6 +1181,7 @@ export default function StudioPage() {
                 const doc = iframe?.contentDocument || iframe?.contentWindow?.document;
                 if (doc) {
                   doc.body.insertAdjacentHTML("beforeend", html);
+                  enforceQuestionBoundaries(doc);
                   extractQuestionsFromDoc(doc);
                   saveCurrentDocument();
                 }
@@ -969,6 +1199,16 @@ export default function StudioPage() {
               onScrollToQuestion={scrollToQuestion}
               onInsertQuestionTemplate={insertQuestionTemplate}
               onRenumberQuestions={renumberQuestions}
+              onDeleteQuestion={deleteQuestion}
+            />
+          )}
+
+          {activePanel === "codebars" && (
+            <CodebarsPanel
+              currentDocumentTitle={selectedFile || "Série QCM"}
+              onApplyCodeToDocument={(svg, code, name) => {
+                applyProtectionWatermark(svg, code, name);
+              }}
             />
           )}
 
@@ -996,8 +1236,10 @@ export default function StudioPage() {
             <SettingsPanel
               studentName={studentName}
               studentCode={studentCode}
+              startPageNumber={startPageNumber}
               onStudentNameChange={setStudentName}
               onStudentCodeChange={setStudentCode}
+              onStartPageNumberChange={setStartPageNumber}
               onOpenProtectionModal={() => setIsProtectionModalOpen(true)}
             />
           )}
@@ -1052,6 +1294,8 @@ export default function StudioPage() {
             onOpenPastePanel={() => setActivePanel("paste")}
             currentPage={currentPage}
             totalPages={totalPages}
+            startPageNumber={startPageNumber}
+            onStartPageNumberChange={setStartPageNumber}
             onPageChange={setCurrentPage}
             onExecCommand={execRibbonCmd}
             onAskAiWithSelection={(text) => {
@@ -1067,6 +1311,7 @@ export default function StudioPage() {
         questionsCount={parsedQuestions.length}
         currentPage={currentPage}
         totalPages={totalPages}
+        startPageNumber={startPageNumber}
         hideAnswers={hideAnswers}
         onToggleHideAnswers={() => setHideAnswers(!hideAnswers)}
         saveStatus={saveStatus}

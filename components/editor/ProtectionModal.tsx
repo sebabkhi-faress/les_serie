@@ -15,6 +15,8 @@ import {
   QrCode,
   Barcode as BarcodeIcon,
   ScanLine,
+  Edit2,
+  X,
 } from "lucide-react";
 import {
   Dialog,
@@ -63,6 +65,12 @@ export function ProtectionModal({
   const [isSaving, setIsSaving] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [dbHint, setDbHint] = useState<string | null>(null);
+
+  // Inline edit state in registry
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editName, setEditName] = useState<string>("");
+  const [editBarcode, setEditBarcode] = useState<string>("");
+  const [isSavingEdit, setIsSavingEdit] = useState<boolean>(false);
 
   // Re-generate SVG whenever code or format changes
   const updateSvg = (code: string, format: BarcodeFormat) => {
@@ -358,30 +366,23 @@ export function ProtectionModal({
                 </span>
               </div>
 
-              {/* Watermark Banner Simulation */}
-              <div className="bg-white text-slate-900 border border-slate-300 rounded-lg p-3 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <div className="space-y-0.5">
-                  <div className="text-[10px] font-extrabold text-teal-700 uppercase tracking-wide">
-                    DOCUMENT MÉDICAL CERTIFIÉ & SÉCURISÉ
-                  </div>
-                  <div className="text-xs font-bold text-slate-900">
-                    Attribué à : {studentName || "Dr. Destinataire Résident"}
-                  </div>
-                  <div className="text-[10px] text-slate-500 font-mono">
-                    Réf : {localCode} • Supabase PostgreSQL Cloud
-                  </div>
+              {/* Slim & Essential Watermark Banner Simulation */}
+              <div className="bg-white text-slate-900 border border-slate-200 rounded-lg p-2.5 shadow-2xs flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 font-medium text-xs text-slate-900 flex-wrap">
+                  <span className="font-bold text-sky-700">{studentName || "Dr. Destinataire"}</span>
+                  <span className="text-slate-300">•</span>
+                  <span className="text-slate-500 font-mono text-[11px]">Matricule: {localCode}</span>
+                  <span className="text-slate-300">•</span>
+                  <span className="text-slate-400 text-[10px]">{new Date().toLocaleDateString("fr-FR")}</span>
                 </div>
 
-                <div className="flex items-center gap-3 shrink-0">
+                <div className="flex items-center gap-2 shrink-0">
                   {barcodeSvg && (
                     <div
-                      className="bg-white p-1 rounded border border-slate-200"
+                      className="bg-white p-0.5 rounded border border-slate-100 max-h-10 overflow-hidden flex items-center"
                       dangerouslySetInnerHTML={{ __html: barcodeSvg }}
                     />
                   )}
-                  <span className="bg-red-100 text-red-700 font-extrabold px-2 py-1 rounded text-[9px] uppercase tracking-wide shrink-0">
-                    COPIE STRICTEMENT INTERDITE
-                  </span>
                 </div>
               </div>
             </div>
@@ -408,7 +409,7 @@ export function ProtectionModal({
           </div>
         )}
 
-        {/* TAB 2: REGISTRE DES CODES-BARRES SUPABASE */}
+        {/* TAB 2: REGISTRE DES CODES-BARRES SUPABASE AVEC ÉDITION INLINE */}
         {activeTab === "registry" && (
           <div className="p-5 space-y-3">
             {/* Search and refresh toolbar */}
@@ -428,7 +429,7 @@ export function ProtectionModal({
                 size="sm"
                 onClick={fetchRecords}
                 disabled={isLoadingRegistry}
-                className="gap-1.5 text-xs shrink-0"
+                className="gap-1.5 text-xs shrink-0 cursor-pointer"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${isLoadingRegistry ? "animate-spin" : ""}`} />
                 <span>Actualiser</span>
@@ -441,7 +442,7 @@ export function ProtectionModal({
               </div>
             )}
 
-            {/* List of records */}
+            {/* List of records with inline edit */}
             <div className="max-h-[340px] overflow-y-auto space-y-2 pr-1">
               {filteredRecords.length === 0 ? (
                 <div className="p-8 text-center text-muted text-xs bg-surface-2/30 rounded-xl border border-dashed border-border">
@@ -450,60 +451,157 @@ export function ProtectionModal({
                     : "Aucun code-barres enregistré dans la table PostgreSQL codebars."}
                 </div>
               ) : (
-                filteredRecords.map((rec) => (
-                  <div
-                    key={rec.id}
-                    onClick={() => handleSelectRecord(rec)}
-                    className="p-3 bg-surface-2/50 hover:bg-surface-2 border border-border rounded-xl transition-all flex items-center justify-between gap-3 cursor-pointer group"
-                  >
-                    <div className="space-y-0.5 min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-text text-xs truncate">
-                          {rec.student_name}
-                        </span>
-                        <span className="text-[10px] font-mono font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded">
-                          {rec.barcode}
-                        </span>
-                      </div>
-                      <div className="text-[11px] text-muted truncate">
-                        {rec.document_title} • {new Date(rec.created_at).toLocaleDateString("fr-FR")}
-                      </div>
-                    </div>
+                filteredRecords.map((rec) => {
+                  const isEditing = editingId === rec.id;
 
-                    {rec.barcode_svg && (
-                      <div
-                        className="bg-white p-1 rounded border border-slate-200 hidden sm:block shrink-0"
-                        dangerouslySetInnerHTML={{ __html: rec.barcode_svg }}
-                      />
-                    )}
+                  return (
+                    <div
+                      key={rec.id}
+                      className="p-3 bg-surface-2/50 hover:bg-surface-2 border border-border rounded-xl transition-all flex flex-col gap-2 group"
+                    >
+                      {isEditing ? (
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="text"
+                              value={editName}
+                              onChange={(e) => setEditName(e.target.value)}
+                              placeholder="Nom de l'étudiant"
+                              className="flex-1 bg-surface border border-border rounded-lg px-2.5 py-1 text-xs text-text font-bold focus:outline-none focus:ring-2 focus:ring-primary"
+                              autoFocus
+                            />
+                            <input
+                              type="text"
+                              value={editBarcode}
+                              onChange={(e) => setEditBarcode(e.target.value)}
+                              placeholder="Matricule"
+                              className="w-36 bg-surface border border-border rounded-lg px-2.5 py-1 text-xs font-mono font-bold text-text focus:outline-none focus:ring-2 focus:ring-primary"
+                            />
+                          </div>
 
-                    <div className="flex items-center gap-1 shrink-0">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleCopyCode(rec.barcode, rec.id);
-                        }}
-                        className="p-1.5 rounded-lg text-muted hover:text-text hover:bg-surface border border-transparent hover:border-border transition-all"
-                        title="Copier le code"
-                      >
-                        {copiedId === rec.id ? (
-                          <Check className="w-3.5 h-3.5 text-success" />
-                        ) : (
-                          <Copy className="w-3.5 h-3.5" />
-                        )}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => handleDeleteRecord(rec.id, rec.barcode, e)}
-                        className="p-1.5 rounded-lg text-muted hover:text-danger hover:bg-danger/10 border border-transparent hover:border-danger/20 transition-all"
-                        title="Supprimer de Supabase"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                          <div className="flex items-center justify-end gap-1.5">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => setEditingId(null)}
+                              className="h-6 text-[11px] px-2"
+                            >
+                              Annuler
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="default"
+                              onClick={async () => {
+                                if (!editName.trim()) return;
+                                setIsSavingEdit(true);
+                                try {
+                                  const freshSvg = generateUnifiedBarcodeSVG(editBarcode.trim(), barcodeFormat, {
+                                    height: 38,
+                                    fontSize: 10,
+                                    unitWidth: 1.5,
+                                  });
+                                  const res = await fetch("/api/codebars", {
+                                    method: "PATCH",
+                                    headers: { "Content-Type": "application/json; charset=utf-8" },
+                                    body: JSON.stringify({
+                                      id: rec.id,
+                                      studentName: editName.trim(),
+                                      barcode: editBarcode.trim(),
+                                      barcodeSvg: freshSvg,
+                                    }),
+                                  });
+                                  const json = await res.json();
+                                  if (json.success && json.record) {
+                                    setRecords((prev) =>
+                                      prev.map((r) => (r.id === rec.id ? { ...r, ...json.record } : r))
+                                    );
+                                    setEditingId(null);
+                                  }
+                                } finally {
+                                  setIsSavingEdit(false);
+                                }
+                              }}
+                              disabled={isSavingEdit || !editName.trim()}
+                              className="h-6 text-[11px] px-2.5 font-bold gap-1"
+                            >
+                              {isSavingEdit ? (
+                                <RefreshCw className="w-3 h-3 animate-spin" />
+                              ) : (
+                                <Check className="w-3 h-3" />
+                              )}
+                              <span>Sauvegarder</span>
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-between gap-3">
+                          <div
+                            onClick={() => handleSelectRecord(rec)}
+                            className="space-y-0.5 min-w-0 flex-1 cursor-pointer"
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-text text-xs truncate">
+                                {rec.student_name}
+                              </span>
+                              <span className="text-[10px] font-mono font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded">
+                                {rec.barcode}
+                              </span>
+                            </div>
+                            <div className="text-[11px] text-muted truncate">
+                              {rec.document_title} • {new Date(rec.created_at).toLocaleDateString("fr-FR")}
+                            </div>
+                          </div>
+
+                          {rec.barcode_svg && (
+                            <div
+                              className="bg-white p-1 rounded border border-slate-200 hidden sm:block shrink-0 max-h-10 overflow-hidden"
+                              dangerouslySetInnerHTML={{ __html: rec.barcode_svg }}
+                            />
+                          )}
+
+                          <div className="flex items-center gap-1 shrink-0">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingId(rec.id);
+                                setEditName(rec.student_name);
+                                setEditBarcode(rec.barcode);
+                              }}
+                              className="p-1.5 rounded-lg text-muted hover:text-text hover:bg-surface border border-transparent hover:border-border transition-all cursor-pointer"
+                              title="Modifier le nom ou le code"
+                            >
+                              <Edit2 className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleCopyCode(rec.barcode, rec.id);
+                              }}
+                              className="p-1.5 rounded-lg text-muted hover:text-text hover:bg-surface border border-transparent hover:border-border transition-all cursor-pointer"
+                              title="Copier le code"
+                            >
+                              {copiedId === rec.id ? (
+                                <Check className="w-3.5 h-3.5 text-success" />
+                              ) : (
+                                <Copy className="w-3.5 h-3.5" />
+                              )}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => handleDeleteRecord(rec.id, rec.barcode, e)}
+                              className="p-1.5 rounded-lg text-muted hover:text-danger hover:bg-danger/10 border border-transparent hover:border-danger/20 transition-all cursor-pointer"
+                              title="Supprimer de Supabase"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
 

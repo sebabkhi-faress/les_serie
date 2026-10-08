@@ -8,6 +8,7 @@ import {
   HelpCircle,
   Hash,
   ChevronRight,
+  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +19,7 @@ interface QuestionsListProps {
   onScrollToQuestion: (num: string | number) => void;
   onInsertQuestionTemplate: () => void;
   onRenumberQuestions: () => void;
+  onDeleteQuestion?: (num: string | number) => void;
 }
 
 export function QuestionsList({
@@ -25,6 +27,7 @@ export function QuestionsList({
   onScrollToQuestion,
   onInsertQuestionTemplate,
   onRenumberQuestions,
+  onDeleteQuestion,
 }: QuestionsListProps) {
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -126,11 +129,29 @@ export function QuestionsList({
                   )}
                 </div>
 
-                {q.answer && (
-                  <Badge variant="success" className="text-[10px] px-1.5 py-0 h-4">
-                    Rép: {q.answer}
-                  </Badge>
-                )}
+                <div className="flex items-center gap-1.5">
+                  {q.answer && (
+                    <Badge variant="success" className="text-[10px] px-1.5 py-0 h-4">
+                      Rép: {q.answer}
+                    </Badge>
+                  )}
+                  {onDeleteQuestion && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (confirm(`Supprimer définitivement la Question ${q.num} ?`)) {
+                          onDeleteQuestion(q.num);
+                        }
+                      }}
+                      className="p-1 rounded-md text-muted hover:text-rose-400 hover:bg-rose-500/10 cursor-pointer transition-colors"
+                      title={`Supprimer la Question ${q.num}`}
+                      aria-label={`Supprimer la Question ${q.num}`}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
               </div>
 
               <p className="text-xs text-text line-clamp-2 leading-relaxed">
