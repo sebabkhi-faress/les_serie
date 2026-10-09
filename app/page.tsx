@@ -366,6 +366,9 @@ const DEFAULT_MEDICAL_HTML = `<!DOCTYPE html>
       }
     }
     @media print {
+      :root, html {
+        counter-reset: page 0;
+      }
       @page {
         size: A4 portrait;
         margin-top: 6mm;
@@ -1091,6 +1094,9 @@ export default function StudioPage() {
         }
       }
       @media print {
+        :root, html {
+          counter-reset: page ${Math.max(0, startPageNumber - 1)} !important;
+        }
         @page {
           size: A4 portrait;
           margin-top: 6mm;
@@ -1840,7 +1846,7 @@ export default function StudioPage() {
     const startOffset = Math.max(0, options.startPage - 1);
     dynamicPrintStyle.textContent = `
       @media print {
-        body {
+        :root, html {
           counter-reset: page ${startOffset} !important;
         }
         ${!options.repeatProtection || !isProtected ? "table.qcm-print-layout-table > thead { display: none !important; }" : ""}

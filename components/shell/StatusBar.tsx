@@ -7,7 +7,6 @@ import {
   CheckCircle2,
   AlertCircle,
   Loader2,
-  Layers,
   HelpCircle,
 } from "lucide-react";
 import { SaveStatus } from "@/types/studio";
@@ -15,8 +14,8 @@ import { cn } from "@/lib/utils";
 
 interface StatusBarProps {
   questionsCount: number;
-  currentPage: number;
-  totalPages: number;
+  currentPage?: number;
+  totalPages?: number;
   startPageNumber?: number;
   hideAnswers: boolean;
   onToggleHideAnswers: () => void;
@@ -34,26 +33,14 @@ export function StatusBar({
   saveStatus,
   lastSavedTime,
 }: StatusBarProps) {
-  const displayCurrent = startPageNumber + currentPage - 1;
-  const displayTotal = startPageNumber + Math.max(totalPages, 1) - 1;
-
   return (
     <footer className="status-bar h-8 border-t border-border bg-surface px-4 flex items-center justify-between text-xs text-muted select-none flex-shrink-0 z-20">
-      {/* Left: Questions Count & Pagination (Single source of truth) */}
+      {/* Left: Questions Count */}
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-1.5 font-semibold text-text">
           <HelpCircle className="w-3.5 h-3.5 text-primary" />
           <span>
             {questionsCount} {questionsCount > 1 ? "Questions" : "Question"}
-          </span>
-        </div>
-
-        <span className="text-border">•</span>
-
-        <div className="flex items-center gap-1.5">
-          <Layers className="w-3.5 h-3.5 text-muted" />
-          <span>
-            Page {displayCurrent} sur {displayTotal}
           </span>
         </div>
       </div>

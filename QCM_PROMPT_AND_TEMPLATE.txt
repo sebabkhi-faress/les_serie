@@ -440,6 +440,9 @@ PARTIE 3 : DOCUMENT HTML COMPLET AUTONOME (AVEC STYLES CSS INTÉGRÉS)
       }
     }
     @media print {
+      :root, html {
+        counter-reset: page 0;
+      }
       @page {
         size: A4 portrait;
         margin-top: 6mm;

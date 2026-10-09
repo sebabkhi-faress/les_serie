@@ -4,29 +4,15 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   ZoomIn,
   ZoomOut,
-  ChevronLeft,
-  ChevronRight,
-  ChevronDown,
-  Layers,
   FileQuestion,
   Plus,
   ClipboardPaste,
-  PanelLeftClose,
-  PanelLeft,
   Loader2,
-  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ViewSwitcher } from "./ViewSwitcher";
 import { FloatingToolbar } from "./FloatingToolbar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { EditorViewMode } from "@/types/studio";
-import { cn } from "@/lib/utils";
 
 interface CanvasProps {
   iframeRef: React.RefObject<HTMLIFrameElement | null>;
@@ -77,7 +63,6 @@ export function Canvas({
 }: CanvasProps) {
   const [floatingPos, setFloatingPos] = useState<{ top: number; left: number } | null>(null);
   const [selectedText, setSelectedText] = useState<string>("");
-  const [showThumbnails, setShowThumbnails] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Monitor text selection inside iframe
@@ -145,8 +130,6 @@ export function Canvas({
     }
   };
 
-  const pagesArray = Array.from({ length: Math.max(totalPages, 1) }, (_, i) => i + 1);
-
   return (
     <div
       ref={containerRef}
@@ -154,92 +137,15 @@ export function Canvas({
     >
       {/* 1. Canvas Header Bar (h-10) */}
       <div className="h-10 border-b border-border bg-surface px-3 flex items-center justify-between flex-shrink-0 z-10">
-        {/* Left: View Mode Switcher + Thumbnails toggle */}
+        {/* Left: View Mode Switcher */}
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowThumbnails(!showThumbnails)}
-            className={cn(
-              "h-7 w-7 rounded-lg flex items-center justify-center transition-colors cursor-pointer",
-              showThumbnails
-                ? "bg-surface-2 text-primary"
-                : "text-muted hover:text-text hover:bg-surface-2"
-            )}
-            title={showThumbnails ? "Masquer les vignettes" : "Afficher les vignettes"}
-            aria-label="Vignettes de pages"
-          >
-            {showThumbnails ? <PanelLeftClose className="w-3.5 h-3.5" /> : <PanelLeft className="w-3.5 h-3.5" />}
-          </button>
-
           <ViewSwitcher viewMode={viewMode} onViewModeChange={onViewModeChange} />
         </div>
 
-        {/* Center: Fixed Page Navigation [<] [Page 4 / 36 v] [>] */}
-        <div className="flex items-center bg-surface-2 rounded-xl p-0.5">
-          <button
-            onClick={() => onPageChange(Math.max(1, currentPage - 1))}
-            disabled={currentPage <= 1}
-            className="h-7 w-7 rounded-lg flex items-center justify-center text-muted hover:text-text disabled:opacity-30 disabled:hover:text-muted cursor-pointer transition-colors"
-            title="Page précédente"
-            aria-label="Page précédente"
-          >
-            <ChevronLeft className="w-3.5 h-3.5" />
-          </button>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                className="px-2.5 h-7 rounded-lg text-xs font-semibold text-text hover:bg-surface flex items-center gap-1.5 transition-colors cursor-pointer"
-                aria-label="Sélectionner une page"
-              >
-                <span>
-                  Page {startPageNumber + currentPage - 1} / {startPageNumber + Math.max(totalPages, 1) - 1}
-                </span>
-                <ChevronDown className="w-3 h-3 opacity-60" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="center" className="max-h-60 overflow-y-auto w-44 bg-surface border border-border shadow-xl p-1">
-              <div className="px-2 py-1 text-[10px] text-muted font-semibold border-b border-border mb-1 flex items-center justify-between">
-                <span>Départ :</span>
-                <input
-                  type="number"
-                  min={1}
-                  value={startPageNumber}
-                  onChange={(e) => onStartPageNumberChange?.(Math.max(1, parseInt(e.target.value) || 1))}
-                  onClick={(e) => e.stopPropagation()}
-                  className="w-14 bg-surface-2 border border-border rounded px-1.5 py-0.5 text-center text-text font-bold text-xs"
-                />
-              </div>
-              {pagesArray.map((p) => {
-                const displayNum = startPageNumber + p - 1;
-                return (
-                  <DropdownMenuItem
-                    key={p}
-                    onClick={() => onPageChange(p)}
-                    className={cn(
-                      "text-xs cursor-pointer rounded-lg px-2 py-1.5",
-                      currentPage === p ? "bg-primary text-[#0B1220] font-bold" : "hover:bg-surface-2 text-text"
-                    )}
-                  >
-                    Page {displayNum}
-                  </DropdownMenuItem>
-                );
-              })}
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <button
-            onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
-            disabled={currentPage >= totalPages}
-            className="h-7 w-7 rounded-lg flex items-center justify-center text-muted hover:text-text disabled:opacity-30 disabled:hover:text-muted cursor-pointer transition-colors"
-            title="Page suivante"
-            aria-label="Page suivante"
-          >
-            <ChevronRight className="w-3.5 h-3.5" />
-          </button>
+        {/* Right Info: HTML format indicator without fake page numbering */}
+        <div className="flex items-center gap-2 text-muted text-[11px]">
+          <span className="hidden sm:inline">Format A4 Continu (Édition HTML)</span>
         </div>
-
-        {/* Right placeholder to keep center aligned */}
-        <div className="w-20 hidden sm:block" />
       </div>
 
       {/* 2. Floating Toolbar on Text Selection */}
@@ -252,30 +158,6 @@ export function Canvas({
 
       {/* 3. Main Workspace Area */}
       <div className="flex-1 flex overflow-hidden relative">
-        {/* Collapsible Left Thumbnails Strip */}
-        {showThumbnails && (
-          <aside className="w-36 border-r border-border bg-surface flex flex-col p-2 space-y-2 overflow-y-auto shrink-0 z-10 animate-in slide-in-from-left-2 duration-150">
-            <div className="text-[11px] font-semibold text-muted px-1 pb-1 border-b border-border">
-              Pages ({totalPages})
-            </div>
-            {pagesArray.map((p) => (
-              <button
-                key={p}
-                onClick={() => onPageChange(p)}
-                className={cn(
-                  "w-full h-24 rounded-lg flex flex-col items-center justify-between p-1.5 cursor-pointer transition-all border",
-                  currentPage === p
-                    ? "border-primary bg-primary/10 shadow-xs"
-                    : "border-border/60 bg-surface-2 hover:border-border"
-                )}
-              >
-                <div className="w-full flex-1 bg-white rounded shadow-2xs opacity-80" />
-                <span className="text-[10px] font-semibold text-text mt-1">Page {p}</span>
-              </button>
-            ))}
-          </aside>
-        )}
-
         {/* Center Canvas Area with A4 Sheet */}
         <div className="flex-1 overflow-auto p-4 sm:p-6 flex justify-center items-start bg-bg relative">
           {/* 1. Loading Overlay: Kept as an overlay so iframe is never unmounted */}
