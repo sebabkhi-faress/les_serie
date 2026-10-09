@@ -335,62 +335,114 @@ const DEFAULT_MEDICAL_HTML = `<!DOCTYPE html>
       opacity: 0 !important;
       pointer-events: none !important;
     }
+    @media screen {
+      table.qcm-print-layout-table {
+        display: block !important;
+        width: 100% !important;
+        border: none !important;
+        border-collapse: collapse !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      table.qcm-print-layout-table > thead,
+      table.qcm-print-layout-table > tfoot {
+        display: none !important;
+      }
+      table.qcm-print-layout-table > tbody,
+      table.qcm-print-layout-table > tbody > tr,
+      table.qcm-print-layout-table > tbody > tr > td.qcm-print-content-cell {
+        display: block !important;
+        width: 100% !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      .protection-screen-banner {
+        display: flex !important;
+      }
+      .print-running-header,
+      .print-running-footer {
+        display: none !important;
+      }
+    }
     @media print {
       @page {
         size: A4 portrait;
-        margin: 14mm 10mm 12mm 10mm;
+        margin: 6mm 10mm 6mm 10mm;
         @bottom-right {
-          content: "Page " counter(page);
-          font-size: 7.5pt;
-          font-family: monospace;
-          color: #64748b;
+          content: none !important;
         }
       }
       body {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
-        padding-top: 10mm !important;
-        padding-bottom: 8mm !important;
+        margin: 0 !important;
+        padding: 0 !important;
       }
-      .btn-delete-q, .protection-screen-banner {
+      .btn-delete-q,
+      .protection-screen-banner {
         display: none !important;
       }
-      .print-running-header {
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        height: 28px !important;
-        display: flex !important;
-        justify-content: space-between !important;
-        align-items: center !important;
-        background: #ffffff !important;
-        border-bottom: 0.5px solid #cbd5e1 !important;
-        padding-bottom: 2px !important;
+      table.qcm-print-layout-table {
+        display: table !important;
+        width: 100% !important;
+        border-collapse: collapse !important;
+        border: none !important;
         margin: 0 !important;
-        z-index: 99999 !important;
+        padding: 0 !important;
       }
-      .print-running-footer {
-        position: fixed !important;
-        bottom: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        height: 18px !important;
+      table.qcm-print-layout-table > thead {
+        display: table-header-group !important;
+      }
+      table.qcm-print-layout-table > thead > tr > td {
+        border: none !important;
+        padding: 0 !important;
+      }
+      table.qcm-print-layout-table > tfoot {
+        display: table-footer-group !important;
+      }
+      table.qcm-print-layout-table > tfoot > tr > td {
+        border: none !important;
+        padding: 0 !important;
+      }
+      table.qcm-print-layout-table > tbody {
+        display: table-row-group !important;
+      }
+      table.qcm-print-layout-table > tbody > tr {
+        display: table-row !important;
+      }
+      table.qcm-print-layout-table > tbody > tr > td.qcm-print-content-cell {
+        display: table-cell !important;
+        border: none !important;
+        padding: 0 !important;
+      }
+      .print-banner-container {
         display: flex !important;
         justify-content: space-between !important;
         align-items: center !important;
-        background: #ffffff !important;
-        border-top: 0.5px solid #e2e8f0 !important;
-        padding-top: 2px !important;
-        font-size: 7.5pt !important;
-        color: #64748b !important;
-        z-index: 99999 !important;
+        width: 100% !important;
+        min-height: 26px !important;
+        border-bottom: 1.5px solid #0284c7 !important;
+        padding-bottom: 2px !important;
+        margin-bottom: 6px !important;
+        background: transparent !important;
       }
-      .print-running-footer .print-page-num::after {
+      .print-footer-container {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        width: 100% !important;
+        height: 18px !important;
+        border-top: 0.5px solid #cbd5e1 !important;
+        padding-top: 2px !important;
+        margin-top: 6px !important;
+        font-size: 7pt !important;
+        color: #64748b !important;
+        background: transparent !important;
+      }
+      .print-footer-container .print-page-num::after {
         content: counter(page);
       }
-    }
-    @media screen {
       .print-running-header,
       .print-running-footer {
         display: none !important;
@@ -399,6 +451,15 @@ const DEFAULT_MEDICAL_HTML = `<!DOCTYPE html>
   </style>
 </head>
 <body>
+  <table class="qcm-print-layout-table">
+    <thead>
+      <tr>
+        <td style="border: none; padding: 0;"></td>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="qcm-print-content-cell" style="border: none; padding: 0;">
   <div class="doc-header-container">
     <div class="doc-section-field module-field" data-field-id="module" data-placeholder="Titre du module (ex: UEI1 CARDIO-VASCULAIRE...)">UEI1 CARDIO-VASCULAIRE, RESPIRATOIRE ET PSYCHOLOGIE MÉDICALE</div>
     <div class="doc-section-field section-field" data-field-id="section" data-placeholder="Titre de la section (ex: I- Sémiologie)">I- Sémiologie</div>
@@ -483,6 +544,15 @@ const DEFAULT_MEDICAL_HTML = `<!DOCTYPE html>
       </ul>
     </div>
   </div>
+        </td>
+      </tr>
+    </tbody>
+    <tfoot>
+      <tr>
+        <td style="border: none; padding: 0;"></td>
+      </tr>
+    </tfoot>
+  </table>
 </body>
 </html>`;
 
@@ -577,6 +647,118 @@ export default function StudioPage() {
     title: "",
     onSubmit: () => {},
   });
+
+  // ==================== PRINT LAYOUT TABLE WRAPPER ====================
+  // Ensures repeating watermarks and running footers repeat seamlessly on every printed page
+  // using CSS paged-media table layout, guaranteeing ZERO overlap with questions on subsequent pages.
+  const ensurePrintLayoutTable = (doc: Document): {
+    table: HTMLTableElement;
+    theadCell: HTMLTableCellElement;
+    contentCell: HTMLTableCellElement;
+    tfootCell: HTMLTableCellElement;
+  } => {
+    let table = doc.querySelector("table.qcm-print-layout-table") as HTMLTableElement | null;
+    if (table) {
+      let theadCell = table.querySelector("thead td") as HTMLTableCellElement | null;
+      let contentCell = table.querySelector("tbody td.qcm-print-content-cell") as HTMLTableCellElement | null;
+      let tfootCell = table.querySelector("tfoot td") as HTMLTableCellElement | null;
+
+      if (!theadCell) {
+        let thead = table.querySelector("thead");
+        if (!thead) {
+          thead = doc.createElement("thead");
+          table.insertBefore(thead, table.firstChild);
+        }
+        const tr = doc.createElement("tr");
+        theadCell = doc.createElement("td");
+        theadCell.style.border = "none";
+        theadCell.style.padding = "0";
+        tr.appendChild(theadCell);
+        thead.appendChild(tr);
+      }
+
+      if (!contentCell) {
+        let tbody = table.querySelector("tbody");
+        if (!tbody) {
+          tbody = doc.createElement("tbody");
+          table.appendChild(tbody);
+        }
+        const tr = doc.createElement("tr");
+        contentCell = doc.createElement("td");
+        contentCell.className = "qcm-print-content-cell";
+        contentCell.style.border = "none";
+        contentCell.style.padding = "0";
+        tr.appendChild(contentCell);
+        tbody.appendChild(tr);
+      }
+
+      if (!tfootCell) {
+        let tfoot = table.querySelector("tfoot");
+        if (!tfoot) {
+          tfoot = doc.createElement("tfoot");
+          table.appendChild(tfoot);
+        }
+        const tr = doc.createElement("tr");
+        tfootCell = doc.createElement("td");
+        tfootCell.style.border = "none";
+        tfootCell.style.padding = "0";
+        tr.appendChild(tfootCell);
+        tfoot.appendChild(tr);
+      }
+
+      return { table, theadCell, contentCell, tfootCell };
+    }
+
+    // Create table and move existing body elements into contentCell
+    table = doc.createElement("table");
+    table.className = "qcm-print-layout-table";
+
+    const thead = doc.createElement("thead");
+    const theadTr = doc.createElement("tr");
+    const theadCell = doc.createElement("td");
+    theadCell.style.border = "none";
+    theadCell.style.padding = "0";
+    theadTr.appendChild(theadCell);
+    thead.appendChild(theadTr);
+    table.appendChild(thead);
+
+    const tbody = doc.createElement("tbody");
+    const tbodyTr = doc.createElement("tr");
+    const contentCell = doc.createElement("td");
+    contentCell.className = "qcm-print-content-cell";
+    contentCell.style.border = "none";
+    contentCell.style.padding = "0";
+    tbodyTr.appendChild(contentCell);
+    tbody.appendChild(tbodyTr);
+    table.appendChild(tbody);
+
+    const tfoot = doc.createElement("tfoot");
+    const tfootTr = doc.createElement("tr");
+    const tfootCell = doc.createElement("td");
+    tfootCell.style.border = "none";
+    tfootCell.style.padding = "0";
+    tfootTr.appendChild(tfootCell);
+    tfoot.appendChild(tfootTr);
+    table.appendChild(tfoot);
+
+    // Transfer all child nodes of doc.body into contentCell (except old fixed elements)
+    const bodyChildren = Array.from(doc.body.childNodes);
+    for (const child of bodyChildren) {
+      if (child instanceof HTMLElement) {
+        if (
+          child.classList.contains("print-running-header") ||
+          child.classList.contains("print-running-footer")
+        ) {
+          child.remove();
+          continue;
+        }
+      }
+      contentCell.appendChild(child);
+    }
+
+    doc.body.appendChild(table);
+    return { table, theadCell, contentCell, tfootCell };
+  };
 
   // ==================== STRICT QUESTION & SECTION BOUNDARIES ====================
   // Enforces:
@@ -675,7 +857,9 @@ export default function StudioPage() {
     setParsedQuestions(questions);
 
     // Check protection
-    const hasProtection = !!doc.querySelector(".protection-screen-banner");
+    const hasProtection =
+      !!doc.querySelector(".protection-screen-banner") ||
+      !!doc.querySelector(".print-banner-container");
     setIsProtected(hasProtection);
 
     // Approximate page count
@@ -866,71 +1050,117 @@ export default function StudioPage() {
         box-shadow: none !important;
         padding: 0 !important;
       }
+      @media screen {
+        table.qcm-print-layout-table {
+          display: block !important;
+          width: 100% !important;
+          border: none !important;
+          border-collapse: collapse !important;
+          padding: 0 !important;
+          margin: 0 !important;
+        }
+        table.qcm-print-layout-table > thead,
+        table.qcm-print-layout-table > tfoot {
+          display: none !important;
+        }
+        table.qcm-print-layout-table > tbody,
+        table.qcm-print-layout-table > tbody > tr,
+        table.qcm-print-layout-table > tbody > tr > td.qcm-print-content-cell {
+          display: block !important;
+          width: 100% !important;
+          border: none !important;
+          padding: 0 !important;
+          margin: 0 !important;
+        }
+        .protection-screen-banner {
+          display: flex !important;
+        }
+        .print-running-header,
+        .print-running-footer {
+          display: none !important;
+        }
+      }
       @media print {
         @page {
           size: A4 portrait;
-          margin-top: 14mm;
-          margin-bottom: 12mm;
-          margin-left: 10mm;
-          margin-right: 10mm;
+          margin: 6mm 10mm 6mm 10mm;
           @bottom-right {
-            content: "Page " counter(page);
-            font-size: 7.5pt;
-            font-family: monospace;
-            color: #64748b;
+            content: none !important;
           }
         }
         body {
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
-          padding-top: 10mm !important;
-          padding-bottom: 8mm !important;
+          margin: 0 !important;
+          padding: 0 !important;
         }
+        .btn-delete-q,
         .protection-screen-banner {
           display: none !important;
         }
-        .print-running-header {
-          position: fixed !important;
-          top: 0 !important;
-          left: 0 !important;
-          right: 0 !important;
-          height: 28px !important;
-          display: flex !important;
-          justify-content: space-between !important;
-          align-items: center !important;
-          background: #ffffff !important;
-          border-bottom: 0.5px solid #cbd5e1 !important;
-          padding-bottom: 2px !important;
+        table.qcm-print-layout-table {
+          display: table !important;
+          width: 100% !important;
+          border-collapse: collapse !important;
+          border: none !important;
           margin: 0 !important;
-          z-index: 99999 !important;
+          padding: 0 !important;
         }
-        .print-running-footer {
-          position: fixed !important;
-          bottom: 0 !important;
-          left: 0 !important;
-          right: 0 !important;
-          height: 18px !important;
+        table.qcm-print-layout-table > thead {
+          display: table-header-group !important;
+        }
+        table.qcm-print-layout-table > thead > tr > td {
+          border: none !important;
+          padding: 0 !important;
+        }
+        table.qcm-print-layout-table > tfoot {
+          display: table-footer-group !important;
+        }
+        table.qcm-print-layout-table > tfoot > tr > td {
+          border: none !important;
+          padding: 0 !important;
+        }
+        table.qcm-print-layout-table > tbody {
+          display: table-row-group !important;
+        }
+        table.qcm-print-layout-table > tbody > tr {
+          display: table-row !important;
+        }
+        table.qcm-print-layout-table > tbody > tr > td.qcm-print-content-cell {
+          display: table-cell !important;
+          border: none !important;
+          padding: 0 !important;
+        }
+        .print-banner-container {
           display: flex !important;
           justify-content: space-between !important;
           align-items: center !important;
-          background: #ffffff !important;
-          border-top: 0.5px solid #e2e8f0 !important;
-          padding-top: 2px !important;
-          font-size: 7.5pt !important;
-          color: #64748b !important;
-          z-index: 99999 !important;
+          width: 100% !important;
+          min-height: 26px !important;
+          border-bottom: 1.5px solid #0284c7 !important;
+          padding-bottom: 2px !important;
+          margin-bottom: 6px !important;
+          background: transparent !important;
         }
-        .print-running-footer .print-page-num::after {
+        .print-footer-container {
+          display: flex !important;
+          justify-content: space-between !important;
+          align-items: center !important;
+          width: 100% !important;
+          height: 18px !important;
+          border-top: 0.5px solid #cbd5e1 !important;
+          padding-top: 2px !important;
+          margin-top: 6px !important;
+          font-size: 7pt !important;
+          color: #64748b !important;
+          background: transparent !important;
+        }
+        .print-footer-container .print-page-num::after {
           content: counter(page);
         }
-      }
-      @media screen {
         .print-running-header,
         .print-running-footer {
           display: none !important;
-        }
-        .protection-screen-banner {
-          display: flex !important;
         }
       }
     </style>`;
@@ -953,6 +1183,8 @@ export default function StudioPage() {
       ".action-bar-top",
       ".header-actions",
       ".study-header",
+      ".print-running-header",
+      ".print-running-footer",
       "[class*='screen-control']",
       "[class*='screen-toolbar']",
     ];
@@ -1324,7 +1556,8 @@ export default function StudioPage() {
     if (parentBox && parentBox.parentNode) {
       parentBox.insertAdjacentHTML("afterend", templateHtml);
     } else {
-      doc.body.insertAdjacentHTML("beforeend", templateHtml);
+      const container = doc.querySelector(".qcm-print-content-cell") || doc.querySelector(".container") || doc.body;
+      container.insertAdjacentHTML("beforeend", templateHtml);
     }
 
     enforceQuestionBoundaries(doc);
@@ -1360,7 +1593,8 @@ export default function StudioPage() {
     if (parentBox && parentBox.parentNode) {
       parentBox.insertAdjacentHTML("beforebegin", bannerHtml);
     } else {
-      doc.body.insertAdjacentHTML("beforeend", bannerHtml);
+      const container = doc.querySelector(".qcm-print-content-cell") || doc.querySelector(".container") || doc.body;
+      container.insertAdjacentHTML("beforeend", bannerHtml);
     }
 
     enforceQuestionBoundaries(doc);
@@ -1511,7 +1745,8 @@ export default function StudioPage() {
         saveCurrentDocument();
       }
     } else if (action.action === "insert_at_top") {
-      doc.body.insertAdjacentHTML("afterbegin", action.content);
+      const targetContainer = doc.querySelector(".qcm-print-content-cell") || doc.body;
+      targetContainer.insertAdjacentHTML("afterbegin", action.content);
       enforceQuestionBoundaries(doc);
       extractQuestionsFromDoc(doc);
       saveCurrentDocument();
@@ -1531,10 +1766,12 @@ export default function StudioPage() {
           }
         }
         if (!matched) {
-          doc.body.insertAdjacentHTML("beforeend", action.content);
+          const targetContainer = doc.querySelector(".qcm-print-content-cell") || doc.body;
+          targetContainer.insertAdjacentHTML("beforeend", action.content);
         }
       } else {
-        doc.body.insertAdjacentHTML("beforeend", action.content);
+        const targetContainer = doc.querySelector(".qcm-print-content-cell") || doc.body;
+        targetContainer.insertAdjacentHTML("beforeend", action.content);
       }
       enforceQuestionBoundaries(doc);
       extractQuestionsFromDoc(doc);
@@ -1568,6 +1805,10 @@ export default function StudioPage() {
       doc.body.classList.remove("study-mode-active", "mode-study");
     }
 
+    // Ensure layout table exists and clean up any legacy fixed elements
+    ensurePrintLayoutTable(doc);
+    doc.querySelectorAll(".print-running-header, .print-running-footer").forEach((el) => el.remove());
+
     // Dynamic print style for custom start page number & toggles
     let dynamicPrintStyle = doc.getElementById("qcm-print-dynamic-style");
     if (!dynamicPrintStyle) {
@@ -1582,8 +1823,8 @@ export default function StudioPage() {
         body {
           counter-reset: page ${startOffset} !important;
         }
-        ${!options.repeatProtection ? ".print-running-header { display: none !important; }" : ""}
-        ${!options.pageNumbering ? ".print-running-footer { display: none !important; } @page { @bottom-right { content: none !important; } }" : ""}
+        ${!options.repeatProtection || !isProtected ? "table.qcm-print-layout-table > thead { display: none !important; }" : ""}
+        ${!options.pageNumbering ? "table.qcm-print-layout-table > tfoot { display: none !important; } @page { @bottom-right { content: none !important; } }" : ""}
       }
     `;
 
@@ -1700,76 +1941,67 @@ export default function StudioPage() {
     const nameToUse = overrideStudentName || studentName || "Dr. Destinataire";
     const svgToEmbed =
       passedSvg ||
-      generateBarcodeSVG(codeToUse, { height: 32, fontSize: 9, unitWidth: 1.4 });
+      generateBarcodeSVG(codeToUse, { height: 30, fontSize: 8.5, unitWidth: 1.35 });
 
     const now = new Date();
     const timeStr = now.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
     const formattedTimestamp = `${now.toLocaleDateString("fr-FR")} ${timeStr}`;
 
-    // 1. On-Screen Watermark Banner
-    let existingBanner = doc.querySelector(".protection-screen-banner");
+    // Clean up any legacy fixed elements
+    doc.querySelectorAll(".print-running-header, .print-running-footer").forEach((el) => el.remove());
+
+    // 1. Ensure table structure exists
+    const { theadCell, contentCell, tfootCell } = ensurePrintLayoutTable(doc);
+
+    // 2. Running Print Header (repeated via thead table-header-group on EVERY page when printing)
+    theadCell.innerHTML = `
+      <div class="print-banner-container">
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 8pt; color: #475569;">
+          <span style="font-weight: 700; color: #0284c7;">${nameToUse}</span>
+          <span style="color: #cbd5e1;">•</span>
+          <span style="font-family: monospace; font-size: 7.5pt; color: #475569;">Matricule: ${codeToUse}</span>
+          <span style="color: #cbd5e1;">•</span>
+          <span style="font-size: 7pt; color: #64748b; font-family: monospace;">${formattedTimestamp}</span>
+        </div>
+        <div style="display: flex; align-items: center; flex-shrink: 0;">
+          ${svgToEmbed ? `<div style="background: transparent; padding: 0; max-height: 26px; overflow: hidden; display: flex; align-items: center;">${svgToEmbed}</div>` : ""}
+        </div>
+      </div>
+    `;
+
+    // 3. Running Print Footer (repeated via tfoot table-footer-group on EVERY page when printing)
+    tfootCell.innerHTML = `
+      <div class="print-footer-container">
+        <div style="font-size: 7pt; color: #64748b; font-weight: 500;">
+          QCM Studio • Document Médical Résidanat • Exemplaire Nominatif Infalsifiable
+        </div>
+        <div class="print-page-num-box" style="font-size: 7.5pt; color: #475569; font-family: monospace; font-weight: 600;">
+          Page <span class="print-page-num"></span>
+        </div>
+      </div>
+    `;
+
+    // 4. On-Screen Watermark Banner (visible only on screen inside contentCell)
+    let existingBanner = contentCell.querySelector(".protection-screen-banner") || doc.querySelector(".protection-screen-banner");
     const bannerHtml = `
       <div class="protection-screen-banner" style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin: -4px 0 6px 0; padding: 0; background: transparent; border: none; box-shadow: none; min-height: 26px;">
-          <div style="display: flex; align-items: center; gap: 8px; font-size: 8.5pt; color: #475569; flex-wrap: wrap;">
-              <span style="font-weight: 700; color: #0284c7;">${nameToUse}</span>
-              <span style="color: #cbd5e1;">•</span>
-              <span style="font-family: monospace; font-size: 8pt; color: #475569;">Matricule: ${codeToUse}</span>
-              <span style="color: #cbd5e1;">•</span>
-              <span style="font-size: 7.5pt; color: #64748b; font-family: monospace; font-weight: 600;">${formattedTimestamp}</span>
-          </div>
-          <div style="display: flex; align-items: center; gap: 6px; background: transparent; border: none; padding: 0; margin: 0; shrink-0;">
-              ${svgToEmbed ? `<div style="background: transparent; padding: 0; border: none; max-height: 32px; overflow: hidden; display: flex; align-items: center;">${svgToEmbed}</div>` : ""}
-          </div>
-      </div>
-    `;
-
-    // 2. Running Print Header (repeated via position: fixed on EVERY page when printing)
-    let existingPrintHeader = doc.querySelector(".print-running-header");
-    const printHeaderHtml = `
-      <div class="print-running-header" style="display: none;">
-          <div style="display: flex; align-items: center; gap: 8px; font-size: 8pt; color: #475569;">
-              <span style="font-weight: 700; color: #0284c7;">${nameToUse}</span>
-              <span style="color: #cbd5e1;">•</span>
-              <span style="font-family: monospace; font-size: 7.5pt; color: #475569;">Matricule: ${codeToUse}</span>
-              <span style="color: #cbd5e1;">•</span>
-              <span style="font-size: 7pt; color: #64748b; font-family: monospace;">${formattedTimestamp}</span>
-          </div>
-          <div style="display: flex; align-items: center; flex-shrink: 0;">
-              ${svgToEmbed ? `<div style="background: transparent; padding: 0; max-height: 26px; overflow: hidden; display: flex; align-items: center;">${svgToEmbed}</div>` : ""}
-          </div>
-      </div>
-    `;
-
-    // 3. Running Print Footer (repeated via position: fixed on EVERY page when printing)
-    let existingPrintFooter = doc.querySelector(".print-running-footer");
-    const printFooterHtml = `
-      <div class="print-running-footer" style="display: none;">
-          <div style="font-size: 7pt; color: #64748b; font-weight: 500;">
-              QCM Studio • Document Médical Résidanat • Exemplaire Nominatif Infalsifiable
-          </div>
-          <div class="print-page-num-box" style="font-size: 7.5pt; color: #475569; font-family: monospace; font-weight: 600;">
-              Page <span class="print-page-num"></span>
-          </div>
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 8.5pt; color: #475569; flex-wrap: wrap;">
+          <span style="font-weight: 700; color: #0284c7;">${nameToUse}</span>
+          <span style="color: #cbd5e1;">•</span>
+          <span style="font-family: monospace; font-size: 8pt; color: #475569;">Matricule: ${codeToUse}</span>
+          <span style="color: #cbd5e1;">•</span>
+          <span style="font-size: 7.5pt; color: #64748b; font-family: monospace; font-weight: 600;">${formattedTimestamp}</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px; background: transparent; border: none; padding: 0; margin: 0; flex-shrink: 0;">
+          ${svgToEmbed ? `<div style="background: transparent; padding: 0; border: none; max-height: 30px; overflow: hidden; display: flex; align-items: center;">${svgToEmbed}</div>` : ""}
+        </div>
       </div>
     `;
 
     if (existingBanner) {
       existingBanner.outerHTML = bannerHtml;
     } else {
-      const container = doc.querySelector(".container") || doc.body;
-      container.insertAdjacentHTML("afterbegin", bannerHtml);
-    }
-
-    if (existingPrintHeader) {
-      existingPrintHeader.outerHTML = printHeaderHtml;
-    } else {
-      doc.body.insertAdjacentHTML("afterbegin", printHeaderHtml);
-    }
-
-    if (existingPrintFooter) {
-      existingPrintFooter.outerHTML = printFooterHtml;
-    } else {
-      doc.body.insertAdjacentHTML("beforeend", printFooterHtml);
+      contentCell.insertAdjacentHTML("afterbegin", bannerHtml);
     }
 
     if (overrideStudentName) setStudentName(overrideStudentName);
@@ -1844,7 +2076,8 @@ export default function StudioPage() {
                 const iframe = iframeRef.current;
                 const doc = iframe?.contentDocument || iframe?.contentWindow?.document;
                 if (doc) {
-                  doc.body.insertAdjacentHTML("beforeend", html);
+                  const target = doc.querySelector(".qcm-print-content-cell") || doc.body;
+                  target.insertAdjacentHTML("beforeend", html);
                   enforceQuestionBoundaries(doc);
                   extractQuestionsFromDoc(doc);
                   saveCurrentDocument();
