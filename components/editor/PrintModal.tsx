@@ -32,6 +32,7 @@ export interface PrintModalProps {
     pageNumbering: boolean;
     startPage: number;
     hideAnswers: boolean;
+    useNativePrint?: boolean;
   }) => void;
   startPageNumber: number;
   onStartPageNumberChange: (val: number) => void;
@@ -40,6 +41,7 @@ export interface PrintModalProps {
   studentCode?: string;
   onExportWord?: () => void;
   onDownloadHtml?: () => void;
+  selectedFile?: string;
 }
 
 export function PrintModal({
@@ -209,44 +211,65 @@ export function PrintModal({
         </div>
 
         {/* Footer & Bouton principal */}
-        <div className="p-4 bg-surface-2/40 border-t border-border flex flex-col gap-2">
+        <div className="p-4 bg-surface-2/40 border-t border-border flex flex-col gap-2.5">
           <Button
             variant="default"
             size="default"
             onClick={handleConfirmPrint}
-            className="w-full gap-2 font-bold cursor-pointer py-2.5"
+            className="w-full gap-2 font-bold cursor-pointer py-2.5 bg-primary hover:bg-primary/90 text-white shadow-md shadow-primary/20"
           >
-            <Printer className="w-4 h-4" />
-            <span>Lancer l&apos;impression / Enregistrer en PDF</span>
+            <Sparkles className="w-4 h-4" />
+            <span>Lancer l&apos;enregistrement en PDF (Rendu Interne HD)</span>
           </Button>
 
-          <div className="flex items-center justify-center gap-4 pt-1 text-[11px] text-muted">
-            {onExportWord && (
-              <button
-                type="button"
-                onClick={() => {
-                  onClose();
-                  onExportWord();
-                }}
-                className="hover:text-primary transition-colors flex items-center gap-1 cursor-pointer"
-              >
-                <FileText className="w-3 h-3" />
-                <span>Exporter Word (.doc)</span>
-              </button>
-            )}
-            {onDownloadHtml && (
-              <button
-                type="button"
-                onClick={() => {
-                  onClose();
-                  onDownloadHtml();
-                }}
-                className="hover:text-primary transition-colors flex items-center gap-1 cursor-pointer"
-              >
-                <Code className="w-3 h-3" />
-                <span>Télécharger HTML</span>
-              </button>
-            )}
+          <div className="flex items-center justify-between pt-1 px-1 text-[11px] text-muted">
+            <button
+              type="button"
+              onClick={() => {
+                onStartPageNumberChange(Math.max(1, localStartPage));
+                onLaunchPrint({
+                  repeatProtection,
+                  pageNumbering,
+                  startPage: Math.max(1, localStartPage),
+                  hideAnswers,
+                  useNativePrint: true,
+                });
+              }}
+              className="hover:text-primary transition-colors flex items-center gap-1 cursor-pointer"
+              title="Ouvre la boîte de dialogue standard du navigateur si nécessaire"
+            >
+              <Printer className="w-3 h-3" />
+              <span>Imprimer via le navigateur (Ctrl+P)</span>
+            </button>
+
+            <div className="flex items-center gap-3">
+              {onExportWord && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    onExportWord();
+                  }}
+                  className="hover:text-primary transition-colors flex items-center gap-1 cursor-pointer"
+                >
+                  <FileText className="w-3 h-3" />
+                  <span>Word</span>
+                </button>
+              )}
+              {onDownloadHtml && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    onDownloadHtml();
+                  }}
+                  className="hover:text-primary transition-colors flex items-center gap-1 cursor-pointer"
+                >
+                  <Code className="w-3 h-3" />
+                  <span>HTML</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </DialogContent>

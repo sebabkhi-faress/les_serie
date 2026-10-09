@@ -14,6 +14,7 @@ import { Toolbar } from "@/components/editor/Toolbar";
 import { Canvas } from "@/components/editor/Canvas";
 import { ProtectionModal } from "@/components/editor/ProtectionModal";
 import { PrintModal } from "@/components/editor/PrintModal";
+import { PdfRenderModal } from "@/components/editor/PdfRenderModal";
 import { NewSeriesModal } from "@/components/panels/NewSeriesModal";
 import { CodebarsPanel } from "@/components/panels/CodebarsPanel";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
@@ -592,6 +593,23 @@ export default function StudioPage() {
   const [activePanel, setActivePanel] = useState<ActivePanel>(null);
   const [isProtectionModalOpen, setIsProtectionModalOpen] = useState<boolean>(false);
   const [isPrintModalOpen, setIsPrintModalOpen] = useState<boolean>(false);
+  const [isPdfRendering, setIsPdfRendering] = useState<boolean>(false);
+  const [pdfRenderProgress, setPdfRenderProgress] = useState<{
+    current: number;
+    total: number;
+    percent: number;
+    statusText: string;
+    filename: string;
+    isComplete: boolean;
+  }>({
+    current: 0,
+    total: 100,
+    percent: 0,
+    statusText: "",
+    filename: "",
+    isComplete: false,
+  });
+  const pdfCancelRef = useRef<boolean>(false);
   const [isNewSeriesModalOpen, setIsNewSeriesModalOpen] = useState<boolean>(false);
   const [lockedModal, setLockedModal] = useState<{
     isOpen: boolean;
@@ -1810,11 +1828,12 @@ export default function StudioPage() {
     setIsPrintModalOpen(true);
   };
 
-  const handleLaunchPrint = (options: {
+  const handleLaunchPrint = async (options: {
     repeatProtection: boolean;
     pageNumbering: boolean;
     startPage: number;
     hideAnswers: boolean;
+    useNativePrint?: boolean;
   }) => {
     const iframe = iframeRef.current;
     if (!iframe || !iframe.contentWindow) return;
@@ -1859,9 +1878,275 @@ export default function StudioPage() {
     `;
 
     setIsPrintModalOpen(false);
-    setTimeout(() => {
-      iframe.contentWindow?.print();
-    }, 120);
+
+    // Fallback: Si l'utilisateur clique explicitement sur l'option d'impression navigateur standard
+    if (options.useNativePrint) {
+      setTimeout(() => {
+        iframe.contentWindow?.print();
+      }, 120);
+      return;
+    }
+
+    // =========================================================================
+    // MOTEUR PRINCIPAL : RENDU INTERNE HD SANS BUG CHROME & TÉLÉCHARGEMENT AUTO
+    // =========================================================================
+    pdfCancelRef.current = false;
+    const baseName = (selectedFile || "document").replace(/\.html$/i, "");
+    const pdfFilename = `${baseName}.pdf`;
+
+    setIsPdfRendering(true);
+    setPdfRenderProgress({
+      current: 0,
+      total: 100,
+      percent: 0,
+      statusText: "Préparation de la mise en page A4...",
+      filename: pdfFilename,
+      isComplete: false,
+    });
+
+    try {
+      await new Promise((r) => setTimeout(r, 60));
+
+      const { jsPDF } = await import("jspdf");
+      const html2canvas = (await import("html2canvas")).default;
+
+      // 1. Récupération des éléments imprimables du document
+      const contentCell = (doc.querySelector(".qcm-print-content-cell") || doc.body) as HTMLElement;
+      const rawElements = Array.from(contentCell.children).filter((el) => {
+        if (el.tagName === "SCRIPT" || el.tagName === "STYLE") return false;
+        if (el.id === "qcm-pdf-render-stage") return false;
+        if (el.classList.contains("btn-delete-q")) return false;
+        return true;
+      });
+
+      const protectionBanner = contentCell.querySelector(".protection-screen-banner");
+
+      // 2. Zone de staging isolée à l'intérieur de l'iframe pour hériter de 100% des polices et styles CSS
+      let stage = doc.getElementById("qcm-pdf-render-stage") as HTMLElement | null;
+      if (stage) stage.remove();
+      stage = doc.createElement("div");
+      stage.id = "qcm-pdf-render-stage";
+      stage.style.position = "fixed";
+      stage.style.left = "-9999px";
+      stage.style.top = "0";
+      stage.style.width = "794px";
+      stage.style.background = "#ffffff";
+      stage.style.zIndex = "-1000";
+      doc.body.appendChild(stage);
+
+      const pagesList: {
+        pageEl: HTMLElement;
+        bodyEl: HTMLElement;
+        footerEl: HTMLElement;
+        currentHeight: number;
+      }[] = [];
+
+      const MAX_PAGE_BODY_HEIGHT = 1010;
+
+      function createVirtualPage(pageIdx: number) {
+        const pageEl = doc.createElement("div");
+        pageEl.style.width = "794px";
+        pageEl.style.height = "1123px";
+        pageEl.style.maxHeight = "1123px";
+        pageEl.style.background = "#ffffff";
+        pageEl.style.boxSizing = "border-box";
+        pageEl.style.padding = "24px 30px 20px 30px";
+        pageEl.style.display = "flex";
+        pageEl.style.flexDirection = "column";
+        pageEl.style.justifyContent = "space-between";
+        pageEl.style.overflow = "hidden";
+        pageEl.style.fontFamily = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+
+        // En-tête
+        const headerEl = doc.createElement("div");
+        headerEl.style.minHeight = "20px";
+        headerEl.style.marginBottom = "6px";
+        headerEl.style.borderBottom = "1px solid #e2e8f0";
+        headerEl.style.paddingBottom = "4px";
+
+        if (options.repeatProtection && isProtected && protectionBanner) {
+          headerEl.appendChild(protectionBanner.cloneNode(true));
+        } else if (pageIdx === 0) {
+          headerEl.style.display = "none";
+        } else {
+          headerEl.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 7.5pt; font-weight: 700; color: #0284c7; text-transform: uppercase;">
+              <span>${baseName.toUpperCase()} — QCM CORRIGÉS</span>
+              <span>ANNALES OFFICIELLES</span>
+            </div>
+          `;
+        }
+
+        // Corps
+        const bodyEl = doc.createElement("div");
+        bodyEl.style.flex = "1";
+        bodyEl.style.display = "flex";
+        bodyEl.style.flexDirection = "column";
+        bodyEl.style.gap = "0";
+        bodyEl.style.overflow = "hidden";
+
+        // Pied de page
+        const footerEl = doc.createElement("div");
+        footerEl.style.minHeight = "16px";
+        footerEl.style.marginTop = "4px";
+        footerEl.style.borderTop = "1px solid #e2e8f0";
+        footerEl.style.paddingTop = "4px";
+        footerEl.style.display = "flex";
+        footerEl.style.justifyContent = "space-between";
+        footerEl.style.alignItems = "center";
+        footerEl.style.fontSize = "7pt";
+        footerEl.style.fontWeight = "600";
+        footerEl.style.color = "#64748b";
+
+        const footerLeft = isProtected
+          ? `${studentName} • ${studentCode}`
+          : "DOCUMENT MÉDICAL SECURISE • QCM STUDIO";
+        footerEl.innerHTML = `
+          <span>${footerLeft}</span>
+          <span class="qcm-page-num-placeholder">Page ${pageIdx + options.startPage}</span>
+        `;
+
+        if (!options.pageNumbering) {
+          footerEl.style.display = "none";
+        }
+
+        pageEl.appendChild(headerEl);
+        pageEl.appendChild(bodyEl);
+        pageEl.appendChild(footerEl);
+
+        stage!.appendChild(pageEl);
+
+        const pageObj = { pageEl, bodyEl, footerEl, currentHeight: 0 };
+        pagesList.push(pageObj);
+        return pageObj;
+      }
+
+      setPdfRenderProgress((prev) => ({
+        ...prev,
+        percent: 5,
+        statusText: "Calcul de la pagination A4 sans coupure...",
+      }));
+      await new Promise((r) => setTimeout(r, 20));
+
+      let currentPage = createVirtualPage(0);
+
+      // Répartition des éléments dans les pages A4 virtuelles
+      for (let i = 0; i < rawElements.length; i++) {
+        if (pdfCancelRef.current) return;
+        const el = rawElements[i];
+
+        if (el.classList.contains("protection-screen-banner")) {
+          continue;
+        }
+
+        const clone = el.cloneNode(true) as HTMLElement;
+        clone.querySelectorAll(".btn-delete-q").forEach((btn) => btn.remove());
+
+        currentPage.bodyEl.appendChild(clone);
+        const elHeight = clone.offsetHeight + 6;
+
+        if (currentPage.currentHeight + elHeight > MAX_PAGE_BODY_HEIGHT && currentPage.currentHeight > 0) {
+          currentPage.bodyEl.removeChild(clone);
+
+          currentPage = createVirtualPage(pagesList.length);
+          currentPage.bodyEl.appendChild(clone);
+          currentPage.currentHeight = clone.offsetHeight + 6;
+        } else {
+          currentPage.currentHeight += elHeight;
+        }
+      }
+
+      const totalPages = Math.max(1, pagesList.length);
+
+      // Mise à jour de la numérotation des pages
+      pagesList.forEach((p, idx) => {
+        const numPlaceholder = p.footerEl.querySelector(".qcm-page-num-placeholder");
+        if (numPlaceholder) {
+          numPlaceholder.textContent = `Page ${idx + options.startPage} / ${totalPages + options.startPage - 1}`;
+        }
+      });
+
+      // 3. Document PDF Vectoriel
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+        compress: true,
+      });
+
+      // 4. Boucle de rendu HD des pages
+      for (let pIdx = 0; pIdx < totalPages; pIdx++) {
+        if (pdfCancelRef.current) {
+          stage.remove();
+          setIsPdfRendering(false);
+          return;
+        }
+
+        const currentPNum = pIdx + 1;
+        const pct = Math.round(((pIdx) / totalPages) * 100);
+        setPdfRenderProgress((prev) => ({
+          ...prev,
+          current: currentPNum,
+          total: totalPages,
+          percent: pct,
+          statusText: `Rendu HD de la page ${currentPNum} sur ${totalPages}...`,
+        }));
+
+        const canvas = await html2canvas(pagesList[pIdx].pageEl, {
+          scale: 1.6, // Résolution 150 DPI équilibrée et fluide
+          useCORS: true,
+          logging: false,
+          backgroundColor: "#ffffff",
+          windowWidth: 794,
+        });
+
+        if (pdfCancelRef.current) {
+          canvas.width = 0;
+          canvas.height = 0;
+          stage.remove();
+          setIsPdfRendering(false);
+          return;
+        }
+
+        if (pIdx > 0) {
+          pdf.addPage("a4", "portrait");
+        }
+
+        const imgData = canvas.toDataURL("image/jpeg", 0.94);
+        pdf.addImage(imgData, "JPEG", 0, 0, 210, 297, undefined, "FAST");
+
+        canvas.width = 0;
+        canvas.height = 0;
+
+        await new Promise((r) => setTimeout(r, 16));
+      }
+
+      stage.remove();
+
+      if (!pdfCancelRef.current) {
+        setPdfRenderProgress((prev) => ({
+          ...prev,
+          percent: 100,
+          statusText: "Finalisation et téléchargement du PDF...",
+          isComplete: true,
+        }));
+        await new Promise((r) => setTimeout(r, 150));
+
+        // TÉLÉCHARGEMENT AUTOMATIQUE [htmlname].pdf
+        pdf.save(pdfFilename);
+
+        setTimeout(() => {
+          setIsPdfRendering(false);
+        }, 1400);
+      }
+    } catch (err) {
+      console.error("Erreur lors de la génération PDF :", err);
+      setIsPdfRendering(false);
+      // Fallback
+      setTimeout(() => {
+        iframe.contentWindow?.print();
+      }, 150);
+    }
   };
 
   const handleDownloadHtml = () => {
@@ -2259,6 +2544,21 @@ export default function StudioPage() {
         studentCode={studentCode}
         onExportWord={handleExportWord}
         onDownloadHtml={handleDownloadHtml}
+        selectedFile={selectedFile}
+      />
+
+      <PdfRenderModal
+        isOpen={isPdfRendering}
+        onCancel={() => {
+          pdfCancelRef.current = true;
+          setIsPdfRendering(false);
+        }}
+        current={pdfRenderProgress.current}
+        total={pdfRenderProgress.total}
+        percent={pdfRenderProgress.percent}
+        statusText={pdfRenderProgress.statusText}
+        filename={pdfRenderProgress.filename}
+        isComplete={pdfRenderProgress.isComplete}
       />
 
       <NewSeriesModal
