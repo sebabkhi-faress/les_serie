@@ -150,17 +150,28 @@ export function TopBar({
           <TooltipContent>Mode clair / sombre</TooltipContent>
         </Tooltip>
 
-        {/* Secondary: Sauvegarder (filled surface, no outline) */}
+        {/* Direct Action: Codes & Protection */}
         <Button
           variant="secondary"
           size="sm"
-          onClick={onSave}
-          disabled={saveStatus === "saving" || !selectedFile}
-          className="gap-1.5 text-xs font-semibold h-8"
-          title="Sauvegarder (Ctrl+S)"
+          onClick={onOpenProtectionModal}
+          className="gap-1.5 text-xs font-semibold h-8 cursor-pointer"
+          title="Gérer les codes-barres et le filigrane nominatif"
         >
-          <Save className="w-3.5 h-3.5 text-primary" />
-          <span className="hidden sm:inline">Sauvegarder</span>
+          <Shield className="w-3.5 h-3.5 text-primary" />
+          <span className="hidden lg:inline">Codes & Protection</span>
+        </Button>
+
+        {/* Direct Action: Imprimer / PDF */}
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={onPrint}
+          className="gap-1.5 text-xs font-semibold h-8 cursor-pointer"
+          title="Options d'impression et export PDF"
+        >
+          <Printer className="w-3.5 h-3.5 text-primary" />
+          <span className="hidden sm:inline">Imprimer</span>
         </Button>
 
         {/* ONE Primary: Exporter dropdown (filled teal, no outline) */}
@@ -169,7 +180,7 @@ export function TopBar({
             <Button
               variant="default"
               size="sm"
-              className="gap-1.5 text-xs font-bold h-8"
+              className="gap-1.5 text-xs font-bold h-8 cursor-pointer"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Exporter</span>

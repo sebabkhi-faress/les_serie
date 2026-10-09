@@ -18,6 +18,8 @@ interface SettingsPanelProps {
   onStudentCodeChange: (val: string) => void;
   onStartPageNumberChange: (val: number) => void;
   onOpenProtectionModal: () => void;
+  onOpenPrintModal?: () => void;
+  isProtected?: boolean;
 }
 
 export function SettingsPanel({
@@ -28,6 +30,8 @@ export function SettingsPanel({
   onStudentCodeChange,
   onStartPageNumberChange,
   onOpenProtectionModal,
+  onOpenPrintModal,
+  isProtected = false,
 }: SettingsPanelProps) {
   return (
     <div className="flex flex-col h-full bg-surface select-none">
@@ -48,55 +52,56 @@ export function SettingsPanel({
       <div className="flex-1 overflow-y-auto p-4 space-y-4 text-xs">
         {/* Security & Watermark defaults */}
         <div className="space-y-3">
-          <div className="flex items-center gap-2 text-text font-semibold">
-            <Shield className="w-4 h-4 text-primary" />
-            <span>Sécurité & Filigrane Nominatif</span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-text font-semibold">
+              <Shield className="w-4 h-4 text-primary" />
+              <span>Sécurité & Filigrane Nominatif</span>
+            </div>
+            <span
+              className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                isProtected
+                  ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
+                  : "bg-surface-2 text-muted"
+              }`}
+            >
+              {isProtected ? "Actif sur chaque page" : "Non configuré"}
+            </span>
           </div>
 
-          <div className="space-y-2">
-            <div>
-              <label className="block text-muted text-[11px] font-medium mb-1">
-                Bénéficiaire par défaut (Résident / Étudiant) :
-              </label>
-              <input
-                type="text"
-                value={studentName}
-                onChange={(e) => onStudentNameChange(e.target.value)}
-                className="w-full bg-surface-2 border border-border rounded-lg px-3 py-1.5 text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary"
-              />
+          <div className="p-3 rounded-xl bg-surface-2/60 border border-border space-y-2 text-[11px]">
+            <div className="flex items-center justify-between">
+              <span className="text-muted">Bénéficiaire :</span>
+              <span className="font-semibold text-text truncate max-w-[170px]">{studentName}</span>
             </div>
-
-            <div>
-              <label className="block text-muted text-[11px] font-medium mb-1">
-                Matricule / Identifiant d&apos;examen :
-              </label>
-              <input
-                type="text"
-                value={studentCode}
-                onChange={(e) => onStudentCodeChange(e.target.value)}
-                className="w-full bg-surface-2 border border-border rounded-lg px-3 py-1.5 text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary"
-              />
+            <div className="flex items-center justify-between">
+              <span className="text-muted">Matricule :</span>
+              <span className="font-mono font-bold text-primary">{studentCode}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted">Horodatage :</span>
+              <span className="text-muted font-mono text-[10px]">Avec secondes (HH:mm:ss)</span>
             </div>
 
             <Button
               size="sm"
-              variant="secondary"
+              variant="default"
               onClick={onOpenProtectionModal}
-              className="w-full text-xs font-semibold mt-1"
+              className="w-full text-xs font-bold mt-2 gap-2 cursor-pointer"
             >
-              Appliquer le filigrane au document
+              <Shield className="w-3.5 h-3.5" />
+              <span>Gérer & Appliquer les Codes</span>
             </Button>
           </div>
         </div>
 
-        {/* Custom Page Numbering */}
+        {/* Custom Page Numbering & Print Options */}
         <div className="space-y-3 pt-2 border-t border-border">
           <div className="flex items-center gap-2 text-text font-semibold">
             <Layers className="w-4 h-4 text-primary" />
-            <span>Numérotation des Pages A4</span>
+            <span>Numérotation & Impression A4</span>
           </div>
 
-          <div className="space-y-2">
+          <div className="p-3 rounded-xl bg-surface-2/60 border border-border space-y-2.5">
             <div>
               <label className="block text-muted text-[11px] font-medium mb-1">
                 Démarrer la numérotation à la page :
@@ -108,16 +113,24 @@ export function SettingsPanel({
                   max={999}
                   value={startPageNumber}
                   onChange={(e) => onStartPageNumberChange(Math.max(1, parseInt(e.target.value) || 1))}
-                  className="w-20 bg-surface-2 border border-border rounded-lg px-3 py-1.5 text-xs text-text font-bold font-mono focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-20 bg-surface border border-border rounded-lg px-3 py-1.5 text-xs text-text font-bold font-mono focus:outline-none focus:ring-2 focus:ring-primary"
                 />
                 <span className="text-[11px] text-muted">
                   (Ex: 7 si la série commence à la page 7)
                 </span>
               </div>
             </div>
-            <p className="text-[10px] text-muted leading-relaxed">
-              Utile pour intégrer la série au sein d&apos;un recueil ou livret d&apos;annales déjà paginé.
-            </p>
+
+            {onOpenPrintModal && (
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={onOpenPrintModal}
+                className="w-full text-xs font-semibold gap-1.5 mt-1 cursor-pointer"
+              >
+                <span>Options d&apos;Impression & PDF</span>
+              </Button>
+            )}
           </div>
         </div>
 

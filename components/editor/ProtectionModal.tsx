@@ -43,7 +43,7 @@ interface ProtectionModalProps {
   documentTitle?: string;
   onStudentNameChange: (val: string) => void;
   onStudentCodeChange: (val: string) => void;
-  onApplyProtection: (barcodeSvg?: string, finalCode?: string) => void;
+  onApplyProtection: (barcodeSvg?: string, finalCode?: string, overrideStudentName?: string) => void;
 }
 
 export function ProtectionModal({
@@ -73,6 +73,19 @@ export function ProtectionModal({
   const [editName, setEditName] = useState<string>("");
   const [editBarcode, setEditBarcode] = useState<string>("");
   const [isSavingEdit, setIsSavingEdit] = useState<boolean>(false);
+
+  // Real-time HH:mm:ss timestamp for preview
+  const [currentTimestamp, setCurrentTimestamp] = useState<string>("");
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+      setCurrentTimestamp(`${now.toLocaleDateString("fr-FR")} ${timeStr}`);
+    };
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Re-generate SVG whenever code or format changes
   const updateSvg = (code: string, format: BarcodeFormat) => {
@@ -165,6 +178,16 @@ export function ProtectionModal({
     setActiveTab("apply");
   };
 
+  const handleApplyRecordToDoc = (rec: CodebarRecord) => {
+    const svg =
+      rec.barcode_svg ||
+      generateUnifiedBarcodeSVG(rec.barcode, "code128", { height: 38, fontSize: 10, unitWidth: 1.5 });
+    onStudentNameChange(rec.student_name);
+    onStudentCodeChange(rec.barcode);
+    onApplyProtection(svg, rec.barcode, rec.student_name);
+    onClose();
+  };
+
   // Save to Supabase and apply protection
   const handleSaveAndApply = async () => {
     setIsSaving(true);
@@ -191,7 +214,7 @@ export function ProtectionModal({
     } finally {
       setIsSaving(false);
       // 2. Application du filigrane et fermeture
-      onApplyProtection(svg, code);
+      onApplyProtection(svg, code, studentName);
       onClose();
     }
   };
@@ -216,11 +239,17 @@ export function ProtectionModal({
                 <Shield className="w-5 h-5" />
               </div>
               <div>
-                <DialogTitle className="text-base font-bold text-text">
-                  Protection Anti-Copie & Registre Supabase
-                </DialogTitle>
+                <div className="flex items-center gap-2">
+                  <DialogTitle className="text-base font-bold text-text">
+                    Protection Anti-Copie & Codes-barres
+                  </DialogTitle>
+                  <span className="text-[10px] bg-sky-500/10 text-sky-400 border border-sky-500/20 px-2 py-0.5 rounded-full font-medium">
+                    Codes illimités (Code 128 = standard ASCII)
+                  </span>
+                </div>
                 <DialogDescription className="text-xs text-muted">
-                  Bannière infalsifiable Code 128 connectée à votre table PostgreSQL{" "}
+                  Bannière infalsifiable sur toutes les pages A4 avec horodatage{" "}
+                  <code className="text-primary font-mono font-semibold">HH:mm:ss</code> et table{" "}
                   <code className="text-primary font-mono font-semibold">public.codebars</code>
                 </DialogDescription>
               </div>
@@ -318,8 +347,8 @@ export function ProtectionModal({
                 >
                   <BarcodeIcon className={`w-4 h-4 shrink-0 ${barcodeFormat === "code128" ? "text-primary" : "text-muted"}`} />
                   <div className="min-w-0">
-                    <div className="text-xs font-bold truncate">Code 128 (1D)</div>
-                    <div className="text-[10px] text-muted truncate">Concours & Douchette</div>
+                    <div className="text-xs font-bold truncate">Code 128 (1D - Illimité)</div>
+                    <div className="text-[10px] text-muted truncate">Standard Concours (Codes illimités)</div>
                   </div>
                 </button>
 
@@ -369,7 +398,7 @@ export function ProtectionModal({
                     ? "Format QR Code 2D Vectoriel"
                     : barcodeFormat === "code39"
                     ? "Format Code 39 1D"
-                    : "Format Code 128 SVG HD"}
+                    : "Format Code 128 SVG HD (Illimité)"}
                 </span>
               </div>
 
@@ -380,7 +409,9 @@ export function ProtectionModal({
                   <span className="text-slate-300">•</span>
                   <span className="text-slate-500 font-mono text-[11px]">Matricule: {localCode}</span>
                   <span className="text-slate-300">•</span>
-                  <span className="text-slate-400 text-[10px]">{new Date().toLocaleDateString("fr-FR")}</span>
+                  <span className="text-slate-600 font-mono font-semibold text-[10.5px]">
+                    {currentTimestamp || `${new Date().toLocaleDateString("fr-FR")} ${new Date().toLocaleTimeString("fr-FR")}`}
+                  </span>
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
@@ -566,7 +597,19 @@ export function ProtectionModal({
                             />
                           )}
 
-                          <div className="flex items-center gap-1 shrink-0">
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleApplyRecordToDoc(rec);
+                              }}
+                              className="px-2.5 py-1 rounded-lg bg-primary/10 hover:bg-primary text-primary hover:text-white border border-primary/20 text-[11px] font-bold transition-all flex items-center gap-1 cursor-pointer shadow-2xs"
+                              title="Appliquer immédiatement ce matricule au document actif"
+                            >
+                              <ShieldCheck className="w-3.5 h-3.5" />
+                              <span>Appliquer</span>
+                            </button>
                             <button
                               type="button"
                               onClick={(e) => {

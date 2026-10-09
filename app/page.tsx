@@ -13,6 +13,7 @@ import { SettingsPanel } from "@/components/panels/SettingsPanel";
 import { Toolbar } from "@/components/editor/Toolbar";
 import { Canvas } from "@/components/editor/Canvas";
 import { ProtectionModal } from "@/components/editor/ProtectionModal";
+import { PrintModal } from "@/components/editor/PrintModal";
 import { NewSeriesModal } from "@/components/panels/NewSeriesModal";
 import { CodebarsPanel } from "@/components/panels/CodebarsPanel";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
@@ -335,7 +336,63 @@ const DEFAULT_MEDICAL_HTML = `<!DOCTYPE html>
       pointer-events: none !important;
     }
     @media print {
-      .btn-delete-q {
+      @page {
+        size: A4 portrait;
+        margin: 14mm 10mm 12mm 10mm;
+        @bottom-right {
+          content: "Page " counter(page);
+          font-size: 7.5pt;
+          font-family: monospace;
+          color: #64748b;
+        }
+      }
+      body {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        padding-top: 10mm !important;
+        padding-bottom: 8mm !important;
+      }
+      .btn-delete-q, .protection-screen-banner {
+        display: none !important;
+      }
+      .print-running-header {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        height: 28px !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        background: #ffffff !important;
+        border-bottom: 0.5px solid #cbd5e1 !important;
+        padding-bottom: 2px !important;
+        margin: 0 !important;
+        z-index: 99999 !important;
+      }
+      .print-running-footer {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        height: 18px !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        background: #ffffff !important;
+        border-top: 0.5px solid #e2e8f0 !important;
+        padding-top: 2px !important;
+        font-size: 7.5pt !important;
+        color: #64748b !important;
+        z-index: 99999 !important;
+      }
+      .print-running-footer .print-page-num::after {
+        content: counter(page);
+      }
+    }
+    @media screen {
+      .print-running-header,
+      .print-running-footer {
         display: none !important;
       }
     }
@@ -451,6 +508,7 @@ export default function StudioPage() {
   // Panels & Modals
   const [activePanel, setActivePanel] = useState<ActivePanel>(null);
   const [isProtectionModalOpen, setIsProtectionModalOpen] = useState<boolean>(false);
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState<boolean>(false);
   const [isNewSeriesModalOpen, setIsNewSeriesModalOpen] = useState<boolean>(false);
   const [lockedModal, setLockedModal] = useState<{
     isOpen: boolean;
@@ -807,6 +865,73 @@ export default function StudioPage() {
         border: none !important;
         box-shadow: none !important;
         padding: 0 !important;
+      }
+      @media print {
+        @page {
+          size: A4 portrait;
+          margin-top: 14mm;
+          margin-bottom: 12mm;
+          margin-left: 10mm;
+          margin-right: 10mm;
+          @bottom-right {
+            content: "Page " counter(page);
+            font-size: 7.5pt;
+            font-family: monospace;
+            color: #64748b;
+          }
+        }
+        body {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          padding-top: 10mm !important;
+          padding-bottom: 8mm !important;
+        }
+        .protection-screen-banner {
+          display: none !important;
+        }
+        .print-running-header {
+          position: fixed !important;
+          top: 0 !important;
+          left: 0 !important;
+          right: 0 !important;
+          height: 28px !important;
+          display: flex !important;
+          justify-content: space-between !important;
+          align-items: center !important;
+          background: #ffffff !important;
+          border-bottom: 0.5px solid #cbd5e1 !important;
+          padding-bottom: 2px !important;
+          margin: 0 !important;
+          z-index: 99999 !important;
+        }
+        .print-running-footer {
+          position: fixed !important;
+          bottom: 0 !important;
+          left: 0 !important;
+          right: 0 !important;
+          height: 18px !important;
+          display: flex !important;
+          justify-content: space-between !important;
+          align-items: center !important;
+          background: #ffffff !important;
+          border-top: 0.5px solid #e2e8f0 !important;
+          padding-top: 2px !important;
+          font-size: 7.5pt !important;
+          color: #64748b !important;
+          z-index: 99999 !important;
+        }
+        .print-running-footer .print-page-num::after {
+          content: counter(page);
+        }
+      }
+      @media screen {
+        .print-running-header,
+        .print-running-footer {
+          display: none !important;
+        }
+        .protection-screen-banner {
+          display: flex !important;
+        }
       }
     </style>`;
     if (!safeHtml.includes("qcm-studio-overrides")) {
@@ -1419,9 +1544,53 @@ export default function StudioPage() {
 
   // ==================== 8. EXPORTATION & IMPRESSION ====================
   const handlePrint = () => {
+    setIsPrintModalOpen(true);
+  };
+
+  const handleLaunchPrint = (options: {
+    repeatProtection: boolean;
+    pageNumbering: boolean;
+    startPage: number;
+    hideAnswers: boolean;
+  }) => {
     const iframe = iframeRef.current;
     if (!iframe || !iframe.contentWindow) return;
-    iframe.contentWindow.print();
+    const doc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (!doc) return;
+
+    if (options.startPage !== startPageNumber) {
+      setStartPageNumber(options.startPage);
+    }
+
+    if (options.hideAnswers) {
+      doc.body.classList.add("study-mode-active", "mode-study");
+    } else {
+      doc.body.classList.remove("study-mode-active", "mode-study");
+    }
+
+    // Dynamic print style for custom start page number & toggles
+    let dynamicPrintStyle = doc.getElementById("qcm-print-dynamic-style");
+    if (!dynamicPrintStyle) {
+      dynamicPrintStyle = doc.createElement("style");
+      dynamicPrintStyle.id = "qcm-print-dynamic-style";
+      doc.head.appendChild(dynamicPrintStyle);
+    }
+
+    const startOffset = Math.max(0, options.startPage - 1);
+    dynamicPrintStyle.textContent = `
+      @media print {
+        body {
+          counter-reset: page ${startOffset} !important;
+        }
+        ${!options.repeatProtection ? ".print-running-header { display: none !important; }" : ""}
+        ${!options.pageNumbering ? ".print-running-footer { display: none !important; } @page { @bottom-right { content: none !important; } }" : ""}
+      }
+    `;
+
+    setIsPrintModalOpen(false);
+    setTimeout(() => {
+      iframe.contentWindow?.print();
+    }, 120);
   };
 
   const handleDownloadHtml = () => {
@@ -1520,7 +1689,7 @@ export default function StudioPage() {
   };
 
   // ==================== 10. PROTECTION ANTI-COPIE & CODE-BARRES ====================
-  // Slim, essential watermark banner: no bulky certified banners or forbidden stamps
+  // Slim, essential watermark banner with HH:mm:ss, running header on every page, and footer numbering
   const applyProtectionWatermark = (passedSvg?: string, finalCode?: string, overrideStudentName?: string) => {
     const iframe = iframeRef.current;
     if (!iframe) return;
@@ -1533,6 +1702,11 @@ export default function StudioPage() {
       passedSvg ||
       generateBarcodeSVG(codeToUse, { height: 32, fontSize: 9, unitWidth: 1.4 });
 
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    const formattedTimestamp = `${now.toLocaleDateString("fr-FR")} ${timeStr}`;
+
+    // 1. On-Screen Watermark Banner
     let existingBanner = doc.querySelector(".protection-screen-banner");
     const bannerHtml = `
       <div class="protection-screen-banner" style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin: -4px 0 6px 0; padding: 0; background: transparent; border: none; box-shadow: none; min-height: 26px;">
@@ -1541,10 +1715,40 @@ export default function StudioPage() {
               <span style="color: #cbd5e1;">•</span>
               <span style="font-family: monospace; font-size: 8pt; color: #475569;">Matricule: ${codeToUse}</span>
               <span style="color: #cbd5e1;">•</span>
-              <span style="font-size: 7.5pt; color: #64748b;">${new Date().toLocaleDateString("fr-FR")}</span>
+              <span style="font-size: 7.5pt; color: #64748b; font-family: monospace; font-weight: 600;">${formattedTimestamp}</span>
           </div>
           <div style="display: flex; align-items: center; gap: 6px; background: transparent; border: none; padding: 0; margin: 0; shrink-0;">
               ${svgToEmbed ? `<div style="background: transparent; padding: 0; border: none; max-height: 32px; overflow: hidden; display: flex; align-items: center;">${svgToEmbed}</div>` : ""}
+          </div>
+      </div>
+    `;
+
+    // 2. Running Print Header (repeated via position: fixed on EVERY page when printing)
+    let existingPrintHeader = doc.querySelector(".print-running-header");
+    const printHeaderHtml = `
+      <div class="print-running-header" style="display: none;">
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 8pt; color: #475569;">
+              <span style="font-weight: 700; color: #0284c7;">${nameToUse}</span>
+              <span style="color: #cbd5e1;">•</span>
+              <span style="font-family: monospace; font-size: 7.5pt; color: #475569;">Matricule: ${codeToUse}</span>
+              <span style="color: #cbd5e1;">•</span>
+              <span style="font-size: 7pt; color: #64748b; font-family: monospace;">${formattedTimestamp}</span>
+          </div>
+          <div style="display: flex; align-items: center; flex-shrink: 0;">
+              ${svgToEmbed ? `<div style="background: transparent; padding: 0; max-height: 26px; overflow: hidden; display: flex; align-items: center;">${svgToEmbed}</div>` : ""}
+          </div>
+      </div>
+    `;
+
+    // 3. Running Print Footer (repeated via position: fixed on EVERY page when printing)
+    let existingPrintFooter = doc.querySelector(".print-running-footer");
+    const printFooterHtml = `
+      <div class="print-running-footer" style="display: none;">
+          <div style="font-size: 7pt; color: #64748b; font-weight: 500;">
+              QCM Studio • Document Médical Résidanat • Exemplaire Nominatif Infalsifiable
+          </div>
+          <div class="print-page-num-box" style="font-size: 7.5pt; color: #475569; font-family: monospace; font-weight: 600;">
+              Page <span class="print-page-num"></span>
           </div>
       </div>
     `;
@@ -1554,6 +1758,18 @@ export default function StudioPage() {
     } else {
       const container = doc.querySelector(".container") || doc.body;
       container.insertAdjacentHTML("afterbegin", bannerHtml);
+    }
+
+    if (existingPrintHeader) {
+      existingPrintHeader.outerHTML = printHeaderHtml;
+    } else {
+      doc.body.insertAdjacentHTML("afterbegin", printHeaderHtml);
+    }
+
+    if (existingPrintFooter) {
+      existingPrintFooter.outerHTML = printFooterHtml;
+    } else {
+      doc.body.insertAdjacentHTML("beforeend", printFooterHtml);
     }
 
     if (overrideStudentName) setStudentName(overrideStudentName);
@@ -1689,6 +1905,8 @@ export default function StudioPage() {
               onStudentCodeChange={setStudentCode}
               onStartPageNumberChange={setStartPageNumber}
               onOpenProtectionModal={() => setIsProtectionModalOpen(true)}
+              onOpenPrintModal={() => setIsPrintModalOpen(true)}
+              isProtected={isProtected}
             />
           )}
         </SidePanel>
@@ -1774,6 +1992,19 @@ export default function StudioPage() {
         onStudentNameChange={setStudentName}
         onStudentCodeChange={setStudentCode}
         onApplyProtection={applyProtectionWatermark}
+      />
+
+      <PrintModal
+        isOpen={isPrintModalOpen}
+        onClose={() => setIsPrintModalOpen(false)}
+        onLaunchPrint={handleLaunchPrint}
+        startPageNumber={startPageNumber}
+        onStartPageNumberChange={setStartPageNumber}
+        isProtected={isProtected}
+        studentName={studentName}
+        studentCode={studentCode}
+        onExportWord={handleExportWord}
+        onDownloadHtml={handleDownloadHtml}
       />
 
       <NewSeriesModal
