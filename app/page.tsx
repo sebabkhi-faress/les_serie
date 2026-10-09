@@ -368,9 +368,34 @@ const DEFAULT_MEDICAL_HTML = `<!DOCTYPE html>
     @media print {
       @page {
         size: A4 portrait;
-        margin: 6mm 10mm 6mm 10mm;
+        margin-top: 6mm;
+        margin-bottom: 9mm;
+        margin-left: 10mm;
+        margin-right: 10mm;
+        @bottom-left {
+          content: "QCM Studio";
+          font-size: 7.5pt;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+          color: #64748b;
+          vertical-align: top;
+          border-top: 0.5px solid #cbd5e1;
+          padding-top: 3px;
+        }
+        @bottom-center {
+          content: "";
+          vertical-align: top;
+          border-top: 0.5px solid #cbd5e1;
+          padding-top: 3px;
+        }
         @bottom-right {
-          content: none !important;
+          content: "Page " counter(page);
+          font-size: 7.5pt;
+          font-family: monospace;
+          font-weight: 600;
+          color: #475569;
+          vertical-align: top;
+          border-top: 0.5px solid #cbd5e1;
+          padding-top: 3px;
         }
       }
       body {
@@ -380,7 +405,8 @@ const DEFAULT_MEDICAL_HTML = `<!DOCTYPE html>
         padding: 0 !important;
       }
       .btn-delete-q,
-      .protection-screen-banner {
+      .protection-screen-banner,
+      .print-footer-container {
         display: none !important;
       }
       table.qcm-print-layout-table {
@@ -399,7 +425,7 @@ const DEFAULT_MEDICAL_HTML = `<!DOCTYPE html>
         padding: 0 !important;
       }
       table.qcm-print-layout-table > tfoot {
-        display: table-footer-group !important;
+        display: none !important;
       }
       table.qcm-print-layout-table > tfoot > tr > td {
         border: none !important;
@@ -426,22 +452,6 @@ const DEFAULT_MEDICAL_HTML = `<!DOCTYPE html>
         padding-bottom: 2px !important;
         margin-bottom: 6px !important;
         background: transparent !important;
-      }
-      .print-footer-container {
-        display: flex !important;
-        justify-content: space-between !important;
-        align-items: center !important;
-        width: 100% !important;
-        height: 18px !important;
-        border-top: 0.5px solid #cbd5e1 !important;
-        padding-top: 2px !important;
-        margin-top: 6px !important;
-        font-size: 7pt !important;
-        color: #64748b !important;
-        background: transparent !important;
-      }
-      .print-footer-container .print-page-num::after {
-        content: counter(page);
       }
       .print-running-header,
       .print-running-footer {
@@ -1083,9 +1093,34 @@ export default function StudioPage() {
       @media print {
         @page {
           size: A4 portrait;
-          margin: 6mm 10mm 6mm 10mm;
+          margin-top: 6mm;
+          margin-bottom: 9mm;
+          margin-left: 10mm;
+          margin-right: 10mm;
+          @bottom-left {
+            content: "QCM Studio";
+            font-size: 7.5pt;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: #64748b;
+            vertical-align: top;
+            border-top: 0.5px solid #cbd5e1;
+            padding-top: 3px;
+          }
+          @bottom-center {
+            content: "";
+            vertical-align: top;
+            border-top: 0.5px solid #cbd5e1;
+            padding-top: 3px;
+          }
           @bottom-right {
-            content: none !important;
+            content: "Page " counter(page);
+            font-size: 7.5pt;
+            font-family: monospace;
+            font-weight: 600;
+            color: #475569;
+            vertical-align: top;
+            border-top: 0.5px solid #cbd5e1;
+            padding-top: 3px;
           }
         }
         body {
@@ -1095,7 +1130,8 @@ export default function StudioPage() {
           padding: 0 !important;
         }
         .btn-delete-q,
-        .protection-screen-banner {
+        .protection-screen-banner,
+        .print-footer-container {
           display: none !important;
         }
         table.qcm-print-layout-table {
@@ -1114,7 +1150,7 @@ export default function StudioPage() {
           padding: 0 !important;
         }
         table.qcm-print-layout-table > tfoot {
-          display: table-footer-group !important;
+          display: none !important;
         }
         table.qcm-print-layout-table > tfoot > tr > td {
           border: none !important;
@@ -1141,22 +1177,6 @@ export default function StudioPage() {
           padding-bottom: 2px !important;
           margin-bottom: 6px !important;
           background: transparent !important;
-        }
-        .print-footer-container {
-          display: flex !important;
-          justify-content: space-between !important;
-          align-items: center !important;
-          width: 100% !important;
-          height: 18px !important;
-          border-top: 0.5px solid #cbd5e1 !important;
-          padding-top: 2px !important;
-          margin-top: 6px !important;
-          font-size: 7pt !important;
-          color: #64748b !important;
-          background: transparent !important;
-        }
-        .print-footer-container .print-page-num::after {
-          content: counter(page);
         }
         .print-running-header,
         .print-running-footer {
@@ -1824,7 +1844,11 @@ export default function StudioPage() {
           counter-reset: page ${startOffset} !important;
         }
         ${!options.repeatProtection || !isProtected ? "table.qcm-print-layout-table > thead { display: none !important; }" : ""}
-        ${!options.pageNumbering ? "table.qcm-print-layout-table > tfoot { display: none !important; } @page { @bottom-right { content: none !important; } }" : ""}
+        ${
+          !options.pageNumbering
+            ? "@page { @bottom-right { content: none !important; } @bottom-left { content: none !important; } @bottom-center { content: none !important; } }"
+            : ""
+        }
       }
     `;
 
@@ -1969,17 +1993,8 @@ export default function StudioPage() {
       </div>
     `;
 
-    // 3. Running Print Footer (repeated via tfoot table-footer-group on EVERY page when printing)
-    tfootCell.innerHTML = `
-      <div class="print-footer-container">
-        <div style="font-size: 7pt; color: #64748b; font-weight: 500;">
-          QCM Studio  
-        </div>
-        <div class="print-page-num-box" style="font-size: 7.5pt; color: #475569; font-family: monospace; font-weight: 600;">
-          Page <span class="print-page-num"></span>
-        </div>
-      </div>
-    `;
+    // 3. Clear table footer cell (running footer and dynamic page numbers are rendered via @page margin boxes)
+    tfootCell.innerHTML = "";
 
     // 4. On-Screen Watermark Banner (visible only on screen inside contentCell)
     let existingBanner = contentCell.querySelector(".protection-screen-banner") || doc.querySelector(".protection-screen-banner");

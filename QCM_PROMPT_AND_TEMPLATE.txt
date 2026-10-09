@@ -442,9 +442,34 @@ PARTIE 3 : DOCUMENT HTML COMPLET AUTONOME (AVEC STYLES CSS INTÉGRÉS)
     @media print {
       @page {
         size: A4 portrait;
-        margin: 6mm 10mm 6mm 10mm;
+        margin-top: 6mm;
+        margin-bottom: 9mm;
+        margin-left: 10mm;
+        margin-right: 10mm;
+        @bottom-left {
+          content: "QCM Studio";
+          font-size: 7.5pt;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+          color: #64748b;
+          vertical-align: top;
+          border-top: 0.5px solid #cbd5e1;
+          padding-top: 3px;
+        }
+        @bottom-center {
+          content: "";
+          vertical-align: top;
+          border-top: 0.5px solid #cbd5e1;
+          padding-top: 3px;
+        }
         @bottom-right {
-          content: none !important;
+          content: "Page " counter(page);
+          font-size: 7.5pt;
+          font-family: monospace;
+          font-weight: 600;
+          color: #475569;
+          vertical-align: top;
+          border-top: 0.5px solid #cbd5e1;
+          padding-top: 3px;
         }
       }
       body {
@@ -454,7 +479,8 @@ PARTIE 3 : DOCUMENT HTML COMPLET AUTONOME (AVEC STYLES CSS INTÉGRÉS)
         padding: 0 !important;
       }
       .btn-delete-q,
-      .protection-screen-banner {
+      .protection-screen-banner,
+      .print-footer-container {
         display: none !important;
       }
       table.qcm-print-layout-table {
@@ -473,7 +499,7 @@ PARTIE 3 : DOCUMENT HTML COMPLET AUTONOME (AVEC STYLES CSS INTÉGRÉS)
         padding: 0 !important;
       }
       table.qcm-print-layout-table > tfoot {
-        display: table-footer-group !important;
+        display: none !important;
       }
       table.qcm-print-layout-table > tfoot > tr > td {
         border: none !important;
@@ -500,22 +526,6 @@ PARTIE 3 : DOCUMENT HTML COMPLET AUTONOME (AVEC STYLES CSS INTÉGRÉS)
         padding-bottom: 2px !important;
         margin-bottom: 6px !important;
         background: transparent !important;
-      }
-      .print-footer-container {
-        display: flex !important;
-        justify-content: space-between !important;
-        align-items: center !important;
-        width: 100% !important;
-        height: 18px !important;
-        border-top: 0.5px solid #cbd5e1 !important;
-        padding-top: 2px !important;
-        margin-top: 6px !important;
-        font-size: 7pt !important;
-        color: #64748b !important;
-        background: transparent !important;
-      }
-      .print-footer-container .print-page-num::after {
-        content: counter(page);
       }
       .print-running-header,
       .print-running-footer {
@@ -617,12 +627,7 @@ PARTIE 3 : DOCUMENT HTML COMPLET AUTONOME (AVEC STYLES CSS INTÉGRÉS)
     </tbody>
     <tfoot>
       <tr>
-        <td style="border: none; padding: 0;">
-          <div class="print-footer-container">
-            <div>QCM Studio  </div>
-            <div>Page <span class="print-page-num"></span></div>
-          </div>
-        </td>
+        <td style="border: none; padding: 0;"></td>
       </tr>
     </tfoot>
   </table>
