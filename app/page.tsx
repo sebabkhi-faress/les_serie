@@ -43,11 +43,11 @@ const DEFAULT_MEDICAL_HTML = `<!DOCTYPE html>
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       margin: 0;
-      padding: 14px 20px;
+      padding: 10px 16px;
       color: #0f172a;
       background: #ffffff;
-      line-height: 1.4;
-      font-size: 9.5pt;
+      line-height: 1.35;
+      font-size: 9pt;
     }
     .doc-header-container {
       margin-bottom: 12px;
@@ -151,13 +151,14 @@ const DEFAULT_MEDICAL_HTML = `<!DOCTYPE html>
       justify-content: space-between !important;
       align-items: center !important;
       width: 100% !important;
-      margin: -6px 0 8px 0 !important;
+      margin: -4px 0 6px 0 !important;
       padding: 0 !important;
       background: transparent !important;
       border: none !important;
       border-left: none !important;
       box-shadow: none !important;
       border-radius: 0 !important;
+      min-height: 26px !important;
     }
     .protection-screen-banner > div,
     .protection-screen-banner > div > div {
@@ -168,52 +169,53 @@ const DEFAULT_MEDICAL_HTML = `<!DOCTYPE html>
     }
     .course-header-banner {
       text-align: center;
-      margin: 8px 0 12px 0;
+      margin: 6px 0 10px 0;
     }
     .course-header-banner h2 {
       margin: 0;
-      font-size: 12pt;
+      font-size: 11pt;
       font-weight: 800;
       color: #0f172a;
       text-decoration: underline;
     }
     .question-box {
-      margin-bottom: 12px;
-      padding: 10px 14px;
-      border: 1.5px solid #38bdf8;
-      border-left: 5px solid #0284c7;
-      border-radius: 8px;
+      margin-bottom: 8px;
+      padding: 6px 10px;
+      border: 1px solid #7dd3fc;
+      border-left: 4.5px solid #0284c7;
+      border-radius: 6px;
       background: #ffffff;
       page-break-inside: avoid;
       position: relative;
       box-sizing: border-box;
+      box-shadow: 0 1px 2px rgba(2, 132, 199, 0.04);
     }
     .question-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 5px;
+      margin-bottom: 3px;
       gap: 6px;
     }
     .q-stem {
       font-weight: 700;
       color: #0f172a;
-      font-size: 9.5pt;
-      line-height: 1.35;
+      font-size: 9pt;
+      line-height: 1.3;
     }
     .q-num {
       color: #0284c7;
       font-weight: 800;
-      font-size: 9.5pt;
+      font-size: 9pt;
     }
     .year-badge {
-      font-size: 8pt;
+      font-size: 7.5pt;
       font-weight: 600;
       color: #0284c7;
       background: #f0f9ff;
-      border: 1px solid #38bdf8;
-      padding: 2px 8px;
-      border-radius: 10px;
+      border: 1px solid #7dd3fc;
+      padding: 1px 6px;
+      border-radius: 5px;
       white-space: nowrap;
     }
     .btn-delete-q {
@@ -221,9 +223,9 @@ const DEFAULT_MEDICAL_HTML = `<!DOCTYPE html>
       border: 1px solid transparent;
       color: #94a3b8;
       cursor: pointer;
-      font-size: 11px;
-      padding: 2px 5px;
-      border-radius: 4px;
+      font-size: 10px;
+      padding: 1px 4px;
+      border-radius: 3px;
       line-height: 1;
       transition: all 120ms;
     }
@@ -233,73 +235,74 @@ const DEFAULT_MEDICAL_HTML = `<!DOCTYPE html>
       border-color: #fca5a5;
     }
     .items-list {
-      margin: 4px 0 6px 0;
-      padding-left: 4px;
+      margin: 2px 0 4px 0;
+      padding-left: 2px;
       color: #0f172a;
-      line-height: 1.4;
-      font-size: 9.5pt;
+      line-height: 1.3;
+      font-size: 8.5pt;
     }
     .propositions-list {
-      margin: 4px 0 6px 0;
-      padding-left: 4px;
-      color: #1e293b;
+      margin: 2px 0 4px 0;
+      padding-left: 2px;
+      color: #0f172a;
       font-weight: 500;
-      line-height: 1.4;
-      font-size: 9.5pt;
+      line-height: 1.3;
+      font-size: 8.5pt;
     }
     ol.options {
-      margin: 5px 0;
-      padding-left: 18px;
+      margin: 3px 0 4px 0;
+      padding-left: 16px;
       color: #1e293b;
-      line-height: 1.4;
-      font-size: 9.5pt;
+      line-height: 1.3;
+      font-size: 8.5pt;
     }
     ol.options li {
-      margin-bottom: 2px;
+      margin-bottom: 1.5px;
     }
     .answer-section {
-      margin-top: 6px;
-      padding-top: 5px;
+      margin-top: 4px;
+      padding-top: 3px;
       border-top: 1px dashed #cbd5e1;
-      font-size: 8.5pt;
+      font-size: 8pt;
     }
     .answer-line {
       display: flex;
       align-items: center;
-      gap: 6px;
-      margin-bottom: 4px;
+      gap: 5px;
+      margin-bottom: 2px;
     }
     .answer-label {
       font-weight: 800;
       color: #0284c7;
-      font-size: 8.5pt;
+      font-size: 8pt;
       letter-spacing: 0.5px;
     }
     .answer-badge {
       background: #059669;
       color: #ffffff;
       font-weight: 800;
-      font-size: 8.5pt;
-      padding: 1.5px 7px;
-      border-radius: 4px;
+      font-size: 8pt;
+      padding: 1px 5px;
+      border-radius: 3px;
       display: inline-block;
     }
     .justification-title {
       font-weight: 800;
       color: #0284c7;
-      font-size: 8.5pt;
-      margin-top: 4px;
+      font-size: 8pt;
+      margin-top: 2px;
       letter-spacing: 0.5px;
     }
     .justifications {
-      margin: 3px 0 0 0;
-      padding-left: 15px;
+      margin: 1.5px 0 0 0;
+      padding-left: 14px;
       color: #334155;
       list-style-type: disc;
     }
     .justifications li {
-      margin-bottom: 2px;
-      line-height: 1.35;
+      margin-bottom: 1.5px;
+      line-height: 1.28;
+      font-size: 8pt;
     }
     .text-correct {
       color: #059669;
@@ -789,13 +792,14 @@ export default function StudioPage() {
         justify-content: space-between !important;
         align-items: center !important;
         width: 100% !important;
-        margin: -6px 0 8px 0 !important;
+        margin: -4px 0 6px 0 !important;
         padding: 0 !important;
         background: transparent !important;
         border: none !important;
         border-left: none !important;
         box-shadow: none !important;
         border-radius: 0 !important;
+        min-height: 26px !important;
       }
       .protection-screen-banner > div,
       .protection-screen-banner > div > div {
@@ -1531,7 +1535,7 @@ export default function StudioPage() {
 
     let existingBanner = doc.querySelector(".protection-screen-banner");
     const bannerHtml = `
-      <div class="protection-screen-banner" style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin: -6px 0 8px 0; padding: 0; background: transparent; border: none; box-shadow: none;">
+      <div class="protection-screen-banner" style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin: -4px 0 6px 0; padding: 0; background: transparent; border: none; box-shadow: none; min-height: 26px;">
           <div style="display: flex; align-items: center; gap: 8px; font-size: 8.5pt; color: #475569; flex-wrap: wrap;">
               <span style="font-weight: 700; color: #0284c7;">${nameToUse}</span>
               <span style="color: #cbd5e1;">•</span>
