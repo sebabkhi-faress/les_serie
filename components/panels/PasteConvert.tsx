@@ -93,35 +93,35 @@ export function PasteConvert({ onInsertHtml, onSendToAi }: PasteConvertProps) {
   ) => {
     return `
     <!-- QUESTION ${num} -->
-    <div class="question-box" style="margin-bottom: 20px; padding: 14px 18px; border: 1.5px solid #38bdf8; border-left: 5px solid #0284c7; border-radius: 8px; background: #ffffff; page-break-inside: avoid; position: relative;">
-      <div class="question-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 8px;">
+    <div class="question-box" style="margin-bottom: 12px; padding: 10px 14px; border: 1.5px solid #38bdf8; border-left: 5px solid #0284c7; border-radius: 8px; background: #ffffff; page-break-inside: avoid; position: relative;">
+      <div class="question-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; gap: 6px;">
         <div style="display: flex; align-items: baseline; gap: 4px;">
-          <span class="q-num" style="color: #0284c7; font-weight: 800; font-size: 10pt;">Question ${num} :</span>
-          <span class="q-stem" style="font-weight: 700; color: #0f172a; font-size: 10pt;">${stem}</span>
+          <span class="q-num" style="color: #0284c7; font-weight: 800; font-size: 9.5pt;">Question ${num} :</span>
+          <span class="q-stem" style="font-weight: 700; color: #0f172a; font-size: 9.5pt;">${stem}</span>
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
-          <span class="year-badge" style="font-size: 8.5pt; font-weight: 600; color: #0284c7; background: #f0f9ff; border: 1px solid #38bdf8; padding: 2px 10px; border-radius: 12px; white-space: nowrap;">(${year})</span>
+          <span class="year-badge" style="font-size: 8pt; font-weight: 600; color: #0284c7; background: #f0f9ff; border: 1px solid #38bdf8; padding: 2px 8px; border-radius: 10px; white-space: nowrap;">(${year})</span>
           <button type="button" class="btn-delete-q" title="Supprimer cette question" onclick="window.parent?.postMessage({type:'REQUEST_DELETE_QUESTION', num: '${num}'},'*');">✕</button>
         </div>
       </div>
-      <ol class="options alpha" style="margin: 8px 0; padding-left: 20px; color: #1e293b; line-height: 1.5;">
+      <ol class="options alpha" style="margin: 5px 0; padding-left: 18px; color: #1e293b; line-height: 1.4; font-size: 9.5pt;">
         ${opts.map((opt) => `<li>${opt}</li>`).join("\n        ")}
       </ol>
-      <div class="answer-section" style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed #cbd5e1; font-size: 8.5pt;">
-        <div class="answer-line" style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+      <div class="answer-section" style="margin-top: 6px; padding-top: 5px; border-top: 1px dashed #cbd5e1; font-size: 8.5pt;">
+        <div class="answer-line" style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
           <span class="answer-label" style="font-weight: 800; color: #0284c7; font-size: 8.5pt; letter-spacing: 0.5px;">RÉPONSE :</span>
-          <span class="answer-badge" style="background: #059669; color: #ffffff; font-weight: 800; font-size: 9pt; padding: 2px 8px; border-radius: 4px; display: inline-block;">${ans || "A"}</span>
+          <span class="answer-badge" style="background: #059669; color: #ffffff; font-weight: 800; font-size: 8.5pt; padding: 1.5px 7px; border-radius: 4px; display: inline-block;">${ans || "A"}</span>
         </div>
         ${
           justs.length > 0
-            ? `<div class="justification-title" style="font-weight: 800; color: #0284c7; font-size: 8.5pt; margin-top: 6px; letter-spacing: 0.5px;">JUSTIFICATION :</div>
-        <ul class="justifications" style="margin: 4px 0 0 0; padding-left: 16px; color: #334155; list-style-type: disc;">
+            ? `<div class="justification-title" style="font-weight: 800; color: #0284c7; font-size: 8.5pt; margin-top: 4px; letter-spacing: 0.5px;">JUSTIFICATION :</div>
+        <ul class="justifications" style="margin: 3px 0 0 0; padding-left: 15px; color: #334155; list-style-type: disc;">
           ${justs
             .map((j) => {
               const formatted = j
                 .replace(/^([A-Ea-e]\s*:\s*Vrai)/i, '<strong class="text-correct" style="color: #059669; font-weight: 700;">$1</strong>')
                 .replace(/^([A-Ea-e]\s*:\s*Faux)/i, '<strong class="text-incorrect" style="color: #dc2626; font-weight: 700;">$1</strong>');
-              return `<li>${formatted}</li>`;
+              return `<li style="margin-bottom: 2px; line-height: 1.35;">${formatted}</li>`;
             })
             .join("\n          ")}
         </ul>`

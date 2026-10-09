@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { stripGeneratedHeaderToolbar } from "@/lib/htmlSanitizer";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "";
@@ -26,7 +27,8 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const content = await data.text();
+    const rawContent = await data.text();
+    const content = stripGeneratedHeaderToolbar(rawContent);
     return NextResponse.json(
       { filename, content },
       { headers: { "Content-Type": "application/json; charset=utf-8" } }
@@ -52,7 +54,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const fileBuffer = Buffer.from(content, "utf-8");
+    const sanitizedContent = stripGeneratedHeaderToolbar(content);
+    const fileBuffer = Buffer.from(sanitizedContent, "utf-8");
     const { data, error } = await supabase.storage.from("storage").upload(filename, fileBuffer, {
       contentType: "text/html; charset=utf-8",
       upsert: true,

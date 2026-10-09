@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { stripGeneratedHeaderToolbar } from "@/lib/htmlSanitizer";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "";
@@ -51,10 +52,19 @@ export async function POST(req: NextRequest) {
       filename += ".html";
     }
 
-    const fileBuffer = file
-      ? Buffer.from(await file.arrayBuffer())
-      : Buffer.from(
-          `<!DOCTYPE html>
+    let fileBuffer: Buffer;
+    if (file) {
+      const rawBuf = Buffer.from(await file.arrayBuffer());
+      if (filename.endsWith(".html")) {
+        const text = rawBuf.toString("utf-8");
+        const sanitized = stripGeneratedHeaderToolbar(text);
+        fileBuffer = Buffer.from(sanitized, "utf-8");
+      } else {
+        fileBuffer = rawBuf;
+      }
+    } else {
+      fileBuffer = Buffer.from(
+        `<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="utf-8">
@@ -64,8 +74,9 @@ export async function POST(req: NextRequest) {
   <h1>Nouvelle Série de QCM</h1>
 </body>
 </html>`,
-          "utf-8"
-        );
+        "utf-8"
+      );
+    }
     const contentType = filename.endsWith(".pdf") ? "application/pdf" : "text/html; charset=utf-8";
 
     const { data, error } = await supabase.storage.from("storage").upload(filename, fileBuffer, {

@@ -29,6 +29,7 @@ import {
   AttachedImage,
 } from "@/types/studio";
 import { generateBarcodeSVG } from "@/lib/barcode";
+import { stripGeneratedHeaderToolbar } from "@/lib/htmlSanitizer";
 
 const DEFAULT_MEDICAL_HTML = `<!DOCTYPE html>
 <html lang="fr">
@@ -36,26 +37,29 @@ const DEFAULT_MEDICAL_HTML = `<!DOCTYPE html>
   <meta charset="utf-8">
   <title>Série d'Annales Médicales</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       margin: 0;
-      padding: 24px;
+      padding: 14px 20px;
       color: #0f172a;
       background: #ffffff;
-      line-height: 1.45;
-      font-size: 10pt;
+      line-height: 1.4;
+      font-size: 9.5pt;
     }
     .doc-header-container {
-      margin-bottom: 22px;
+      margin-bottom: 12px;
       page-break-inside: avoid;
     }
     .doc-section-field {
-      min-height: 28px;
+      min-height: 24px;
       display: block;
       clear: both;
       position: relative;
       box-sizing: border-box;
-      margin: 6px 0;
+      margin: 4px 0;
       text-align: center;
       outline: none;
       border-radius: 4px;
@@ -78,35 +82,35 @@ const DEFAULT_MEDICAL_HTML = `<!DOCTYPE html>
       display: inline-block;
     }
     .doc-section-field:empty {
-      min-height: 28px;
-      line-height: 28px;
+      min-height: 24px;
+      line-height: 24px;
     }
     .doc-section-field.module-field {
       color: #0369a1;
-      font-size: 13.5pt;
+      font-size: 13pt;
       font-weight: 800;
       letter-spacing: 0.3px;
       text-transform: uppercase;
-      min-height: 32px;
+      min-height: 28px;
     }
     .doc-section-field.section-field {
       color: #0f172a;
-      font-size: 11.5pt;
+      font-size: 11pt;
       font-weight: 700;
-      min-height: 26px;
+      min-height: 24px;
     }
     .doc-section-field.course-field {
       color: #0f172a;
-      font-size: 12.5pt;
+      font-size: 12pt;
       font-weight: 800;
       text-decoration: underline;
-      min-height: 30px;
+      min-height: 26px;
     }
     .doc-divider {
       height: 2px;
       background-color: #0284c7;
       border: none;
-      margin: 12px auto 16px auto;
+      margin: 8px auto 10px auto;
       width: 100%;
       display: block;
       clear: both;
@@ -115,29 +119,29 @@ const DEFAULT_MEDICAL_HTML = `<!DOCTYPE html>
       border: 1.5px solid #0284c7;
       background: #ffffff;
       border-radius: 6px;
-      padding: 7px 18px;
-      margin: 14px auto;
+      padding: 6px 14px;
+      margin: 8px auto;
       max-width: 580px;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
+      gap: 8px;
       color: #0284c7;
-      font-size: 9.5pt;
+      font-size: 9pt;
       font-weight: 500;
       box-sizing: border-box;
-      min-height: 36px;
+      min-height: 32px;
     }
     .notice-icon-badge {
       background: #0284c7;
       color: #ffffff;
-      width: 17px;
-      height: 17px;
+      width: 16px;
+      height: 16px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       border-radius: 3px;
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 800;
       font-family: monospace;
       flex-shrink: 0;
@@ -147,7 +151,7 @@ const DEFAULT_MEDICAL_HTML = `<!DOCTYPE html>
       justify-content: space-between !important;
       align-items: center !important;
       width: 100% !important;
-      margin: -14px 0 10px 0 !important;
+      margin: -6px 0 8px 0 !important;
       padding: 0 !important;
       background: transparent !important;
       border: none !important;
@@ -164,50 +168,52 @@ const DEFAULT_MEDICAL_HTML = `<!DOCTYPE html>
     }
     .course-header-banner {
       text-align: center;
-      margin: 14px 0 20px 0;
+      margin: 8px 0 12px 0;
     }
     .course-header-banner h2 {
       margin: 0;
-      font-size: 13pt;
+      font-size: 12pt;
       font-weight: 800;
       color: #0f172a;
       text-decoration: underline;
     }
     .question-box {
-      margin-bottom: 20px;
-      padding: 14px 18px;
+      margin-bottom: 12px;
+      padding: 10px 14px;
       border: 1.5px solid #38bdf8;
       border-left: 5px solid #0284c7;
       border-radius: 8px;
       background: #ffffff;
       page-break-inside: avoid;
       position: relative;
+      box-sizing: border-box;
     }
     .question-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 8px;
-      gap: 8px;
+      margin-bottom: 5px;
+      gap: 6px;
     }
     .q-stem {
       font-weight: 700;
       color: #0f172a;
-      font-size: 10pt;
+      font-size: 9.5pt;
+      line-height: 1.35;
     }
     .q-num {
       color: #0284c7;
       font-weight: 800;
-      font-size: 10pt;
+      font-size: 9.5pt;
     }
     .year-badge {
-      font-size: 8.5pt;
+      font-size: 8pt;
       font-weight: 600;
       color: #0284c7;
       background: #f0f9ff;
       border: 1px solid #38bdf8;
-      padding: 2px 10px;
-      border-radius: 12px;
+      padding: 2px 8px;
+      border-radius: 10px;
       white-space: nowrap;
     }
     .btn-delete-q {
@@ -227,38 +233,41 @@ const DEFAULT_MEDICAL_HTML = `<!DOCTYPE html>
       border-color: #fca5a5;
     }
     .items-list {
-      margin: 8px 0;
+      margin: 4px 0 6px 0;
       padding-left: 4px;
       color: #0f172a;
-      line-height: 1.5;
+      line-height: 1.4;
+      font-size: 9.5pt;
     }
     .propositions-list {
-      margin: 8px 0 10px 0;
+      margin: 4px 0 6px 0;
       padding-left: 4px;
       color: #1e293b;
       font-weight: 500;
-      line-height: 1.5;
+      line-height: 1.4;
+      font-size: 9.5pt;
     }
     ol.options {
-      margin: 8px 0;
-      padding-left: 20px;
+      margin: 5px 0;
+      padding-left: 18px;
       color: #1e293b;
-      line-height: 1.5;
+      line-height: 1.4;
+      font-size: 9.5pt;
     }
     ol.options li {
-      margin-bottom: 3px;
+      margin-bottom: 2px;
     }
     .answer-section {
-      margin-top: 10px;
-      padding-top: 8px;
+      margin-top: 6px;
+      padding-top: 5px;
       border-top: 1px dashed #cbd5e1;
       font-size: 8.5pt;
     }
     .answer-line {
       display: flex;
       align-items: center;
-      gap: 8px;
-      margin-bottom: 6px;
+      gap: 6px;
+      margin-bottom: 4px;
     }
     .answer-label {
       font-weight: 800;
@@ -270,8 +279,8 @@ const DEFAULT_MEDICAL_HTML = `<!DOCTYPE html>
       background: #059669;
       color: #ffffff;
       font-weight: 800;
-      font-size: 9pt;
-      padding: 2px 8px;
+      font-size: 8.5pt;
+      padding: 1.5px 7px;
       border-radius: 4px;
       display: inline-block;
     }
@@ -279,17 +288,18 @@ const DEFAULT_MEDICAL_HTML = `<!DOCTYPE html>
       font-weight: 800;
       color: #0284c7;
       font-size: 8.5pt;
-      margin-top: 6px;
+      margin-top: 4px;
       letter-spacing: 0.5px;
     }
     .justifications {
-      margin: 4px 0 0 0;
-      padding-left: 16px;
+      margin: 3px 0 0 0;
+      padding-left: 15px;
       color: #334155;
       list-style-type: disc;
     }
     .justifications li {
-      margin-bottom: 3px;
+      margin-bottom: 2px;
+      line-height: 1.35;
     }
     .text-correct {
       color: #059669;
@@ -302,17 +312,24 @@ const DEFAULT_MEDICAL_HTML = `<!DOCTYPE html>
     .study-mode-active .answer-section {
       display: none !important;
     }
-    /* Hide duplicate action bar inside A4 document */
-    .screen-toolbar, aside.screen-toolbar, .toolbar-brand, .toolbar-tags, .toolbar-actions,
+    /* Hide duplicate action bar and screen controls inside A4 document */
+    .screen-control-bar, .screen-toolbar, aside.screen-toolbar, .toolbar-brand, .toolbar-tags, .toolbar-actions,
+    .badge-info, .action-buttons, .action-btn, #toggle-study-btn,
     .document-header-bar, .header-bar, .exam-top-bar, .action-bar-top, .header-actions,
-    .study-header, [class*="action-bar"], [class*="action_bar"], .ue1-header-actions,
+    .study-header, [class*="action-bar"], [class*="action_bar"], [class*="screen-control"],
+    [class*="screen-toolbar"], .ue1-header-actions,
     button.print-btn, button.mode-btn, .btn-toggle-mode, .btn-print {
       display: none !important;
       visibility: hidden !important;
       height: 0 !important;
+      min-height: 0 !important;
+      max-height: 0 !important;
       overflow: hidden !important;
       margin: 0 !important;
       padding: 0 !important;
+      border: none !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
     }
     @media print {
       .btn-delete-q {
@@ -678,36 +695,44 @@ export default function StudioPage() {
     const doc = iframe.contentDocument || iframe.contentWindow?.document;
     if (!doc) return;
 
-    // Ensure utf-8 charset and hide rules for duplicate action header inside document
-    let safeHtml = html;
+    // Nettoyer les barres d'outils et contrôles parasites avant injection
+    let safeHtml = stripGeneratedHeaderToolbar(html);
     if (!safeHtml.includes('charset="utf-8"')) {
       safeHtml = safeHtml.replace("<head>", '<head><meta charset="utf-8">');
     }
 
     // Add CSS rule hiding any duplicate header bar inside document and enforcing section field isolation
     const hideHeaderCss = `<style id="qcm-studio-overrides">
-      .screen-toolbar, aside.screen-toolbar, .toolbar-brand, .toolbar-tags, .toolbar-actions,
+      .screen-control-bar, .screen-toolbar, aside.screen-toolbar,
+      .badge-info, .action-buttons, .action-btn, #toggle-study-btn,
+      .toolbar-brand, .toolbar-tags, .toolbar-actions,
       .document-header-bar, .header-bar, .exam-top-bar, .action-bar-top, .header-actions,
-      .study-header, [class*="action-bar"], [class*="action_bar"], .ue1-header-actions,
+      .study-header, [class*="action-bar"], [class*="action_bar"], [class*="screen-control"],
+      [class*="screen-toolbar"], .ue1-header-actions,
       button.print-btn, button.mode-btn, .btn-toggle-mode, .btn-print {
         display: none !important;
         visibility: hidden !important;
         height: 0 !important;
+        min-height: 0 !important;
+        max-height: 0 !important;
         overflow: hidden !important;
         margin: 0 !important;
         padding: 0 !important;
+        border: none !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
       }
       .study-mode-active .answer-section {
         display: none !important;
       }
       /* Strict Section Field Isolation: prevents fields from collapsing or mixing when text is emptied */
       .doc-section-field {
-        min-height: 28px !important;
+        min-height: 24px !important;
         display: block !important;
         clear: both !important;
         position: relative !important;
         box-sizing: border-box !important;
-        margin: 6px 0 !important;
+        margin: 4px 0 !important;
         text-align: center !important;
       }
       .doc-section-field:empty::before,
@@ -723,7 +748,7 @@ export default function StudioPage() {
         height: 2px !important;
         background-color: #0284c7 !important;
         border: none !important;
-        margin: 12px auto 16px auto !important;
+        margin: 8px auto 10px auto !important;
         width: 100% !important;
         display: block !important;
         clear: both !important;
@@ -732,29 +757,29 @@ export default function StudioPage() {
         border: 1.5px solid #0284c7 !important;
         background: #ffffff !important;
         border-radius: 6px !important;
-        padding: 7px 18px !important;
-        margin: 14px auto !important;
+        padding: 6px 14px !important;
+        margin: 8px auto !important;
         max-width: 580px !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        gap: 10px !important;
+        gap: 8px !important;
         color: #0284c7 !important;
-        font-size: 9.5pt !important;
+        font-size: 9pt !important;
         font-weight: 500 !important;
         box-sizing: border-box !important;
-        min-height: 36px !important;
+        min-height: 32px !important;
       }
       .notice-icon-badge {
         background: #0284c7 !important;
         color: #ffffff !important;
-        width: 17px !important;
-        height: 17px !important;
+        width: 16px !important;
+        height: 16px !important;
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
         border-radius: 3px !important;
-        font-size: 11px !important;
+        font-size: 10.5px !important;
         font-weight: 800 !important;
         font-family: monospace !important;
       }
@@ -764,7 +789,7 @@ export default function StudioPage() {
         justify-content: space-between !important;
         align-items: center !important;
         width: 100% !important;
-        margin: -14px 0 8px 0 !important;
+        margin: -6px 0 8px 0 !important;
         padding: 0 !important;
         background: transparent !important;
         border: none !important;
@@ -788,10 +813,31 @@ export default function StudioPage() {
     doc.write(safeHtml);
     doc.close();
 
-    // Supprimer tout vestige de toolbar statique hérité directement du DOM
-    doc.querySelectorAll(
-      ".screen-toolbar, aside.screen-toolbar, .document-header-bar, .header-bar, .exam-top-bar, .action-bar-top, .header-actions"
-    ).forEach((el) => el.remove());
+    // Supprimer systématiquement tout vestige de toolbar ou barre de contrôle d'écran hérité
+    const unwantedSelectors = [
+      ".screen-control-bar",
+      ".screen-toolbar",
+      "aside.screen-toolbar",
+      ".document-header-bar",
+      ".header-bar",
+      ".exam-top-bar",
+      ".action-bar-top",
+      ".header-actions",
+      ".study-header",
+      "[class*='screen-control']",
+      "[class*='screen-toolbar']",
+    ];
+    doc.querySelectorAll(unwantedSelectors.join(", ")).forEach((el) => el.remove());
+
+    // Recherche et suppression ciblée : tout élément contenant le texte spécifique de cette barre
+    doc.querySelectorAll("div, aside, header, nav").forEach((el) => {
+      const txt = (el.textContent || "").trim();
+      const hasModelBadge = txt.includes("Série conforme au modèle officiel") || txt.includes("Format A4 Médical");
+      const hasActionButtons = txt.includes("Mode Étude") || txt.includes("Imprimer / Exporter PDF");
+      if ((hasModelBadge && hasActionButtons) || el.classList.contains("screen-control-bar") || el.classList.contains("badge-info")) {
+        el.remove();
+      }
+    });
 
     if (doc.body) {
       doc.body.contentEditable = viewMode === "edit" ? "true" : "false";
@@ -932,8 +978,9 @@ export default function StudioPage() {
       const res = await fetch(`/api/storage/content?filename=${encodeURIComponent(filename)}`);
       const data = await res.json();
       if (data.content && data.content.trim().length > 0) {
-        setDocumentContent(data.content);
-        injectIntoIframe(data.content);
+        const cleanContent = stripGeneratedHeaderToolbar(data.content);
+        setDocumentContent(cleanContent);
+        injectIntoIframe(cleanContent);
         setSaveStatus("saved");
         setLastSavedTime(new Date().toLocaleTimeString("fr-FR"));
       } else {
@@ -1411,7 +1458,14 @@ export default function StudioPage() {
     if (!file) return;
 
     const formData = new FormData();
-    formData.append("file", file);
+    if (file.name.endsWith(".html")) {
+      const text = await file.text();
+      const cleaned = stripGeneratedHeaderToolbar(text);
+      const cleanedBlob = new Blob([cleaned], { type: "text/html;charset=utf-8" });
+      formData.append("file", cleanedBlob, file.name);
+    } else {
+      formData.append("file", file);
+    }
 
     try {
       const res = await fetch("/api/storage/files", {
@@ -1477,7 +1531,7 @@ export default function StudioPage() {
 
     let existingBanner = doc.querySelector(".protection-screen-banner");
     const bannerHtml = `
-      <div class="protection-screen-banner" style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin: -14px 0 8px 0; padding: 0; background: transparent; border: none; box-shadow: none;">
+      <div class="protection-screen-banner" style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin: -6px 0 8px 0; padding: 0; background: transparent; border: none; box-shadow: none;">
           <div style="display: flex; align-items: center; gap: 8px; font-size: 8.5pt; color: #475569; flex-wrap: wrap;">
               <span style="font-weight: 700; color: #0284c7;">${nameToUse}</span>
               <span style="color: #cbd5e1;">•</span>
