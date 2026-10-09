@@ -629,7 +629,7 @@ export default function StudioPage() {
     isOpen: false,
     title: "",
     description: "",
-    onConfirm: () => {},
+    onConfirm: () => { },
   });
 
   const [promptModal, setPromptModal] = useState<{
@@ -645,7 +645,7 @@ export default function StudioPage() {
   }>({
     isOpen: false,
     title: "",
-    onSubmit: () => {},
+    onSubmit: () => { },
   });
 
   // ==================== PRINT LAYOUT TABLE WRAPPER ====================
@@ -1682,9 +1682,9 @@ export default function StudioPage() {
           prompt: userText,
           image: attachedImage
             ? {
-                mimeType: attachedImage.mimeType,
-                data: attachedImage.base64,
-              }
+              mimeType: attachedImage.mimeType,
+              data: attachedImage.base64,
+            }
             : undefined,
           currentHtml: documentContent,
           history: chatMessages.slice(-6),
@@ -1973,7 +1973,7 @@ export default function StudioPage() {
     tfootCell.innerHTML = `
       <div class="print-footer-container">
         <div style="font-size: 7pt; color: #64748b; font-weight: 500;">
-          QCM Studio • Document Médical Résidanat • Exemplaire Nominatif Infalsifiable
+          QCM Studio  
         </div>
         <div class="print-page-num-box" style="font-size: 7.5pt; color: #475569; font-family: monospace; font-weight: 600;">
           Page <span class="print-page-num"></span>

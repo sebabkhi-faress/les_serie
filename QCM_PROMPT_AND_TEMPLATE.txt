@@ -619,7 +619,7 @@ PARTIE 3 : DOCUMENT HTML COMPLET AUTONOME (AVEC STYLES CSS INTÉGRÉS)
       <tr>
         <td style="border: none; padding: 0;">
           <div class="print-footer-container">
-            <div>QCM Studio • Document Médical Résidanat • Exemplaire Nominatif Infalsifiable</div>
+            <div>QCM Studio  </div>
             <div>Page <span class="print-page-num"></span></div>
           </div>
         </td>
